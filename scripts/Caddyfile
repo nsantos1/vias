@@ -1,0 +1,7 @@
+# Modelo: troque api.SEU-DOMINIO pelo endereço da API.
+# O Caddy pede e renova o certificado HTTPS sozinho. As portas 80 e 443 precisam estar
+# liberadas no firewall da máquina e na lista de segurança da Oracle Cloud.
+
+api.SEU-DOMINIO {
+	reverse_proxy localhost:8080
+}
