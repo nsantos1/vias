@@ -39,6 +39,12 @@ const MENSAGENS_TIPO = {
   HTTP: "O serviço do VIAS encontrou um problema. Tente de novo em instantes.",
 };
 
+/** Mensagem segura para a tela, a partir do tipo e do status do erro. */
+export function mensagemDeErro({ tipo, status } = {}) {
+  if (tipo === TIPOS_ERRO.HTTP && MENSAGENS_STATUS[status]) return MENSAGENS_STATUS[status];
+  return MENSAGENS_TIPO[tipo] ?? MENSAGENS_TIPO.HTTP;
+}
+
 /** Erro normalizado. `mensagem` pode ir para a tela; `detalhe` é só para log/depuração. */
 export class ErroApi extends Error {
   constructor({ tipo, status = null, mensagem, detalhe = null, caminho = null }) {

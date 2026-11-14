@@ -9,6 +9,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import Etapas from "@/components/ui/Etapas";
 import { SelectField, TextField } from "@/components/ui/Field";
 import Skeleton from "@/components/ui/Skeleton";
+import SimuladorEstados from "./SimuladorEstados";
 
 /*
  * Os textos e opções abaixo são EXEMPLOS DE INTERFACE, não dados do VIAS.
@@ -45,6 +46,10 @@ export default function Galeria() {
           dado real. Esta página não existe na versão de produção.
         </Alert>
       </header>
+
+      <Secao titulo="Estados de consulta (FE-09)">
+        <SimuladorEstados />
+      </Secao>
 
       <Secao titulo="Etapas">
         <div className="grid max-w-xl gap-8">
