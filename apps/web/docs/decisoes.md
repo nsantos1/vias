@@ -1,0 +1,17 @@
+# Decisões pendentes do Front-end
+
+Divergências e contratos que o Front-end **não resolve sozinho**. Cada item segue o formato do Alinhamento Técnico: item, problema, proposta e responsável. Quando a decisão sair, registrar a data, quem decidiu e o resultado.
+
+| ID | Item | Problema | Proposta do Front-end | Responsável | Status |
+|---|---|---|---|---|---|
+| D-01 | Stack e dono de cada app | O README raiz (commit `c203435`, 13/11) diz que o app é React Native + Expo + TypeScript em `apps/mobile`, que o painel é Vite + TS do Felipe e que as rotas vêm do OpenTripPlanner. O Alinhamento Técnico (13/11) diz Next.js + JavaScript + Tailwind e algoritmo de rota em Python com programação dinâmica. | Seguir o Alinhamento: app web em `apps/web`, sem mexer em `apps/mobile`. O grupo atualiza o README raiz. | Grupo | Aberto |
+| D-02 | Representação da acessibilidade | O Alinhamento usa `possuiAcessibilidade` (boolean). Raphael v3 e Nicolas v2 usam o enum `ACESSIVEL / NAO_ACESSIVEL / NAO_INFORMADO / NAO_VERIFICADO`. | Enum, porque o boolean não diferencia “não informado” de “não possui”. Até decidir, o adaptador fica isolado em `src/lib` e marcado como provisório. | Nicolas + Raphael | Aberto |
+| D-03 | Proveniência dos dados | O Alinhamento usa `dadosDemonstrativos: true`. Raphael v3 pede um objeto `proveniencia` (fonte, data de referência, consultado em) e diz que a flag não substitui a proveniência. | Objeto `proveniencia`; a flag fica só se o grupo mantiver dados demonstrativos. | Raphael + grupo | Aberto |
+| D-04 | Endpoints e DTOs | `/api/servicos`, `/api/regioes`, `/api/unidades` e `/api/unidades/{id}` estão só propostos. | Raphael marca cada um como planejado, em implementação ou disponível e informa a URL base, os nomes dos filtros, a paginação e o CORS. | Raphael | Aberto |
+| D-05 | Motor e formato da rota | O Alinhamento e o Felipe usam DP, que devolve `caminho: ["P1", …]` sem coordenadas. O repositório propõe OpenTripPlanner, cujo `Trecho.java` só tem um ponto de embarque por trecho. Nenhuma das duas propostas permite desenhar a linha da rota. | Sem geometria, a tela de rota mostra só a lista de etapas, sem linha no mapa. | Felipe + Raphael + Nicolas | Aberto |
+| D-06 | Prazo | Prazo interno do grupo: 18/11. Prazo oficial: 19/11 às 23h55. Commit depois do prazo zera a parte técnica de DDD-Java. | Manter 18/11 como meta e congelar o repositório antes de 19/11 às 23h55. | Grupo | Aberto |
+| D-07 | Dono do painel gestor | O README dá o painel ao Felipe (`apps/painel-gestor`, Vite). O Alinhamento e o documento do Victor dão ao Victor (`/gestao`). | Fora do P0 até decidir. | Grupo | Aberto |
+| D-08 | Montagem das entregas do Agile | Ninguém está definido para o PDF do Agile (protótipo de 3 telas) nem para o vídeo pitch. | Victor fornece as capturas e os comentários de UX. | Grupo | Aberto |
+| D-09 | Cidade-piloto e dados | O repositório e o OTP assumem São Paulo; o Nicolas v2 diz para não presumir. Também falta decidir entre CNES real e base demonstrativa rotulada. | Aguardar a decisão; o Front-end não exibe nenhuma unidade que não venha da API. | Grupo | Aberto |
+| D-10 | Arquivos da raiz ausentes | O README cita `.gitignore`, `.env.example` e `.github/workflows/ci-etl.yml`, mas nenhum está versionado. | Quem é dono da raiz cria os arquivos. `apps/web` terá o próprio `.gitignore` e `.env.example`. | Nicolas | Aberto |
+| D-11 | Repositório da landing | Não está acessível para conferir cores e fontes (FE-02, FE-04). | Victor envia a URL. | Victor | Aberto |
