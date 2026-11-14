@@ -10,6 +10,7 @@
 @theme {
   /* Marca (mesmos nomes da landing) */
   --color-pinho: #123b35;
+  --color-pinho-escuro: #0b2c25; /* hover do botão principal (landing: --color-ref-secundario) */
   --color-papel: #f6f7f1;
   --color-grafite: #1a2925;
   --color-salvia: #5b6d66;
@@ -18,6 +19,8 @@
   --color-lima: #d7f36a;
   --color-rota: #2d7c60;
   --color-superficie: #ffffff;
+  --color-rodape: #0d342c; /* landing: --color-ref-rodape-09 */
+  --color-rodape-texto: #d6ded7; /* landing: --color-ref-rodape-texto-09 */
 
   /* Borda de campos e controles: a linha da landing (1,28:1) não atinge 3:1 */
   --color-borda-campo: #7d8c86;

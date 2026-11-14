@@ -47,7 +47,7 @@ Linhas tracejadas indicam módulos condicionais: eles ficam fora da navegação 
 3. **Nada sensível na URL.** Nenhuma localização do cidadão, sintoma ou texto pessoal vai para a URL, para o log ou para o armazenamento.
 4. **Dados do servidor, não do navegador.** O detalhe e a rota buscam a unidade pelo `id`, nunca reaproveitam dados copiados da lista.
 5. **Texto livre não vira diagnóstico.** O campo de busca filtra o catálogo retornado pela API; não interpreta sintomas.
-6. **Navegação mínima.** O cabeçalho tem o logo (link para `/`) e o item “Buscar”. “Rota” e “Gestão” só entram quando o módulo estiver liberado.
+6. **Navegação mínima.** Seguindo as [referências de UI](referencias-ui.md), o cabeçalho tem “[Voltar] VIAS │ RÓTULO DA TELA” e cada tela mostra o indicador de etapas (Necessidade → Unidade → Percurso). O logo leva a `/`; “Sobre o VIAS” fica no rodapé. “Rota” e “Gestão” só entram quando o módulo estiver liberado.
 
 ## Estados de cada página
 

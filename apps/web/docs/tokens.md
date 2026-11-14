@@ -25,6 +25,8 @@ Implementação: [`src/app/globals.css`](../src/app/globals.css) (bloco `@theme`
 | `lima` | `#D7F36A` | Landing | Acento. **Só como fundo**, com texto `pinho` |
 | `rota` | `#2D7C60` | Landing | Linha e realces de rota (quando houver geometria) |
 | `superficie` | `#FFFFFF` | Documento §7.2 | Cards, campos e painéis |
+| `pinho-escuro` | `#0B2C25` | Landing (`--color-ref-secundario`) | Hover do botão principal |
+| `rodape` / `rodape-texto` | `#0D342C` / `#D6DED7` | Landing (rodapé) | Rodapé escuro (contraste 9,90:1) |
 | `borda-campo` | `#7D8C86` | **Proposta do Front-end** | Borda de campos e controles |
 | `erro` / `erro-fundo` | `#A3261F` / `#FBECEA` | **Proposta do Front-end** | Mensagens de erro |
 | `aviso` / `aviso-fundo` | `#7A5300` / `#FBF1D4` | **Proposta do Front-end** | Dado desatualizado, demonstração, atenção |

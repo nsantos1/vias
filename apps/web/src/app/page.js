@@ -1,33 +1,63 @@
+import MapaDecorativo from "@/components/decor/MapaDecorativo";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
+import Etapas from "@/components/ui/Etapas";
+import { TextField } from "@/components/ui/Field";
+
 /**
- * Página inicial = tela de busca (docs/sitemap.md).
- * O formulário entra no FE-11, depois que GET /api/servicos e GET /api/regioes
- * estiverem disponíveis (D-04). Até lá, a página não mostra nenhum serviço,
- * região ou unidade: nada é inventado.
+ * Tela 1 de 3, Necessidade (referência docs/referencias/01-necessidade.webp).
+ *
+ * O formulário ainda está desabilitado: ele depende de GET /api/servicos (D-04)
+ * e só fica ativo no FE-11. Até lá, a tela mostra o layout real, mas não
+ * sugere nenhum serviço, região ou unidade. O seletor "Atendimento pelo"
+ * (SUS/plano) fica fora até D-12 ser decidido (R-02).
  */
 export default function Home() {
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-16">
-      <p className="font-mono text-label uppercase text-salvia">
-        Via Inteligente de Acesso à Saúde
-      </p>
-      <h1 className="max-w-2xl text-4xl leading-tight font-bold sm:text-5xl">
-        Do que você precisa?
-      </h1>
-      <p className="max-w-2xl text-lead text-grafite">
-        Escolha o exame, serviço ou especialidade e a região. O VIAS mostra as
-        unidades de saúde que registram esse atendimento e o que se sabe sobre
-        cada uma.
-      </p>
+    <div className="relative isolate overflow-hidden">
+      <MapaDecorativo className="absolute top-24 -right-12 -z-10 w-[min(72vw,28rem)] opacity-80 sm:top-20" />
 
-      <div
-        role="status"
-        className="max-w-2xl rounded-xl border border-borda-campo bg-superficie p-5"
-      >
-        <p className="font-semibold text-pinho">Busca em preparação</p>
-        <p className="mt-1 text-salvia">
-          A lista de serviços e regiões ainda não está disponível. Assim que a
-          consulta estiver pronta, você poderá fazer a busca por aqui.
-        </p>
+      <div className="mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6">
+        <div className="flex max-w-xl flex-col gap-8">
+          <Etapas atual={1} />
+
+          <div className="flex flex-col gap-3">
+            <h1 className="text-5xl leading-[1.02] font-bold sm:text-6xl">
+              O que você
+              <br />
+              precisa?
+            </h1>
+            <p className="text-lead text-salvia">
+              Busque por um exame, serviço ou especialidade.
+            </p>
+          </div>
+
+          <form aria-describedby="aviso-busca" className="flex flex-col gap-5">
+            <TextField
+              rotulo="Exame, serviço ou especialidade"
+              icone="busca"
+              destaque
+              disabled
+              name="servico"
+            />
+
+            <div className="flex flex-col items-center gap-3">
+              <Button type="submit" largo seta disabled>
+                Buscar unidades
+              </Button>
+              <p className="text-center text-salvia">
+                Encontre unidades com o serviço procurado.
+              </p>
+            </div>
+          </form>
+
+          <div id="aviso-busca">
+            <Alert tom="info" titulo="Busca em preparação">
+              A lista de serviços ainda não está disponível. Assim que a consulta estiver
+              pronta, a busca fica ativa nesta tela.
+            </Alert>
+          </div>
+        </div>
       </div>
     </div>
   );
