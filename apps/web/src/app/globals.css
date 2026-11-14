@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Tokens visuais do VIAS (FE-04).
+ * Cores, fontes e escalas copiadas da landing publicada
+ * (https://vias-viainteligentedeacessoasaude.vercel.app), conferidas em 14/11/2026.
+ * Cores de estado (erro, aviso) não existem na landing: são proposta do Front-end,
+ * com contraste medido. Detalhes e medições em docs/tokens.md.
+ */
+@theme {
+  /* Marca (mesmos nomes da landing) */
+  --color-pinho: #123b35;
+  --color-papel: #f6f7f1;
+  --color-grafite: #1a2925;
+  --color-salvia: #5b6d66;
+  --color-linha: #d5ded7;
+  --color-nevoa: #e9efe7;
+  --color-lima: #d7f36a;
+  --color-rota: #2d7c60;
+  --color-superficie: #ffffff;
+
+  /* Borda de campos e controles: a linha da landing (1,28:1) não atinge 3:1 */
+  --color-borda-campo: #7d8c86;
+
+  /* Estados (proposta do Front-end; nunca usar só a cor para dar significado) */
+  --color-erro: #a3261f;
+  --color-erro-fundo: #fbecea;
+  --color-aviso: #7a5300;
+  --color-aviso-fundo: #fbf1d4;
+
+  /* Tipografia */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.18em;
+  --text-lead: clamp(1.0625rem, 0.95rem + 0.4vw, 1.3125rem);
+  --text-lead--line-height: 1.55;
+
+  /* Formas */
+  --radius-pill: 999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background-color: var(--color-papel);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--color-papel);
+    color: var(--color-grafite);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-pinho);
+    letter-spacing: -0.02em;
+  }
+
+  /* Foco sempre visível ao navegar pelo teclado */
+  :focus-visible {
+    outline: 3px solid var(--color-pinho);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
