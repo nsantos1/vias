@@ -23,6 +23,7 @@ Preencha o `.env` na raiz do repositório (copie de `.env.example`).
 | Comando | O que faz |
 |---|---|
 | `python -m vias_etl.verificar_oracle` | Confere a conexão com o Oracle da FIAP e se o Spatial responde |
+| `python -m vias_etl.verificar_olhovivo` | Confere o token da Olho Vivo e mostra quantos ônibus acessíveis circulam agora |
 | `python -m vias_etl.gtfs.acessibilidade <gtfs.zip>` | Mostra quanto do GTFS tem os campos de acessibilidade preenchidos (portão 1) |
 | `python -m vias_etl.cnes.baixar_estabelecimentos [--tipo N]` | Baixa os estabelecimentos ativos da cidade pela API DEMAS para `data/raw` |
 | `pytest` | Roda os testes |

@@ -6,7 +6,7 @@ Responsável: Nicolas (3). Motor de rotas do VIAS: transporte público, a pé, b
 
 ## Versão e Java
 
-Usamos o **OpenTripPlanner 2.8.1**, a última versão que roda em **Java 21** (o mesmo da API). A partir da 2.9, o OpenTripPlanner exige Java 25. Para trocar de versão, mude `OTP_VERSAO` nos scripts.
+Usamos o **OpenTripPlanner 2.8.1**, a última versão que roda em **Java 21** (o mesmo da API). Ele também roda em versões mais novas do Java. A partir da 2.9, o OpenTripPlanner exige Java 25. Para trocar de versão, mude `OTP_VERSAO` nos scripts.
 
 ## O que vai na pasta `grafo/`
 
@@ -27,7 +27,7 @@ Nada desta pasta vai para o Git (são arquivos grandes). O OpenTripPlanner recon
 .\baixar-otp.ps1         # Windows PowerShell
 ```
 
-Baixa `otp-shaded-2.8.1-shaded.jar` do Maven Central para esta pasta.
+Baixa o jar do Maven Central e salva nesta pasta como `otp-shaded-2.8.1-shaded.jar`, o nome que os outros scripts esperam. A documentação do OpenTripPlanner mostra dois nomes de arquivo para o mesmo jar, então o script testa os endereços conhecidos e usa o primeiro que existir.
 
 ### 2. Recortar o mapa só da cidade de São Paulo
 
