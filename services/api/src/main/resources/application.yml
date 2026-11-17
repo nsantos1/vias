@@ -1,0 +1,59 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+
+spring:
+  application:
+    name: vias-api
+  datasource:
+    # Servidor Oracle da FIAP. Usuario e senha vem de variaveis de ambiente (nunca no Git).
+    url: ${DB_URL:jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL}
+    username: ${DB_USER:}
+    password: ${DB_PASS:}
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      # O servidor da FIAP e compartilhado: poucas conexoes bastam e evitam bloqueio
+      maximum-pool-size: ${DB_POOL_SIZE:3}
+      minimum-idle: 1
+      connection-timeout: 20000
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Hibernate NAO altera o schema (o schema pertence a frente Oracle; aqui ele vem do Flyway).
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: America/Sao_Paulo
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    # Tabela de historico propria, para nao colidir com outros projetos no mesmo usuario Oracle
+    table: T_VIAS_FLYWAY_HISTORICO
+    baseline-on-migrate: true
+    baseline-version: 0
+  web:
+    locale: pt_BR
+    locale-resolver: fixed
+  jackson:
+    time-zone: America/Sao_Paulo
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+vias:
+  cors:
+    # Origens do front-end (Next.js). Em producao, informe a URL publicada em CORS_ORIGENS.
+    origens: ${CORS_ORIGENS:http://localhost:3000}

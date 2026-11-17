@@ -1,0 +1,108 @@
+@startuml classes-dominio
+!theme plain
+set separator none
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classFontStyle bold
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+hide empty members
+skinparam defaultFontSize 11
+skinparam linetype ortho
+
+package "br.com.vias.model" as model {
+  class UnidadeSaude <<Entity>> {
+    - id : Long
+    - codigoCnes : String
+    - nome : String
+    - razaoSocial : String
+    - codigoTipoUnidade : Integer
+    - tipoUnidade : String
+    - logradouro : String
+    - numero : String
+    - bairro : String
+    - cep : String
+    - codigoMunicipio : String
+    - uf : String
+    - telefone : String
+    - latitude : BigDecimal
+    - longitude : BigDecimal
+    - horarioFuncionamento : String
+    - atendeSus : RespostaCadastro
+    - statusAcessibilidade : StatusAcessibilidade
+    - fonteAcessibilidade : String
+    - dataVerificacaoAcessibilidade : LocalDate
+    - regiao : Regiao
+    - fonte : FonteDado
+    - dataReferenciaFonte : LocalDate
+    - dataCarga : LocalDateTime
+    - dataAtualizacao : LocalDateTime
+    - servicos : List<UnidadeServico>
+    + isOrigemOficial() : boolean
+  }
+  class UnidadeServico <<Entity>> {
+    - id : Long
+    - unidade : UnidadeSaude
+    - servico : ServicoSaude
+    - fonte : FonteDado
+    - dataReferenciaFonte : LocalDate
+  }
+  class ServicoSaude <<Entity>> {
+    - id : Long
+    - codigo : String
+    - nome : String
+    - descricao : String
+    - campoOrigem : String
+    - fonte : FonteDado
+  }
+  class Regiao <<Entity>> {
+    - id : Long
+    - nome : String
+    - tipo : TipoRegiao
+    - codigoMunicipio : String
+    - uf : String
+    - fonte : FonteDado
+  }
+  class FonteDado <<Entity>> {
+    + {static} CNES : String
+    + {static} MANUAL : String
+    - id : Long
+    - sigla : String
+    - nome : String
+    - url : String
+    - oficial : Boolean
+    + isOficial() : boolean
+  }
+  enum StatusAcessibilidade {
+    ACESSIVEL
+    NAO_ACESSIVEL
+    NAO_INFORMADO
+    NAO_VERIFICADO
+    + exigeComprovacao() : boolean
+  }
+  enum RespostaCadastro {
+    SIM
+    NAO
+    NAO_INFORMADO
+  }
+  enum TipoRegiao {
+    MUNICIPIO
+    DISTRITO
+    BAIRRO
+    REGIAO_ADMINISTRATIVA
+  }
+  class SimNaoConverter <<AttributeConverter>>
+}
+
+UnidadeSaude "1" *-- "0..*" UnidadeServico : servicos >
+UnidadeServico "0..*" --> "1" ServicoSaude
+Regiao "0..1" <-- "0..*" UnidadeSaude : regiao <
+UnidadeSaude "0..*" --> "1" FonteDado : fonte >
+UnidadeServico "0..*" --> "1" FonteDado
+ServicoSaude "0..*" --> "1" FonteDado
+Regiao "0..*" --> "1" FonteDado
+UnidadeSaude ..> StatusAcessibilidade
+UnidadeSaude ..> RespostaCadastro
+Regiao ..> TipoRegiao
+FonteDado ..> SimNaoConverter
+@enduml

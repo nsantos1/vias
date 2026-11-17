@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>VIAS – Documentação DDD Java</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --verde:#14453d; --acento:#1f7a68; --tinta:#1d1d22; --cinza:#5b5b66; --linha:#d9d9e0; --fundo:#f4f7f6; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--tinta); font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 20pt; margin: 0 0 6mm; color: var(--verde); border-bottom: 3px solid var(--acento); padding-bottom: 2mm; }
+  h2 { font-size: 13.5pt; margin: 7mm 0 2.5mm; color: var(--acento); }
+  h3 { font-size: 11pt; margin: 5mm 0 2mm; color: var(--verde); }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1mm; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 9pt; background: var(--fundo); padding: 0 1mm; border-radius: 2px; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; background: var(--fundo); border: 1px solid var(--linha); border-radius: 4px; padding: 3mm; white-space: pre-wrap; margin: 0 0 3mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9pt; }
+  th, td { border: 1px solid var(--linha); padding: 1.4mm 2mm; text-align: left; vertical-align: top; }
+  th { background: var(--verde); color: #fff; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafcfb; }
+  .secao { break-before: page; }
+  .nota { background: #eef6f3; border-left: 4px solid var(--acento); padding: 2.5mm 3.5mm; margin: 3mm 0; font-size: 9.5pt; }
+  .alerta { background: #fff7e6; border-left: 4px solid #d08700; padding: 2.5mm 3.5mm; margin: 3mm 0; font-size: 9.5pt; }
+  .pendente { background: #fff3b0; padding: 0 1mm; border-radius: 2px; }
+  .metodo { font-weight: 700; font-family: Consolas, monospace; font-size: 8.5pt; padding: .3mm 1.5mm; border-radius: 2px; color: #fff; display: inline-block; min-width: 13mm; text-align: center; }
+  .GET { background: #1565c0; } .POST { background: #2e7d32; } .PUT { background: #ef6c00; } .DELETE { background: #c62828; }
+  figure { margin: 3mm 0; text-align: center; }
+  figure img { max-width: 100%; }
+  figcaption { font-size: 8.5pt; color: var(--cinza); margin-top: 1.5mm; }
+
+  .capa { height: 257mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .capa .topo { color: var(--acento); font-weight: 700; letter-spacing: 2px; font-size: 10pt; }
+  .capa .titulo { font-size: 50pt; font-weight: 800; letter-spacing: -1px; margin: 0; line-height: 1; color: var(--verde); }
+  .capa .sub { font-size: 15pt; color: var(--cinza); margin-top: 3mm; }
+  .capa .disc { font-size: 12pt; margin-top: 10mm; }
+  .capa .linha { height: 4px; width: 60mm; background: var(--acento); margin: 8mm 0; }
+  .capa table { width: auto; min-width: 140mm; font-size: 11pt; }
+  .capa td, .capa th { padding: 2mm 4mm; }
+
+  .sumario ol { list-style: none; padding: 0; }
+  .sumario li { display: flex; border-bottom: 1px dotted #bbb; padding: 1.5mm 0; font-size: 11pt; }
+  .sumario li span:first-child { flex: 1; }
+
+  .girado { height: 255mm; position: relative; }
+  .girado img { position: absolute; width: 245mm; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); }
+
+  /* prototipos (navegador) */
+  .tela { break-inside: avoid; margin: 0 0 6mm; }
+  .janela { border: 1.5px solid #333; border-radius: 3mm; overflow: hidden; font-size: 8.4pt; line-height: 1.35; background: #fff; }
+  .janela .barra { background: #e9ecef; padding: 1.5mm 3mm; display: flex; gap: 2mm; align-items: center; font-size: 7.5pt; color: #555; }
+  .janela .barra i { width: 2.5mm; height: 2.5mm; border-radius: 50%; background: #bbb; display: inline-block; }
+  .janela .url { background: #fff; border-radius: 2mm; padding: .5mm 3mm; flex: 1; margin-left: 2mm; }
+  .janela .topo-app { background: var(--verde); color: #fff; padding: 2mm 4mm; display: flex; justify-content: space-between; align-items: center; }
+  .janela .topo-app b { font-size: 11pt; letter-spacing: .5px; }
+  .janela .corpo { padding: 4mm; }
+  .caixa-busca { border: 2px solid var(--verde); border-radius: 2mm; padding: 2.5mm 3mm; font-size: 10.5pt; color: #666; }
+  .filtros { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 3mm; }
+  .filtro { border: 1px solid #999; border-radius: 4mm; padding: .8mm 3mm; font-size: 8pt; background: #fff; }
+  .filtro.on { background: var(--verde); color: #fff; border-color: var(--verde); }
+  .btn { display: inline-block; background: var(--acento); color: #fff; border-radius: 2mm; padding: 2mm 5mm; font-weight: 700; font-size: 9pt; }
+  .cartao { border: 1px solid #ccd; border-radius: 2mm; padding: 2.5mm 3mm; margin-bottom: 2.5mm; }
+  .cartao b { font-size: 9.5pt; }
+  .selo { display: inline-block; border-radius: 1.5mm; padding: .2mm 1.8mm; font-size: 7.2pt; font-weight: 700; margin-right: 1mm; border: 1px solid; }
+  .s-sim { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
+  .s-ni { background: #f1f1f4; color: #444; border-color: #c9c9d2; }
+  .s-svc { background: #e3f2fd; color: #0d47a1; border-color: #90caf9; }
+  .aviso { background: #fff7e6; border: 1px solid #f0c36d; border-radius: 1.5mm; padding: 1.5mm 2.5mm; font-size: 7.8pt; margin-top: 1.5mm; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .kpi { border: 1px solid #ccd; border-radius: 2mm; padding: 2.5mm; }
+  .kpi .n { font-size: 15pt; font-weight: 800; color: var(--verde); }
+  .barra-h { height: 3mm; background: var(--acento); border-radius: 1mm; display: inline-block; vertical-align: middle; }
+  .anot { font-size: 9pt; margin-top: 2mm; }
+  .anot b { color: var(--acento); }
+</style>
+</head>
+<body>
+
+<!-- ============================ CAPA ============================ -->
+<section class="capa">
+  <div>
+    <div class="topo">FIAP · GLOBAL SOLUTION 2026 · 2º SEMESTRE · CITIZENTECH</div>
+    <div style="margin-top:38mm">
+      <p class="titulo">VIAS</p>
+      <div class="sub">Via Inteligente de Acesso à Saúde</div>
+      <div class="linha"></div>
+      <div class="disc"><b>Domain Driven Design – Java</b><br>API RESTful com Spring Boot e banco de dados Oracle</div>
+    </div>
+  </div>
+  <div>
+    <table>
+      <tr><th>Nome completo</th><th>RM</th><th>Frente</th></tr>
+      <tr><td>Felipe <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Algoritmo Python</td></tr>
+      <tr><td>Nicolas <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Banco Oracle</td></tr>
+      <tr><td>Raphael <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Back-end Java</td></tr>
+      <tr><td>Victor <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Front-end Next.js</td></tr>
+    </table>
+    <p style="color:var(--cinza); margin-top:6mm">Engenharia de Software · 2º ano · FIAP Paulista · São Paulo, novembro de 2026</p>
+  </div>
+</section>
+
+<!-- ============================ SUMÁRIO ============================ -->
+<section class="secao sumario">
+  <h1>Sumário</h1>
+  <ol>
+    <li><span>1. Descritivo da solução</span><span>3</span></li>
+    <li><span>2. Justificativa</span><span>3</span></li>
+    <li><span>3. Objetivos</span><span>4</span></li>
+    <li><span>4. Arquitetura e organização do código</span><span>5</span></li>
+    <li><span>5. Regras de domínio</span><span>6</span></li>
+    <li><span>6. Diagrama de classes</span><span>7</span></li>
+    <li><span>7. Diagrama Entidade-Relacionamento (DER)</span><span>9</span></li>
+    <li><span>8. Protótipos de tela</span><span>10</span></li>
+    <li><span>9. Endpoints da API</span><span>12</span></li>
+    <li><span>10. Tratamento de exceções</span><span>14</span></li>
+    <li><span>11. Instruções para executar o projeto</span><span>15</span></li>
+    <li><span>12. Limitações conhecidas e próximos passos</span><span>17</span></li>
+  </ol>
+  <div class="nota" style="margin-top:10mm">
+    <b>Ficha da CitizenTech</b><br>
+    <b>Nome:</b> VIAS – Via Inteligente de Acesso à Saúde · <b>Cidade:</b> São Paulo (SP)<br>
+    <b>Cidadão beneficiado:</b> quem precisa encontrar a unidade de saúde certa para a sua necessidade, em especial pessoas com deficiência, pessoas idosas e quem depende do transporte público.<br>
+    <b>Problema, em uma frase:</b> o cidadão não sabe qual unidade atende a sua necessidade nem consegue confiar nas informações de acesso, porque os dados estão espalhados e muitas vezes incompletos.<br>
+    <b>ODS conectados:</b> 3 (Saúde e bem-estar), 10 (Redução das desigualdades) e 11 (Cidades e comunidades sustentáveis).
+  </div>
+</section>
+
+<!-- ============================ 1-2 ============================ -->
+<section class="secao">
+  <h1>1. Descritivo da solução</h1>
+  <p>O <b>VIAS – Via Inteligente de Acesso à Saúde</b> ajuda o cidadão a descobrir qual unidade de saúde corresponde à sua necessidade e a entender como chegar até ela pelo percurso que consegue utilizar. O diferencial não é apenas listar a unidade mais próxima: é <b>cruzar a necessidade com os serviços cadastrados</b>, considerar acessibilidade <b>apenas quando houver informação válida</b> e mostrar sempre <b>de onde veio cada dado</b>.</p>
+  <p>A solução tem quatro frentes: o site em <b>Next.js</b> (Victor), esta <b>API em Java / Spring Boot</b> (Raphael), o <b>banco Oracle</b> (Nicolas) e o <b>algoritmo de rotas em Python</b> (Felipe). O site nunca acessa o banco diretamente; toda consulta passa pela API.</p>
+  <p>Esta entrega implementa a API, com <b>1.092 unidades de saúde reais</b> do município de São Paulo, carregadas do <b>CNES/DATASUS</b> (API de Dados Abertos do Ministério da Saúde) em 16/11/2026:</p>
+  <table>
+    <tr><th>Tipo de unidade (CNES)</th><th style="width:20%">Unidades</th></tr>
+    <tr><td>Centro de saúde / Unidade básica (UBS)</td><td>548</td></tr>
+    <tr><td>Policlínica</td><td>314</td></tr>
+    <tr><td>Hospital geral</td><td>165</td></tr>
+    <tr><td>Pronto atendimento (UPA, AMA 24h, PA)</td><td>65</td></tr>
+    <tr><td><b>Total (somente estabelecimentos ativos)</b></td><td><b>1.092</b></td></tr>
+  </table>
+  <p>O fluxo atendido pela API: o cidadão pesquisa por serviço, região, bairro, tipo de unidade, atendimento SUS ou acessibilidade; vê o detalhe da unidade com endereço, horário cadastral, serviços e proveniência; e o gestor consulta indicadores agregados do cadastro.</p>
+
+  <h1 style="margin-top:8mm">2. Justificativa</h1>
+  <p>Encontrar atendimento de saúde exige saber <b>qual tipo de unidade procurar</b> e <b>se ela é acessível</b>. Essas informações existem em fontes públicas, mas estão dispersas e incompletas. O CNES, fonte oficial de estabelecimentos, não publica acessibilidade física; o cadastro de um serviço não garante vaga nem atendimento hoje.</p>
+  <p>Muitos aplicativos tratam a falta de dado como resposta negativa ("não acessível") ou como garantia ("aberto agora"). Para quem usa cadeira de rodas ou depende de horário, isso gera viagens perdidas. Por isso o VIAS adota uma regra central: <b>informação desconhecida é mostrada como desconhecida</b>, e cada dado carrega a sua fonte e a sua data.</p>
+</section>
+
+<section class="secao">
+  <h1>3. Objetivos</h1>
+  <h3>Objetivo geral</h3>
+  <p>Oferecer uma API RESTful em Java, com Spring Boot e Oracle, que represente o domínio de acesso a unidades de saúde com dados oficiais rastreáveis e estados explícitos de informação desconhecida.</p>
+  <h3>Objetivos específicos</h3>
+  <ul>
+    <li>Organizar o código nas camadas <b>Model, Repository (DAO), Service (BO) e Controller</b>, com tratamento de exceções centralizado.</li>
+    <li>Oferecer CRUD completo (GET, POST, PUT e DELETE) de unidades de saúde e consultas de serviços, regiões e indicadores.</li>
+    <li>Usar somente <b>dados reais do CNES</b>, com fonte, data de referência e data de carga em cada registro.</li>
+    <li>Representar acessibilidade com quatro estados (<code>ACESSIVEL</code>, <code>NAO_ACESSIVEL</code>, <code>NAO_INFORMADO</code>, <code>NAO_VERIFICADO</code>), exigindo fonte e data para afirmar acessível ou não acessível.</li>
+    <li>Proteger os campos oficiais: o CRUD não sobrescreve nem exclui dados vindos do CNES.</li>
+    <li>Publicar a API no <b>Render</b>, conectada ao Oracle da FIAP, com documentação interativa no Swagger.</li>
+  </ul>
+
+</section>
+
+<section class="secao">
+  <h1>4. Arquitetura e organização do código</h1>
+<pre>Cidadão / Gestor → Front-end Next.js (Victor) → API Java / Spring Boot (Raphael) → Oracle FIAP (Nicolas)
+                                                   └─ (próxima fase) módulo Python de rotas (Felipe), via HTTP/JSON</pre>
+  <p>O código fica em <code>services/api</code> e segue o padrão das aulas (fluxo Controller → Service → Repository → Banco):</p>
+<pre>br.com.vias
+├── model/        Entidades JPA: UnidadeSaude, ServicoSaude, UnidadeServico, Regiao, FonteDado + enums
+├── repository/   Interfaces Spring Data JPA (camada DAO)
+├── service/      Regras de negócio (camada BO)
+├── dto/          Records de entrada (Bean Validation) e de saída; a API nunca expõe a entidade
+├── controller/   @RestController: GET, POST, PUT, DELETE
+├── exception/    Exceções de domínio + GlobalExceptionHandler (@RestControllerAdvice)
+└── config/       Swagger (springdoc) e CORS
+resources/db/migration   V1__criar_tabelas.sql e V2__carga_cnes_sao_paulo.sql (Flyway)
+scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (gera a V2)</pre>
+  <ul>
+    <li><b>Schema protegido:</b> <code>ddl-auto=none</code>. O Hibernate não altera o banco; o schema vem dos scripts versionados (Flyway).</li>
+    <li><b>Carga reproduzível:</b> o JSON bruto do CNES fica salvo com a data da consulta, e o script SQL é gerado a partir dele, sem edição manual.</li>
+    <li><b>Credenciais:</b> somente variáveis de ambiente (<code>DB_URL</code>, <code>DB_USER</code>, <code>DB_PASS</code>); nada no Git.</li>
+    <li><b>Sem dados pessoais:</b> o banco não guarda cidadãos, localização, sintomas nem histórico de rotas.</li>
+  </ul>
+  <div class="alerta"><b>Schema provisório.</b> O modelo segue o núcleo de quatro tabelas do alinhamento técnico (REGIAO, UNIDADE_SAUDE, SERVICO_SAUDE, UNIDADE_SERVICO), mais FONTE_DADO para a proveniência. Ele será ajustado ao schema final aprovado pela frente Oracle.</div>
+</section>
+
+<!-- ============================ 5 ============================ -->
+<section class="secao">
+  <h1>5. Regras de domínio</h1>
+  <table>
+    <tr><th style="width:30%">Regra</th><th>Como a API aplica</th></tr>
+    <tr><td><b>Desconhecido continua desconhecido</b></td><td>Campos sem dado na fonte voltam como <code>null</code> no JSON (nunca omitidos). Atendimento SUS usa <code>SIM / NAO / NAO_INFORMADO</code>; acessibilidade começa em <code>NAO_INFORMADO</code>.</td></tr>
+    <tr><td><b>Acessibilidade comprovada</b></td><td><code>ACESSIVEL</code> e <code>NAO_ACESSIVEL</code> exigem fonte e data de verificação (validação no Service e <code>CHECK</code> no Oracle). Data no futuro é recusada.</td></tr>
+    <tr><td><b>Dados oficiais protegidos</b></td><td>Em unidade do CNES, o PUT só altera acessibilidade e região; qualquer campo cadastral diferente é recusado com 422, listando os campos. Unidades do CNES não podem ser excluídas pela API.</td></tr>
+    <tr><td><b>Cadastro manual identificado</b></td><td>POST cria a unidade com a fonte <code>CADASTRO_MANUAL</code> (não oficial), que pode ser editada e excluída. Código CNES é opcional, com 7 dígitos e único (409 se repetido).</td></tr>
+    <tr><td><b>Serviço não é vaga</b></td><td>Um vínculo em UNIDADE_SERVICO significa "registrado no cadastro". A resposta de detalhe traz avisos explícitos para o front-end.</td></tr>
+    <tr><td><b>Três datas, nunca misturadas</b></td><td><code>dataReferencia</code> (informada pela fonte), <code>dataCarga</code> (entrada no banco) e <code>dataAtualizacao</code> (última edição pela API).</td></tr>
+    <tr><td><b>Coordenadas completas</b></td><td>Latitude e longitude vêm juntas ou nenhuma; não há geocodificação nem "chute" por bairro.</td></tr>
+  </table>
+  <h3>Exemplo real – detalhe de unidade (resposta resumida)</h3>
+<pre>GET /api/unidades/84
+{ "codigoCnes": "2027461", "nome": "UBS PARQUE DA LAPA", "tipoUnidade": "CENTRO DE SAUDE/UNIDADE BASICA",
+  "endereco": { "logradouro": "RUA BERGSON", "numero": "52", "bairro": "VL LEOPOLDINA", "cep": "05301060", ... },
+  "horarioFuncionamento": "ATENDIMENTO NOS TURNOS DA MANHA, TARDE E NOITE", "atendeSus": "SIM",
+  "acessibilidade": { "status": "NAO_INFORMADO", "fonte": null, "dataVerificacao": null },
+  "servicos": [ { "codigo": "SERVICO_APOIO", "fonte": "CNES_DEMAS", "dataReferencia": "2026-04-02" } ],
+  "proveniencia": { "fonte": "CNES_DEMAS", "oficial": true, "dataReferencia": "2026-04-02",
+                    "dataCarga": "2026-11-16T19:44:23", "dataAtualizacao": null },
+  "camposCadastraisProtegidos": true,
+  "avisos": [ "Horario de funcionamento e o informado no cadastro da fonte; confirme com a unidade antes de ir.",
+              "A fonte nao informa a acessibilidade desta unidade.",
+              "Servicos listados sao vinculos cadastrais; nao garantem vaga, agenda ou atendimento hoje." ] }</pre>
+</section>
+
+<!-- ============================ 6 ============================ -->
+<section class="secao">
+  <h1>6. Diagrama de classes</h1>
+  <p>Os diagramas refletem o código Java entregue. A Figura 1 mostra a camada modelo; a Figura 2, as camadas Controller, Service (BO), Repository (DAO) e Exception.</p>
+  <figure><img src="diagramas/classes-dominio.svg" style="max-height:205mm"><figcaption>Figura 1 – Camada modelo (pacote br.com.vias.model)</figcaption></figure>
+</section>
+<section class="secao">
+  <figure><img src="diagramas/classes-camadas.svg" style="width:100%"><figcaption>Figura 2 – Camadas Controller, Service (BO), Repository (DAO) e Exception</figcaption></figure>
+</section>
+
+<!-- ============================ 7 ============================ -->
+<section class="secao">
+  <h1>7. Diagrama Entidade-Relacionamento (DER)</h1>
+  <figure><img src="diagramas/der.svg" style="max-height:150mm"><figcaption>Figura 3 – DER (notação pé de galinha)</figcaption></figure>
+  <table>
+    <tr><th>Relacionamento</th><th>Cardinalidade</th><th>Regra</th></tr>
+    <tr><td>REGIAO → UNIDADE_SAUDE</td><td>1:N (opcional)</td><td>Hoje a região é o bairro informado no CNES (granularidade provisória)</td></tr>
+    <tr><td>UNIDADE_SAUDE ↔ SERVICO_SAUDE</td><td>N:N via UNIDADE_SERVICO</td><td>UNIQUE (unidade, serviço); apagar a unidade apaga os vínculos</td></tr>
+    <tr><td>FONTE_DADO → demais tabelas</td><td>1:N</td><td>Toda linha aponta a sua fonte (CNES_DEMAS ou CADASTRO_MANUAL)</td></tr>
+  </table>
+  <p>Constraints relevantes: <code>codigo_cnes</code> UNIQUE e com 7 dígitos (<code>REGEXP_LIKE</code>); estados de acessibilidade e SUS por <code>CHECK</code>; acessibilidade afirmada exige fonte e data; latitude e longitude juntas.</p>
+</section>
+
+<!-- ============================ 8 ============================ -->
+<section class="secao">
+  <h1>8. Protótipos de tela</h1>
+  <p>Telas do site em Next.js que consomem esta API, preenchidas com dados reais devolvidos por ela. As telas finais são de responsabilidade do front-end (Victor).</p>
+
+  <div class="tela">
+    <div class="janela">
+      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br</span></div>
+      <div class="topo-app"><b>VIAS</b><span>Buscar · Painel do gestor</span></div>
+      <div class="corpo">
+        <div style="font-size:13pt;font-weight:800;margin-bottom:2mm">Do que você precisa?</div>
+        <div class="caixa-busca">Ex.: posto de saúde, pronto atendimento, hospital</div>
+        <div class="filtros">
+          <span class="filtro on">Posto de saúde (UBS)</span><span class="filtro">Pronto atendimento</span><span class="filtro">Hospital</span><span class="filtro">Policlínica</span>
+        </div>
+        <div class="filtros">
+          <span class="filtro">Bairro: <b>PERDIZES</b></span><span class="filtro on">Atende SUS</span><span class="filtro">Acessibilidade: qualquer</span><span class="filtro">Serviço: todos</span>
+        </div>
+        <div style="margin-top:4mm"><span class="btn">Buscar</span></div>
+      </div>
+    </div>
+    <div class="anot"><b>Tela 1 – Busca.</b> Uma caixa principal e filtros por tipo, bairro/região, SUS, acessibilidade e serviço. As listas de filtros vêm de <code>GET /api/servicos</code> e <code>GET /api/regioes?nome=</code>.</div>
+  </div>
+
+  <div class="tela">
+    <div class="janela">
+      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/busca?tipo=2&amp;bairro=PERDIZES&amp;sus=SIM</span></div>
+      <div class="topo-app"><b>VIAS</b><span>2 unidades encontradas</span></div>
+      <div class="corpo">
+        <div class="cartao"><b>UBS JARDIM VERA CRUZ PERDIZES</b> · Centro de saúde / Unidade básica · PERDIZES<br>
+          <span class="selo s-sim">Atende SUS</span><span class="selo s-ni">Acessibilidade: não informada</span><span class="selo s-svc">Serviço de apoio</span>
+          <div style="font-size:7.5pt;color:#666;margin-top:1mm">Fonte: CNES/DATASUS</div></div>
+        <div class="cartao"><b>UBS VILA ANGLO JOSE SERRA RIBEIRO</b> · Centro de saúde / Unidade básica · PERDIZES<br>
+          <span class="selo s-sim">Atende SUS</span><span class="selo s-ni">Acessibilidade: não informada</span><span class="selo s-svc">Serviço de apoio</span>
+          <div style="font-size:7.5pt;color:#666;margin-top:1mm">Fonte: CNES/DATASUS</div></div>
+        <div style="font-size:8pt;color:#555">Página 1 de 1 · <u>Ver no mapa</u></div>
+      </div>
+    </div>
+    <div class="anot"><b>Tela 2 – Resultados.</b> Cartões com nome, tipo, bairro e selos com texto (nunca só cor). "Não informada" aparece como estado neutro, e não como negativo. <b>API:</b> <code>GET /api/unidades?tipoUnidade=2&amp;bairro=PERDIZES&amp;atendeSus=SIM</code>.</div>
+  </div>
+</section>
+
+<section class="secao">
+  <div class="tela">
+    <div class="janela">
+      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/unidades/84</span></div>
+      <div class="topo-app"><b>VIAS</b><span>Detalhe da unidade</span></div>
+      <div class="corpo">
+        <div style="font-size:12pt;font-weight:800">UBS PARQUE DA LAPA</div>
+        <div style="color:#555">Centro de saúde / Unidade básica · CNES 2027461</div>
+        <div class="grid2" style="margin-top:2.5mm">
+          <div><b>Endereço</b><br>RUA BERGSON, 52 – VL LEOPOLDINA<br>CEP 05301-060 · São Paulo/SP<br><b>Telefone</b> (11) 5237-4117</div>
+          <div><b>Horário cadastral</b><br>Atendimento nos turnos da manhã, tarde e noite<br><b>SUS</b> <span class="selo s-sim">Atende SUS</span><br><b>Acessibilidade</b> <span class="selo s-ni">Não informada pela fonte</span></div>
+        </div>
+        <div style="margin-top:2mm"><b>Serviços registrados:</b> <span class="selo s-svc">Serviço de apoio</span></div>
+        <div class="aviso">⚠ O horário é o do cadastro; confirme com a unidade antes de ir. · A fonte não informa a acessibilidade. · Serviços registrados não garantem vaga ou atendimento hoje.</div>
+        <div style="font-size:7.5pt;color:#666;margin-top:2mm">Fonte: CNES/DATASUS · atualizado pela fonte em 02/04/2026 · carregado em 16/11/2026</div>
+        <div style="margin-top:3mm"><span class="btn">Como chegar</span></div>
+      </div>
+    </div>
+    <div class="anot"><b>Tela 3 – Detalhe.</b> Mostra apenas o que a fonte informa, os avisos devolvidos pela API e a proveniência. "Como chegar" chama o módulo de rotas (Python) na próxima fase. <b>API:</b> <code>GET /api/unidades/{id}</code>; registro de vistoria: <code>PUT /api/unidades/{id}/acessibilidade</code>.</div>
+  </div>
+
+  <div class="tela">
+    <div class="janela">
+      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/gestao</span></div>
+      <div class="topo-app"><b>VIAS</b><span>Painel do gestor</span></div>
+      <div class="corpo">
+        <div class="grid2" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi"><div class="n">1.092</div>unidades</div>
+          <div class="kpi"><div class="n">658</div>atendem SUS</div>
+          <div class="kpi"><div class="n">0</div>com acessibilidade verificada</div>
+          <div class="kpi"><div class="n">0</div>sem coordenadas</div>
+        </div>
+        <div style="margin-top:3mm"><b>Unidades por tipo</b></div>
+        <div>UBS <span class="barra-h" style="width:50mm"></span> 548</div>
+        <div>Policlínica <span class="barra-h" style="width:29mm"></span> 314</div>
+        <div>Hospital geral <span class="barra-h" style="width:15mm"></span> 165</div>
+        <div>Pronto atendimento <span class="barra-h" style="width:6mm"></span> 65</div>
+        <div class="aviso">Acessibilidade: 1.092 unidades sem informação na fonte. Indicador mostra a lacuna de dados, não a falta de acessibilidade.</div>
+      </div>
+    </div>
+    <div class="anot"><b>Tela 4 – Painel do gestor.</b> Indicadores agregados, sem dados pessoais, cada um com a sua definição. <b>API:</b> <code>GET /api/gestao/resumo</code>.</div>
+  </div>
+</section>
+
+<!-- ============================ 9 ============================ -->
+<section class="secao">
+  <h1>9. Endpoints da API</h1>
+  <p>URL base: <code><span class="pendente">https://vias-api.onrender.com</span></code> · Swagger em <code>/swagger-ui.html</code> · JSON · datas no formato ISO (<code>aaaa-mm-dd</code>).</p>
+  <table>
+    <tr><th style="width:12%">Método</th><th style="width:33%">Endpoint</th><th>Descrição</th><th style="width:15%">Sucesso / erros</th></tr>
+    <tr><td colspan="4" style="background:#e8efed"><b>Unidades de saúde</b></td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/unidades</code></td><td>Pesquisa paginada. Filtros opcionais e combináveis: <code>servicoId</code>, <code>regiaoId</code>, <code>bairro</code>, <code>nome</code>, <code>acessibilidade</code>, <code>atendeSus</code>, <code>tipoUnidade</code> (código CNES: 2, 4, 5, 73), <code>pagina</code> (0…), <code>tamanho</code> (1–100, padrão 20). Resposta: <code>items</code>, <code>total</code>, <code>pagina</code>, <code>tamanho</code>, <code>totalPaginas</code>.</td><td>200 · 400 · 404</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/unidades/{id}</code></td><td>Detalhe com endereço, serviços, região, acessibilidade, proveniência e avisos</td><td>200 · 404</td></tr>
+    <tr><td><span class="metodo POST">POST</span></td><td><code>/api/unidades</code></td><td>Cadastro manual (fonte <code>CADASTRO_MANUAL</code>). Só <code>nome</code> é obrigatório</td><td>201 · 400 · 404 · 409 · 422</td></tr>
+    <tr><td><span class="metodo PUT">PUT</span></td><td><code>/api/unidades/{id}</code></td><td>Atualização. Em unidade do CNES, só acessibilidade e <code>regiaoId</code> mudam</td><td>200 · 400 · 404 · 409 · 422</td></tr>
+    <tr><td><span class="metodo PUT">PUT</span></td><td><code>/api/unidades/{id}/acessibilidade</code></td><td>Registra a acessibilidade verificada (qualquer unidade)</td><td>200 · 400 · 404 · 422</td></tr>
+    <tr><td><span class="metodo DELETE">DELETE</span></td><td><code>/api/unidades/{id}</code></td><td>Exclui unidade de cadastro manual; unidade do CNES é recusada</td><td>204 · 404 · 422</td></tr>
+    <tr><td colspan="4" style="background:#e8efed"><b>Catálogos e painel</b></td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/servicos</code></td><td>Catálogo de serviços com o total de unidades vinculadas</td><td>200</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/servicos/{id}</code></td><td>Detalhe de um serviço</td><td>200 · 404</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/regioes?nome=LAPA</code></td><td>Regiões (bairros do CNES) com o total de unidades; <code>nome</code> filtra</td><td>200</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/regioes/{id}</code></td><td>Detalhe de uma região</td><td>200 · 404</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/gestao/resumo</code></td><td>Indicadores agregados do cadastro, com a definição de cada um</td><td>200</td></tr>
+  </table>
+
+<div style="break-inside:avoid">
+  <h3>Exemplo – cadastro manual e registro de acessibilidade</h3>
+<pre>POST /api/unidades
+{ "nome": "Ponto de vacinacao temporario - Feira da Lapa", "bairro": "LAPA", "atendeSus": "SIM",
+  "servicoIds": [1],
+  "acessibilidade": { "status": "ACESSIVEL", "fonte": "Vistoria da equipe VIAS", "dataVerificacao": "2026-11-14" } }
+→ 201 Created  (proveniencia.fonte = "CADASTRO_MANUAL", camposCadastraisProtegidos = false)
+
+PUT /api/unidades/84/acessibilidade
+{ "status": "ACESSIVEL" }
+→ 422 "Acessibilidade ACESSIVEL exige a fonte e a data da verificacao. Sem comprovacao, use NAO_VERIFICADO ou NAO_INFORMADO."
+</pre>
+</div>
+</section>
+
+<!-- ============================ 10-11 ============================ -->
+<section class="secao">
+  <h1>10. Tratamento de exceções</h1>
+  <p>O <code>GlobalExceptionHandler</code> (<code>@RestControllerAdvice</code>) devolve todos os erros no mesmo formato JSON, sem stack trace, SQL ou detalhes internos:</p>
+<pre>{ "timestamp": "2026-11-16T19:44:51", "status": 400, "erro": "Bad Request",
+  "mensagem": "Existem campos invalidos na requisicao.", "caminho": "/api/unidades",
+  "campos": [ { "campo": "codigoCnes", "mensagem": "o codigo CNES tem 7 digitos" } ] }</pre>
+  <table>
+    <tr><th>Exceção</th><th style="width:10%">Status</th><th>Quando ocorre</th></tr>
+    <tr><td><code>MethodArgumentNotValidException</code>, <code>HandlerMethodValidationException</code></td><td>400</td><td>Campos ou parâmetros inválidos (lista em <code>campos</code>)</td></tr>
+    <tr><td><code>HttpMessageNotReadableException</code>, <code>MethodArgumentTypeMismatchException</code></td><td>400</td><td>JSON malformado, enum ou data inválida, id não numérico</td></tr>
+    <tr><td><code>RecursoNaoEncontradoException</code>, <code>NoResourceFoundException</code></td><td>404</td><td>Unidade, serviço ou região inexistente; rota inexistente</td></tr>
+    <tr><td><code>HttpRequestMethodNotSupportedException</code></td><td>405</td><td>Método HTTP não suportado no endereço</td></tr>
+    <tr><td><code>ConflitoException</code>, <code>DataIntegrityViolationException</code></td><td>409</td><td>Código CNES repetido; violação de constraint no Oracle</td></tr>
+    <tr><td><code>RegraNegocioException</code></td><td>422</td><td>Edição/exclusão de dado oficial, acessibilidade sem comprovação, coordenada incompleta</td></tr>
+    <tr><td><code>Exception</code></td><td>500</td><td>Erro inesperado (registrado no log, sem detalhes ao cliente)</td></tr>
+  </table>
+
+</section>
+
+<section class="secao">
+  <h1>11. Instruções para executar o projeto</h1>
+  <h3>Ferramentas e versões</h3>
+  <table>
+    <tr><th>Ferramenta</th><th>Versão</th><th>Uso</th></tr>
+    <tr><td>Java JDK</td><td>21 (LTS)</td><td>Linguagem</td></tr>
+    <tr><td>Spring Boot</td><td>3.5.7</td><td>Web, Data JPA, Validation, Actuator</td></tr>
+    <tr><td>Maven</td><td>3.9 ou superior (ou o do IntelliJ)</td><td>Build e dependências</td></tr>
+    <tr><td>Oracle Database</td><td>19c (servidor da FIAP) ou superior</td><td>Persistência; driver ojdbc11</td></tr>
+    <tr><td>Flyway</td><td>11 (gerenciado pelo Spring Boot)</td><td>Criação das tabelas e carga do CNES</td></tr>
+    <tr><td>springdoc-openapi</td><td>2.8.9</td><td>Swagger UI</td></tr>
+    <tr><td>IntelliJ IDEA</td><td>2025 ou superior</td><td>IDE</td></tr>
+    <tr><td>Insomnia ou Postman</td><td>atual</td><td>Testes HTTP</td></tr>
+    <tr><td>Render.com</td><td>Plano Free, runtime Docker</td><td>Deploy</td></tr>
+  </table>
+  <h3>Links</h3>
+  <ul>
+    <li><b>GitHub:</b> <span class="pendente">https://github.com/&lt;usuario&gt;/&lt;repositorio&gt;</span> (código em <code>services/api</code>)</li>
+    <li><b>Deploy:</b> <span class="pendente">https://vias-api.onrender.com</span> · Swagger em <code>/swagger-ui.html</code> · saúde em <code>/actuator/health</code></li>
+  </ul>
+</section>
+
+<section>
+  <h3>Passo a passo – IntelliJ com o Oracle da FIAP</h3>
+  <ol>
+    <li>Clone o repositório e abra a pasta <code>services/api</code> no IntelliJ (File › Open).</li>
+    <li>Selecione o <b>JDK 21</b> em File › Project Structure.</li>
+    <li>Em Run › Edit Configurations › <code>ViasApiApplication</code> › Environment variables:<br>
+      <code>DB_USER=rmSEU_RM;DB_PASS=sua_senha</code><br>
+      A URL padrão já é <code>jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL</code> (para outro banco, defina <code>DB_URL</code>).</li>
+    <li>Rode <code>ViasApiApplication</code>. Na primeira subida, o Flyway cria as 5 tabelas e carrega as 1.092 unidades do CNES.</li>
+    <li>Abra <code>http://localhost:8080/swagger-ui.html</code>.</li>
+  </ol>
+  <p>Se o schema já tiver sido criado pela frente Oracle, defina <code>FLYWAY_ENABLED=false</code>.</p>
+  <h3>Alternativa – tudo local com Docker</h3>
+<pre>cd services/api
+docker compose up --build        # Oracle Free + API → http://localhost:8080/swagger-ui.html</pre>
+  <h3>Testes automatizados e atualização da carga</h3>
+<pre>mvn test                                                   # regras de negócio (JUnit 5 + Mockito)
+python scripts/baixar_cnes.py                              # baixa um novo recorte do CNES
+python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json</pre>
+  <h3>Deploy no Render</h3>
+  <ol>
+    <li>Suba o repositório no GitHub (público ou com acesso ao professor).</li>
+    <li>No Render: New › Blueprint › repositório. O <code>render.yaml</code> cria o serviço <code>vias-api</code> (runtime Docker, pasta <code>services/api</code>, health check em <code>/actuator/health</code>).</li>
+    <li>Em Environment, preencha <code>DB_USER</code>, <code>DB_PASS</code> e <code>CORS_ORIGENS</code> (URL do site Next.js).</li>
+    <li>Deploy. No plano Free o serviço "dorme" após 15 min sem uso; a primeira requisição depois disso leva cerca de 1 minuto.</li>
+  </ol>
+  <h3>Variáveis de ambiente</h3>
+  <table>
+    <tr><th>Variável</th><th>Obrigatória</th><th>Padrão</th></tr>
+    <tr><td><code>DB_URL</code></td><td>Não</td><td><code>jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL</code></td></tr>
+    <tr><td><code>DB_USER</code> / <code>DB_PASS</code></td><td>Sim</td><td>RM e senha do Oracle da FIAP</td></tr>
+    <tr><td><code>CORS_ORIGENS</code></td><td>Não</td><td><code>http://localhost:3000</code> (separar várias por vírgula)</td></tr>
+    <tr><td><code>FLYWAY_ENABLED</code></td><td>Não</td><td><code>true</code></td></tr>
+    <tr><td><code>DB_POOL_SIZE</code></td><td>Não</td><td><code>3</code></td></tr>
+  </table>
+</section>
+
+<!-- ============================ 12 ============================ -->
+<section class="secao">
+  <h1>12. Limitações conhecidas e próximos passos</h1>
+  <table>
+    <tr><th style="width:30%">Limitação</th><th>Situação e próximo passo</th></tr>
+    <tr><td>Acessibilidade</td><td>O recurso CNES usado não publica acessibilidade física; as 1.092 unidades estão <code>NAO_INFORMADO</code>. Próximo passo: registrar vistorias pelo endpoint de acessibilidade, com fonte e data.</td></tr>
+    <tr><td>Catálogo de serviços</td><td>A API pública de estabelecimentos expõe apenas indicadores gerais (atendimento ambulatorial, hospitalar, centro cirúrgico etc.). Serviços especializados e equipamentos dependem de outro recurso do CNES, ainda não disponível nesta API.</td></tr>
+    <tr><td>Indicadores do CNES</td><td>Indicador 0 ou vazio não gera vínculo e não é lido como "não oferece". Ex.: muitas UBS aparecem sem o indicador ambulatorial.</td></tr>
+    <tr><td>Regiões</td><td>A região é o bairro digitado no CNES, com grafias diferentes para o mesmo lugar (ex.: "VL LEOPOLDINA", "V LEOPOLDINA", "VILA LEOPOLDINA"). A normalização (distrito ou região administrativa) depende da frente Oracle.</td></tr>
+    <tr><td>Coordenadas e tipos</td><td>Exibidos como publicados pela fonte, sem correção manual. Algumas coordenadas apontam para o centro da cidade. O tipo "Centro de saúde/Unidade básica" também inclui unidades prisionais.</td></tr>
+    <tr><td>Rotas e transporte</td><td>A API não calcula rotas: a lógica pertence ao módulo Python. A integração HTTP (contrato <code>POST /calcular-rota</code>), GTFS e Olho Vivo ficam para a próxima fase, após validar fontes e contrato.</td></tr>
+    <tr><td>Schema</td><td>Provisório até a validação conjunta com a frente Oracle.</td></tr>
+  </table>
+  <div class="nota"><b>Fonte dos dados:</b> CNES – API de Dados Abertos do Ministério da Saúde (DEMAS), recurso <code>/cnes/estabelecimentos</code>, município 355030, tipos 2, 4, 5 e 73, consultado em 16/11/2026. Somente estabelecimentos ativos. Nenhum dado pessoal de cidadãos é armazenado.</div>
+</section>
+
+</body>
+</html>
