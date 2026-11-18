@@ -52,6 +52,7 @@ scripts/                          baixar_cnes.py e gerar_carga_sql.py (carga rep
 | GET | `/api/servicos`, `/api/servicos/{id}` | Catálogo de serviços |
 | GET | `/api/regioes`, `/api/regioes/{id}` | Regiões (bairros do CNES) |
 | GET | `/api/gestao/resumo` | Indicadores agregados do cadastro |
+| POST | `/api/percursos` | Percurso de transporte público até a unidade (Google Routes), com hora sugerida de saída e previsão ao vivo dos ônibus da SPTrans (Olho Vivo), indicando quais são acessíveis. A origem vai no corpo e não é gravada |
 
 ## Executar
 
@@ -79,6 +80,7 @@ python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json
 
 O `render.yaml` na raiz do repositório cria o serviço (runtime Docker, `rootDir: services/api`).
 No painel do Render, informe `DB_USER`, `DB_PASS` e `CORS_ORIGENS` (URL do site Next.js).
+Para o percurso, informe também `GOOGLE_ROUTES_CHAVE` e `OLHOVIVO_TOKEN`.
 
 ## Variáveis de ambiente
 
@@ -89,6 +91,9 @@ No painel do Render, informe `DB_USER`, `DB_PASS` e `CORS_ORIGENS` (URL do site 
 | `CORS_ORIGENS` | `http://localhost:3000` |
 | `FLYWAY_ENABLED` | `true` |
 | `DB_POOL_SIZE` | `3` |
+| `GOOGLE_ROUTES_CHAVE` | vazia: `POST /api/percursos` responde 503. Chave do Google Cloud com o **Routes API** ativado |
+| `OLHOVIVO_TOKEN` | vazio: o percurso sai sem previsão ao vivo. Token gerado em sptrans.com.br/desenvolvedores |
+| `OLHOVIVO_URL` | `http://api.olhovivo.sptrans.com.br/v2.1` (endereço da documentação oficial) |
 | `PORT` | `8080` (o Render define) |
 
 ## Dados

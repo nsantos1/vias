@@ -1,0 +1,64 @@
+{
+  "_fixture": "FIXTURE DE TESTE - NAO E DADO REAL. Imita o formato do Google Routes v2 (computeRoutes, TRANSIT) so para os testes de leitura; nomes, horarios e coordenadas sao ficticios.",
+  "routes": [
+    {
+      "duration": "2400s",
+      "distanceMeters": 9100,
+      "legs": [
+        {
+          "steps": [
+            { "travelMode": "WALK", "staticDuration": "180s", "distanceMeters": 200, "polyline": { "encodedPolyline": "abc" } },
+            { "travelMode": "WALK", "staticDuration": "120s", "distanceMeters": 150 },
+            {
+              "travelMode": "TRANSIT",
+              "staticDuration": "1200s",
+              "distanceMeters": 7000,
+              "polyline": { "encodedPolyline": "def" },
+              "transitDetails": {
+                "stopDetails": {
+                  "departureStop": { "name": "Parada Teste A", "location": { "latLng": { "latitude": -23.5, "longitude": -46.6 } } },
+                  "departureTime": "2026-11-19T16:30:00Z",
+                  "arrivalStop": { "name": "Parada Teste B", "location": { "latLng": { "latitude": -23.55, "longitude": -46.65 } } },
+                  "arrivalTime": "2026-11-19T16:50:00Z"
+                },
+                "headsign": "Terminal Teste",
+                "headway": "600s",
+                "stopCount": 12,
+                "transitLine": {
+                  "agencies": [ { "name": "Operadora Teste" } ],
+                  "name": "Linha Teste",
+                  "nameShort": "9999-10",
+                  "color": "#123456",
+                  "textColor": "#ffffff",
+                  "vehicle": { "name": { "text": "Ônibus" }, "type": "BUS" }
+                }
+              }
+            },
+            {
+              "travelMode": "TRANSIT",
+              "staticDuration": "300s",
+              "distanceMeters": 1500,
+              "transitDetails": {
+                "stopDetails": {
+                  "departureStop": { "name": "Estacao Teste 1", "location": { "latLng": { "latitude": -23.55, "longitude": -46.65 } } },
+                  "departureTime": "2026-11-19T16:55:00Z",
+                  "arrivalStop": { "name": "Estacao Teste 2", "location": { "latLng": { "latitude": -23.56, "longitude": -46.66 } } },
+                  "arrivalTime": "2026-11-19T17:00:00Z"
+                },
+                "headsign": "Estacao Final Teste",
+                "stopCount": 2,
+                "transitLine": { "nameShort": "L9", "vehicle": { "name": { "text": "Metrô" }, "type": "SUBWAY" } }
+              }
+            },
+            { "travelMode": "WALK", "staticDuration": "240s", "distanceMeters": 250 }
+          ]
+        }
+      ]
+    },
+    {
+      "duration": "1500s",
+      "distanceMeters": 1800,
+      "legs": [ { "steps": [ { "travelMode": "WALK", "staticDuration": "1500s", "distanceMeters": 1800 } ] } ]
+    }
+  ]
+}

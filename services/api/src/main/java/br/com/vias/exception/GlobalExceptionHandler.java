@@ -44,6 +44,11 @@ public class GlobalExceptionHandler {
         return resposta(HttpStatus.CONFLICT, e.getMessage(), req, null);
     }
 
+    @ExceptionHandler(ServicoExternoException.class)
+    public ResponseEntity<ErroResposta> servicoExterno(ServicoExternoException e, HttpServletRequest req) {
+        return resposta(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage(), req, null);
+    }
+
     /** Erros de @Valid no corpo da requisicao: devolve a lista de campos invalidos. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResposta> validacao(MethodArgumentNotValidException e, HttpServletRequest req) {
