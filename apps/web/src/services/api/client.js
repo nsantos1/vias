@@ -9,8 +9,8 @@
  * - Sem repetição automática: quem decide tentar de novo é a pessoa, pelo botão
  *   "Tentar novamente". POST/PUT/DELETE nunca são repetidos sozinhos.
  *
- * O formato de erro esperado do backend ({ timestamp, status, error, message, path })
- * vem do Alinhamento Técnico §5.4 e ainda precisa ser confirmado pelo Raphael (D-04).
+ * Formato de erro da API Java (confirmado pelo Raphael em 16/11):
+ * { timestamp, status, erro, mensagem, caminho, campos }.
  */
 
 export const TIMEOUT_PADRAO_MS = 10_000;
@@ -161,8 +161,11 @@ export async function requisitar(
         status: resposta.status,
         mensagem: MENSAGENS_STATUS[resposta.status] ?? MENSAGENS_TIPO.HTTP,
         // A mensagem do backend fica só no detalhe: pode ser técnica.
-        detalhe: corpoErro?.message ?? corpoErro?.error ?? null,
-        caminho: corpoErro?.path ?? caminho,
+        // A API Java devolve { mensagem, erro, caminho }; { message, error, path }
+        // (proposta do Alinhamento §5.4) continua aceito.
+        detalhe:
+          corpoErro?.mensagem ?? corpoErro?.message ?? corpoErro?.erro ?? corpoErro?.error ?? null,
+        caminho: corpoErro?.caminho ?? corpoErro?.path ?? caminho,
       });
     }
 
