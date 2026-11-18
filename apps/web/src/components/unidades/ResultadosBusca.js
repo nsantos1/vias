@@ -136,7 +136,12 @@ export default function ResultadosBusca({ servicoId }) {
             <div className="flex flex-col gap-6">
               <StatusLocalizacao local={local} />
 
-              <CardDestaque unidade={primeira} servicoNome={nomeServico} comLocalizacao={comLocalizacao} />
+              <CardDestaque
+                unidade={primeira}
+                servicoNome={nomeServico}
+                servicoDescricao={servico.dados?.descricao}
+                comLocalizacao={comLocalizacao}
+              />
 
               {demais.length > 0 && (
                 <section aria-labelledby="titulo-outras" className="flex flex-col gap-3">

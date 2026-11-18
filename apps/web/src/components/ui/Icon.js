@@ -82,6 +82,34 @@ const caminhos = {
       <path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
     </>
   ),
+  onibus: (
+    <>
+      <rect x="5" y="3.5" width="14" height="14" rx="2.5" />
+      <path d="M5 11h14" />
+      <path d="M8 14.5h.01" />
+      <path d="M16 14.5h.01" />
+      <path d="M7.5 17.5V20" />
+      <path d="M16.5 17.5V20" />
+    </>
+  ),
+  trem: (
+    <>
+      <rect x="6" y="3.5" width="12" height="13" rx="3" />
+      <path d="M6 10h12" />
+      <path d="M9.5 13.5h.01" />
+      <path d="M14.5 13.5h.01" />
+      <path d="m8.5 16.5-2 4" />
+      <path d="m15.5 16.5 2 4" />
+    </>
+  ),
+  caminhar: (
+    <>
+      <circle cx="13" cy="4.5" r="1.75" />
+      <path d="m10 21 2.5-6.5L15 17v4" />
+      <path d="M12.5 14.5 13.5 9l-3 1.5-1.5 3" />
+      <path d="m13.5 9 2 3 2.5 1" />
+    </>
+  ),
   relogio: (
     <>
       <circle cx="12" cy="12" r="8.5" />

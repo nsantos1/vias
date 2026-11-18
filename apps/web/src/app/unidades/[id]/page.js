@@ -10,7 +10,7 @@ export default function PaginaUnidade({ params }) {
   return (
     <div className="mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6">
       <div className="flex max-w-2xl flex-col gap-8">
-        <Etapas atual={2} />
+        <Etapas atual={2} percursoDisponivel />
         <Suspense fallback={<EstadoCarregando rotulo="Carregando unidade…" />}>
           <Detalhe params={params} />
         </Suspense>

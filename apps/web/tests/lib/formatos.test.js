@@ -20,7 +20,7 @@ describe("dadosDaTela (cabeçalho)", () => {
     ["/", "Busca de atendimento", null],
     ["/unidades", "Resultado da busca", "/"],
     ["/unidades/ficticio-1", "Unidade de saúde", "/unidades"],
-    ["/rota", "Percurso", "/unidades"],
+    ["/unidades/ficticio-1/percurso", "Percurso", "/unidades"],
   ])("%s → %s", (caminho, rotulo, voltarPara) => {
     expect(dadosDaTela(caminho)).toMatchObject({ rotulo, voltarPara });
   });

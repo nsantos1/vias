@@ -8,6 +8,7 @@ import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
 import { useConsulta } from "@/hooks/useConsulta";
 import { formatarData } from "@/lib/formatos";
+import { numero } from "@/lib/percurso";
 import {
   enderecoEmTexto,
   formatarTelefone,
@@ -56,6 +57,8 @@ function Conteudo({ unidade: u }) {
   const mapas = linkMapas(u);
   const telefone = formatarTelefone(u.telefone);
   const prov = u.proveniencia;
+  // O percurso precisa das coordenadas da unidade (a API responde 422 sem elas).
+  const temCoordenadas = numero(u.latitude) !== null && numero(u.longitude) !== null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -165,13 +168,19 @@ function Conteudo({ unidade: u }) {
           </div>
         )}
 
+        {temCoordenadas && (
+          <Button href={`/unidades/${encodeURIComponent(u.id)}/percurso`} largo seta>
+            Ver como chegar de transporte público
+          </Button>
+        )}
         {mapas ? (
           <Button
             href={mapas}
             target="_blank"
             rel="noopener noreferrer"
+            variante={temCoordenadas ? "secundario" : "primario"}
             largo
-            seta
+            seta={!temCoordenadas}
             aria-label={`Abrir ${u.nome} no app de mapas (abre em nova aba)`}
           >
             Abrir no app de mapas

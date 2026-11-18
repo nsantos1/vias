@@ -7,8 +7,8 @@ const ETAPAS = ["Necessidade", "Unidade", "Percurso"];
  * Indicador "ETAPA N DE 3": Necessidade → Unidade → Percurso (referências de UI).
  * - Etapa concluída: círculo cheio com check e "(concluída)" para leitor de tela.
  * - Etapa atual: aria-current="step" e nome em negrito.
- * - Percurso: enquanto a rota não estiver integrada (D-05), aparece apagado com
- *   "em breve" escrito (decisão R-01). Não é clicável.
+ * - Percurso: com `percursoDisponivel` (D-20) aparece normal; sem ele, apagado
+ *   com "em breve" escrito (decisão R-01). Não é clicável.
  * O estado nunca depende só da cor: há texto, check e peso da fonte.
  */
 export default function Etapas({ atual, percursoDisponivel = false, className }) {

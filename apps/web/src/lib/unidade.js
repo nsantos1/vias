@@ -29,6 +29,8 @@ export function textoAtendeSus(valor) {
 /** Nome curto da fonte para a tela; sigla desconhecida aparece como veio. */
 const FONTES = Object.freeze({
   CNES_DEMAS: "CNES (Ministério da Saúde)",
+  CNES_EQ: "CNES – equipamentos (DATASUS)",
+  CNES_SR: "CNES – serviços especializados (DATASUS)",
 });
 
 export function textoFonte(sigla) {

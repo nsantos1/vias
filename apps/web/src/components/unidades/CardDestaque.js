@@ -10,7 +10,7 @@ import LinhaInfo from "./LinhaInfo";
  * localização; sem localização, a primeira da lista, sem falar em proximidade.
  * Mostra só o que a API devolveu.
  */
-export default function CardDestaque({ unidade, servicoNome, comLocalizacao }) {
+export default function CardDestaque({ unidade, servicoNome, servicoDescricao, comLocalizacao }) {
   const distancia = formatarDistancia(unidade.distanciaKm);
   const tituloId = `destaque-${unidade.id}`;
 
@@ -38,7 +38,8 @@ export default function CardDestaque({ unidade, servicoNome, comLocalizacao }) {
           </span>
           <div>
             <p className="font-display text-xl font-semibold text-pinho">{servicoNome} no cadastro</p>
-            <p className="text-salvia">Serviço identificado na base consultada.</p>
+            {/* A descrição vem da API e diz de onde veio o vínculo e o que ele não garante. */}
+            <p className="text-salvia">{servicoDescricao || "Serviço identificado na base consultada."}</p>
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import {
   linkMapas,
   textoAcessibilidade,
   textoAtendeSus,
+  textoFonte,
 } from "@/lib/unidade";
 
 test("acessibilidade: cada estado do enum tem texto próprio, e o desconhecido é 'não informado'", () => {
@@ -46,4 +47,12 @@ test("link de mapas: coordenadas, depois endereço, senão nada (D-16)", () => {
     "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("UBS X, RUA A, 1"),
   );
   expect(linkMapas({ latitude: null, longitude: null, endereco: { logradouro: null } })).toBeNull();
+});
+
+test("fonte: siglas conhecidas viram nome legível; desconhecida aparece como veio", () => {
+  expect(textoFonte("CNES_DEMAS")).toBe("CNES (Ministério da Saúde)");
+  expect(textoFonte("CNES_EQ")).toBe("CNES – equipamentos (DATASUS)");
+  expect(textoFonte("CNES_SR")).toBe("CNES – serviços especializados (DATASUS)");
+  expect(textoFonte("OUTRA")).toBe("OUTRA");
+  expect(textoFonte(null)).toBeNull();
 });
