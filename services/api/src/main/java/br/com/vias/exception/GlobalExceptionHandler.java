@@ -75,28 +75,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErroResposta> tipoInvalido(MethodArgumentTypeMismatchException e, HttpServletRequest req) {
         return resposta(HttpStatus.BAD_REQUEST,
-                "Valor invalido para o parametro '" + e.getName() + "': " + e.getValue(), req, null);
+                "Valor inválido para o parâmetro '" + e.getName() + "': " + e.getValue(), req, null);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErroResposta> parametroAusente(MissingServletRequestParameterException e, HttpServletRequest req) {
-        return resposta(HttpStatus.BAD_REQUEST, "Parametro obrigatorio ausente: " + e.getParameterName(), req, null);
+        return resposta(HttpStatus.BAD_REQUEST, "Parâmetro obrigatório ausente: " + e.getParameterName(), req, null);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErroResposta> corpoInvalido(HttpMessageNotReadableException e, HttpServletRequest req) {
         return resposta(HttpStatus.BAD_REQUEST,
-                "Corpo da requisicao invalido. Confira o JSON, as datas (aaaa-mm-ddThh:mm:ss) e os valores de enum.", req, null);
+                "Corpo da requisição inválido. Confira o JSON, as datas (aaaa-mm-ddThh:mm:ss) e os valores de enum.", req, null);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErroResposta> metodoNaoSuportado(HttpRequestMethodNotSupportedException e, HttpServletRequest req) {
-        return resposta(HttpStatus.METHOD_NOT_ALLOWED, "Metodo " + e.getMethod() + " nao suportado neste endereco.", req, null);
+        return resposta(HttpStatus.METHOD_NOT_ALLOWED, "Método " + e.getMethod() + " não suportado neste endereço.", req, null);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErroResposta> rotaInexistente(NoResourceFoundException e, HttpServletRequest req) {
-        return resposta(HttpStatus.NOT_FOUND, "Endereco nao encontrado na API.", req, null);
+        return resposta(HttpStatus.NOT_FOUND, "Endereço não encontrado na API.", req, null);
     }
 
     /** Violacao de constraint no Oracle (FK, UNIQUE, CHECK) que escapou das validacoes do BO. */

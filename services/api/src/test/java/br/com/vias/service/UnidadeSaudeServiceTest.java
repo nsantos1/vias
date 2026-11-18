@@ -112,8 +112,8 @@ class UnidadeSaudeServiceTest {
         UnidadeDetalheResponse d = UnidadeSaudeService.detalhe(unidadeCnes());
         assertThat(d.acessibilidade().status()).isEqualTo(StatusAcessibilidade.NAO_INFORMADO);
         assertThat(d.camposCadastraisProtegidos()).isTrue();
-        assertThat(d.avisos()).anyMatch(a -> a.contains("nao informa a acessibilidade"));
-        assertThat(d.avisos()).anyMatch(a -> a.contains("Horario de funcionamento"));
+        assertThat(d.avisos()).anyMatch(a -> a.contains("não informa a acessibilidade"));
+        assertThat(d.avisos()).anyMatch(a -> a.contains("Horário de funcionamento"));
     }
 
     // ---------------------------------------------------------------- apoio

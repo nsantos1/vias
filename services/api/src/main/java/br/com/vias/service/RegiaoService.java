@@ -26,6 +26,6 @@ public class RegiaoService {
     @Transactional(readOnly = true)
     public RegiaoResponse buscar(Long id) {
         return regiaoRepository.buscarComTotal(id).stream().findFirst()
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Regiao", id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Região", id));
     }
 }

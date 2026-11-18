@@ -59,7 +59,7 @@ public class UnidadeSaudeService {
             throw new RecursoNaoEncontradoException("Servico", servicoId);
         }
         if (regiaoId != null && !regiaoRepository.existsById(regiaoId)) {
-            throw new RecursoNaoEncontradoException("Regiao", regiaoId);
+            throw new RecursoNaoEncontradoException("Região", regiaoId);
         }
         Page<UnidadeSaude> page = unidadeRepository.pesquisar(servicoId, regiaoId, texto(bairro), texto(nome),
                 acessibilidade, atendeSus, tipoUnidade, PageRequest.of(pagina, tamanho, Sort.by("nome", "id")));
@@ -88,7 +88,7 @@ public class UnidadeSaudeService {
     @Transactional
     public UnidadeDetalheResponse criar(UnidadeRequest req) {
         if (req.codigoCnes() != null && unidadeRepository.existsByCodigoCnes(req.codigoCnes())) {
-            throw new ConflitoException("Ja existe unidade com o codigo CNES " + req.codigoCnes() + ".");
+            throw new ConflitoException("Já existe unidade com o código CNES " + req.codigoCnes() + ".");
         }
         FonteDado manual = fonte(FonteDado.MANUAL);
         UnidadeSaude u = new UnidadeSaude();
@@ -111,12 +111,12 @@ public class UnidadeSaudeService {
             List<String> alterados = camposCadastraisAlterados(u, req);
             if (!alterados.isEmpty()) {
                 throw new RegraNegocioException("Unidade de fonte oficial (" + u.getFonte().getSigla()
-                        + "): os campos " + alterados + " sao geridos pela fonte e nao podem ser alterados pela API. "
+                        + "): os campos " + alterados + " são geridos pela fonte e não podem ser alterados pela API. "
                         + "Altere apenas acessibilidade e regiaoId.");
             }
         } else {
             if (req.codigoCnes() != null && unidadeRepository.existsByCodigoCnesAndIdNot(req.codigoCnes(), id)) {
-                throw new ConflitoException("Ja existe unidade com o codigo CNES " + req.codigoCnes() + ".");
+                throw new ConflitoException("Já existe unidade com o código CNES " + req.codigoCnes() + ".");
             }
             preencherCadastro(u, req);
             if (req.servicoIds() != null) substituirServicos(u, req.servicoIds(), u.getFonte());
@@ -142,7 +142,7 @@ public class UnidadeSaudeService {
         UnidadeSaude u = carregar(id);
         if (u.isOrigemOficial()) {
             throw new RegraNegocioException("Unidade de fonte oficial (" + u.getFonte().getSigla()
-                    + ") nao pode ser excluida pela API; a remocao acontece pela rotina de carga da fonte.");
+                    + ") não pode ser excluída pela API; a remoção acontece pela rotina de carga da fonte.");
         }
         unidadeRepository.delete(u);
     }
@@ -156,7 +156,7 @@ public class UnidadeSaudeService {
                     + " exige a fonte e a data da verificacao. Sem comprovacao, use NAO_VERIFICADO ou NAO_INFORMADO.");
         }
         if (a.dataVerificacao() != null && a.dataVerificacao().isAfter(LocalDate.now())) {
-            throw new RegraNegocioException("A data de verificacao da acessibilidade nao pode estar no futuro.");
+            throw new RegraNegocioException("A data de verificação da acessibilidade não pode estar no futuro.");
         }
     }
 
@@ -248,7 +248,7 @@ public class UnidadeSaudeService {
 
     private Regiao regiao(Long regiaoId) {
         if (regiaoId == null) return null;
-        return regiaoRepository.findById(regiaoId).orElseThrow(() -> new RecursoNaoEncontradoException("Regiao", regiaoId));
+        return regiaoRepository.findById(regiaoId).orElseThrow(() -> new RecursoNaoEncontradoException("Região", regiaoId));
     }
 
     private FonteDado fonte(String sigla) {
@@ -258,7 +258,7 @@ public class UnidadeSaudeService {
 
     private UnidadeSaude carregar(Long id) {
         return unidadeRepository.findComDetalhesById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Unidade de saude", id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Unidade de saúde", id));
     }
 
     private static String texto(String s) {
@@ -268,18 +268,18 @@ public class UnidadeSaudeService {
     static UnidadeDetalheResponse detalhe(UnidadeSaude u) {
         List<String> avisos = new ArrayList<>();
         if (u.getHorarioFuncionamento() != null) {
-            avisos.add("Horario de funcionamento e o informado no cadastro da fonte; confirme com a unidade antes de ir.");
+            avisos.add("Horário de funcionamento é o informado no cadastro da fonte; confirme com a unidade antes de ir.");
         }
         if (u.getStatusAcessibilidade() == StatusAcessibilidade.NAO_INFORMADO) {
-            avisos.add("A fonte nao informa a acessibilidade desta unidade.");
+            avisos.add("A fonte não informa a acessibilidade desta unidade.");
         } else if (u.getStatusAcessibilidade() == StatusAcessibilidade.NAO_VERIFICADO) {
-            avisos.add("A acessibilidade desta unidade ainda nao foi verificada.");
+            avisos.add("A acessibilidade desta unidade ainda não foi verificada.");
         }
         if (!u.getServicos().isEmpty()) {
-            avisos.add("Servicos listados sao vinculos cadastrais; nao garantem vaga, agenda ou atendimento hoje.");
+            avisos.add("Serviços listados são vínculos cadastrais; não garantem vaga, agenda ou atendimento hoje.");
         }
         if (u.getLatitude() == null) {
-            avisos.add("A fonte nao informa as coordenadas desta unidade.");
+            avisos.add("A fonte não informa as coordenadas desta unidade.");
         }
         return new UnidadeDetalheResponse(
                 u.getId(), u.getCodigoCnes(), u.getNome(), u.getRazaoSocial(), u.getCodigoTipoUnidade(), u.getTipoUnidade(),

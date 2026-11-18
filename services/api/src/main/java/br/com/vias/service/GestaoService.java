@@ -20,9 +20,9 @@ public class GestaoService {
     private static final List<String> DEFINICOES = List.of(
             "totalUnidades: unidades cadastradas no banco (CNES ativos + cadastros manuais).",
             "porTipoUnidade: contagem pelo tipo de unidade informado pela fonte.",
-            "porAtendeSus: indicador de atendimento ambulatorial SUS do CNES; NAO_INFORMADO quando a fonte nao traz.",
-            "porAcessibilidade: estado registrado; NAO_INFORMADO significa que a fonte nao publica, nao que a unidade seja inacessivel.",
-            "porServico: unidades com o indicador igual a 1 no CNES ou vinculadas manualmente. Ausencia nao significa que o servico nao existe.",
+            "porAtendeSus: indicador de atendimento ambulatorial SUS do CNES; NAO_INFORMADO quando a fonte não traz.",
+            "porAcessibilidade: estado registrado; NAO_INFORMADO significa que a fonte não publica, não que a unidade seja inacessível.",
+            "porServico: unidades com o indicador igual a 1 no CNES ou vinculadas manualmente. Ausência não significa que o serviço não existe.",
             "regioesComMaisUnidades: as 10 regioes (bairros do CNES) com mais unidades cadastradas.",
             "dataReferencia: menor e maior data de atualizacao informadas pela fonte nos registros.");
 
