@@ -10,23 +10,17 @@ Gravar no Oracle é outro passo (carga.py), que depende do contrato de tabelas c
 import argparse
 import json
 
-from ..config import PASTA_RAW, exigir, ler
+from ..config import PASTA_RAW, ler
 from .demas import ClienteDemas
 
 
 def main() -> None:
     argumentos = argparse.ArgumentParser(description=__doc__)
     argumentos.add_argument("--tipo", type=int, help="codigo_tipo_unidade (sem filtro se omitido)")
-    argumentos.add_argument("--primeira-pagina", type=int, default=0)
     opcoes = argumentos.parse_args()
 
     municipio = ler("VIAS_MUNICIPIO_IBGE", "355030")
-    cliente = ClienteDemas(
-        exigir("DEMAS_LOGIN"),
-        exigir("DEMAS_SENHA"),
-        primeira_pagina=opcoes.primeira_pagina,
-    )
-    cliente.autenticar()
+    cliente = ClienteDemas()
 
     registros = []
     for registro in cliente.estabelecimentos(municipio, codigo_tipo_unidade=opcoes.tipo):
