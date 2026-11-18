@@ -1,17 +1,19 @@
 # Cliente da API (FE-08)
 
-Responsável: Victor. Atualizado em 14/11/2026.
+Responsável: Victor. Atualizado em 18/11/2026.
 
 Todo acesso à API Java passa por [`src/services/api/`](../src/services/api/). Nenhum componente chama `fetch` direto.
 
 | Arquivo | O que faz |
 |---|---|
 | `client.js` | URL base, query string, timeout, cancelamento e erros normalizados (`requisitar`, `ErroApi`, `TIPOS_ERRO`) |
-| `servicos.js` | `listarServicos()` → `GET /api/servicos` |
-| `regioes.js` | `listarRegioes()` → `GET /api/regioes` |
-| `unidades.js` | `listarUnidades({ servicoId, regiaoId, bairro, acessibilidade })` → `GET /api/unidades`; `obterUnidade(id)` → `GET /api/unidades/{id}` |
+| `servicos.js` | `listarServicos()` → `GET /api/servicos`; `obterServico(id)` → `GET /api/servicos/{id}` |
+| `regioes.js` | `listarRegioes()` → `GET /api/regioes`; `obterRegiao(id)` → `GET /api/regioes/{id}` |
+| `unidades.js` | `listarUnidades({ servicoId, regiaoId, bairro, acessibilidade, pagina, tamanho })` → `GET /api/unidades`; `obterUnidade(id)` → `GET /api/unidades/{id}` |
 
-**Todos os endpoints são propostos** (Alinhamento Técnico §5) e ainda não foram confirmados pelo Raphael ([D-04](decisoes.md)). Os módulos devolvem o JSON do jeito que a API mandar; quando o DTO for confirmado, a adaptação de campos entra **só** nesses arquivos.
+**Contrato confirmado em 16–18/11** ([D-04](decisoes.md)): a API Java do Raphael está publicada em `https://vias-dfwu.onrender.com` (Swagger em `/swagger-ui.html`). Os formatos de cada resposta estão comentados em cada módulo. A lista de unidades é paginada (`pagina` começa em 0, `tamanho` vai de 1 a 100) e os erros vêm como `{ timestamp, status, erro, mensagem, caminho, campos }`.
+
+**Limite de tempo de 60 s:** a API roda no plano gratuito do Render, que “dorme” sem uso; a primeira consulta levou cerca de 90 s em 18/11. Depois de 5 s de espera, as telas mostram o `AvisoDemora` (“o serviço pode levar até 1 minuto para iniciar”). **Antes de apresentar, abra o app uma vez para acordar a API.**
 
 **Fora do cliente por enquanto:**
 - `GET /api/gestao/resumo`: entra no FE-20, junto com os indicadores.
@@ -22,7 +24,8 @@ Todo acesso à API Java passa por [`src/services/api/`](../src/services/api/). N
 
 ```bash
 # apps/web/.env.local (não vai para o Git)
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
+NEXT_PUBLIC_API_URL=https://vias-dfwu.onrender.com/api   # API publicada
+# NEXT_PUBLIC_API_URL=http://localhost:8080/api          # API rodando na sua máquina
 ```
 
 A variável é pública: ela é embutida no JavaScript do navegador no build. **Nunca coloque senha, token ou chave nela.** Sem a variável, ou com um valor que não comece com `http://` ou `https://`, o cliente lança `ErroApi` do tipo `CONFIGURACAO`.
@@ -55,7 +58,7 @@ Toda falha vira um `ErroApi` com `tipo`, `status`, `mensagem` (segura para a tel
 | `tipo` | Quando | Mensagem para a tela | “Tentar novamente”? |
 |---|---|---|---|
 | `REDE` | API fora do ar, sem internet, CORS bloqueado | “Não foi possível conectar ao serviço do VIAS…” | Sim |
-| `TIMEOUT` | Mais de 10 s sem resposta (`TIMEOUT_PADRAO_MS`) | “O serviço do VIAS demorou para responder…” | Sim |
+| `TIMEOUT` | Mais de 60 s sem resposta (`TIMEOUT_PADRAO_MS`) | “O serviço do VIAS demorou mais de 1 minuto para responder…” | Sim |
 | `HTTP` 400 | Filtro ou dado recusado | “Algum dado da busca não foi aceito. Revise os filtros…” | Não |
 | `HTTP` 404 | Recurso inexistente | “Não encontramos o que você procurou.” | Não |
 | `HTTP` 5xx e outros | Erro no servidor | “O serviço do VIAS encontrou um problema…” | Sim (5xx) |

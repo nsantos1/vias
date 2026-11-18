@@ -2,22 +2,16 @@
 
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import AvisoDemora from "@/components/estados/AvisoDemora";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { TextField } from "@/components/ui/Field";
-import { useConsulta } from "@/hooks/useConsulta";
+import Icon from "@/components/ui/Icon";
+import { ESTADOS, useConsulta } from "@/hooks/useConsulta";
+import { agruparPorCategoria, filtrarCatalogo, normalizar, temCategorias } from "@/lib/catalogo";
 import { listarServicos } from "@/services/api/servicos";
 
-const MAX_SUGESTOES = 8;
-
-/** Compara sem acento e sem diferença de maiúsculas ("ultrassom" acha "Ultrassonografia"). */
-function normalizar(texto) {
-  return String(texto ?? "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
+const MAX_SUGESTOES = 12;
 
 /**
  * Formulário da tela 1 (FE-11), no layout original: um campo "Exame, serviço ou
@@ -26,8 +20,11 @@ function normalizar(texto) {
  * nenhum serviço do catálogo não vira busca.
  *
  * O campo é um combobox (ARIA 1.2): setas sobem e descem, Enter escolhe, Esc fecha.
+ *
+ * Não há escolha manual de local (decisão do Victor, 18/11, D-18): a tela de
+ * resultados usa a localização do aparelho para ordenar pelas mais próximas.
  */
-export default function FormularioBusca({ servicoInicial = "", regiaoInicial = "" }) {
+export default function FormularioBusca({ servicoInicial = "" }) {
   const router = useRouter();
   const listaId = useId();
   const servicos = useConsulta("servicos", (signal) => listarServicos({ signal }));
@@ -46,14 +43,12 @@ export default function FormularioBusca({ servicoInicial = "", regiaoInicial = "
   const nomeInicial = catalogo.find((s) => String(s.id) === String(servicoInicial))?.nome ?? "";
   const valor = texto ?? nomeInicial;
   const termo = normalizar(valor);
-  const sugestoes = (
-    termo
-      ? catalogo.filter(
-          (s) => normalizar(s.nome).includes(termo) || normalizar(s.descricao).includes(termo),
-        )
-      : catalogo
-  ).slice(0, MAX_SUGESTOES);
+  // D-19: quando a API mandar `categoria`, as sugestões aparecem em grupos
+  // (Exames, Especialidades, Atendimento). Sem categoria, lista simples.
+  const sugestoes = filtrarCatalogo(catalogo, termo, MAX_SUGESTOES);
+  const grupos = agruparPorCategoria(sugestoes, temCategorias(catalogo));
   const mostrarLista = aberto && servicos.estado === "sucesso" && sugestoes.length > 0;
+  const semResultado = aberto && servicos.estado === "sucesso" && termo && sugestoes.length === 0;
 
   function escolher(servico) {
     setServicoId(String(servico.id));
@@ -107,7 +102,6 @@ export default function FormularioBusca({ servicoInicial = "", regiaoInicial = "
       return;
     }
     const params = new URLSearchParams({ servicoId: id });
-    if (regiaoInicial) params.set("regiaoId", regiaoInicial);
     iniciarEnvio(() => router.push(`/unidades?${params}`));
   }
 
@@ -150,36 +144,74 @@ export default function FormularioBusca({ servicoInicial = "", regiaoInicial = "
             hidden={!mostrarLista}
             // Fica no fluxo (não absolute): o contêiner da página tem overflow-hidden
             // por causa do mapa decorativo e cortaria uma lista flutuante.
-            className="mt-2 max-h-80 overflow-auto rounded-xl border border-borda-campo bg-superficie py-1 shadow-lg"
+            className="mt-2 max-h-96 overflow-auto rounded-xl border border-borda-campo bg-superficie py-1 shadow-lg"
           >
-            {sugestoes.map((s, i) => (
-              <li
-                key={s.id}
-                id={`${listaId}-${i}`}
-                role="option"
-                aria-selected={i === ativo}
-                // mousedown (e não click) para escolher antes do blur fechar a lista.
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  escolher(s);
-                }}
-                onMouseEnter={() => setAtivo(i)}
-                className={`flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 ${
-                  i === ativo ? "bg-nevoa" : ""
-                }`}
-              >
-                <span className="text-grafite">{s.nome}</span>
-                <span className="shrink-0 text-sm text-salvia">{s.totalUnidades} unidades</span>
-              </li>
-            ))}
+            {grupos.map((grupo) => {
+              const itens = grupo.itens.map(({ servico: s, indice: i }) => (
+                <li
+                  key={s.id}
+                  id={`${listaId}-${i}`}
+                  role="option"
+                  aria-selected={i === ativo}
+                  // mousedown (e não click) para escolher antes do blur fechar a lista.
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    escolher(s);
+                  }}
+                  onMouseEnter={() => setAtivo(i)}
+                  className={`flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 ${
+                    i === ativo ? "bg-nevoa" : ""
+                  }`}
+                >
+                  <span className="text-grafite">{s.nome}</span>
+                  <span className="shrink-0 text-sm text-salvia">{s.totalUnidades} unidades</span>
+                </li>
+              ));
+              if (!grupo.rotulo) return itens;
+              const tituloId = `${listaId}-grupo-${grupo.chave}`;
+              return (
+                <li key={grupo.chave} role="presentation">
+                  <p
+                    id={tituloId}
+                    role="presentation"
+                    className="px-4 pt-3 pb-1 font-mono text-label uppercase text-rota"
+                  >
+                    {grupo.rotulo}
+                  </p>
+                  <ul role="group" aria-labelledby={tituloId}>
+                    {itens}
+                  </ul>
+                </li>
+              );
+            })}
           </ul>
+
+          {semResultado && (
+            <p role="status" className="mt-2 text-sm text-salvia">
+              Nenhum item do catálogo com “{valor.trim()}”. Tente outra palavra ou apague o campo
+              para ver todas as opções.
+            </p>
+          )}
         </div>
+
+        {servicos.estado === ESTADOS.CARREGANDO && (
+          <div role="status">
+            <AvisoDemora />
+          </div>
+        )}
 
         <div className="flex flex-col items-center gap-3">
           <Button type="submit" largo seta carregando={enviando} disabled={servicos.estado !== "sucesso"}>
             Buscar unidades
           </Button>
           <p className="text-center text-salvia">Encontre unidades com o serviço procurado.</p>
+          <p className="flex items-start gap-2 text-sm text-salvia">
+            <Icon nome="pin" className="mt-0.5 size-4 text-rota" />
+            <span>
+              Para mostrar as unidades mais perto de você, o VIAS vai pedir sua localização. Ela
+              fica só no seu aparelho: não é enviada nem salva.
+            </span>
+          </p>
         </div>
       </form>
 

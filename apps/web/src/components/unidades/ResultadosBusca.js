@@ -1,55 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import EstadoConsulta from "@/components/estados/EstadoConsulta";
 import EstadoVazio from "@/components/estados/EstadoVazio";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
-import Chip from "@/components/ui/Chip";
+import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
 import { ESTADOS, useConsulta } from "@/hooks/useConsulta";
-import { obterRegiao } from "@/services/api/regioes";
+import { ESTADOS_LOCAL, useLocalizacao } from "@/hooks/useLocalizacao";
+import { ordenarPorDistancia } from "@/lib/distancia";
 import { obterServico } from "@/services/api/servicos";
-import { listarUnidades } from "@/services/api/unidades";
+import { listarTodasUnidadesDoServico } from "@/services/api/unidades";
+import CardDestaque from "./CardDestaque";
 import CardUnidade from "./CardUnidade";
 
-const TAMANHO_PAGINA = 10;
-
-function urlResultados({ servicoId, regiaoId, pagina }) {
-  const params = new URLSearchParams();
-  if (servicoId) params.set("servicoId", servicoId);
-  if (regiaoId) params.set("regiaoId", regiaoId);
-  if (pagina > 0) params.set("pagina", String(pagina));
-  return `/unidades?${params}`;
-}
-
-function urlAlterarBusca({ servicoId, regiaoId }) {
-  const params = new URLSearchParams();
-  if (servicoId) params.set("servicoId", servicoId);
-  if (regiaoId) params.set("regiaoId", regiaoId);
-  const query = params.toString();
-  return query ? `/?${query}` : "/";
-}
+const POR_VEZ = 10;
 
 /**
- * Tela 2 de 3, Resultados (FE-12). Os filtros vêm da URL (sitemap, regra 1),
- * então voltar e recarregar mantêm a busca. Falha nunca vira lista vazia.
+ * Tela 2 de 3, Resultados (referência docs/referencias/02-unidade.webp).
+ *
+ * D-18 (Victor, 18/11): o local da pessoa vem da localização do aparelho, sem
+ * escolha manual. O navegador busca todas as unidades do serviço na API Java e
+ * ordena pela distância em linha reta. A localização não sai do aparelho.
+ * Sem localização, a lista aparece em ordem alfabética, sem falar em proximidade.
  */
-export default function ResultadosBusca({ servicoId, regiaoId, pagina }) {
-  const router = useRouter();
-  const filtros = { servicoId, regiaoId };
+export default function ResultadosBusca({ servicoId }) {
+  const local = useLocalizacao();
+  const [quantas, setQuantas] = useState(POR_VEZ);
 
   const servico = useConsulta(`servico:${servicoId}`, (signal) => obterServico(servicoId, { signal }), {
     ativo: Boolean(servicoId),
   });
-  const regiao = useConsulta(`regiao:${regiaoId}`, (signal) => obterRegiao(regiaoId, { signal }), {
-    ativo: Boolean(regiaoId),
-  });
   const unidades = useConsulta(
-    `unidades?${servicoId}|${regiaoId}|${pagina}`,
-    (signal) =>
-      listarUnidades({ servicoId, regiaoId, pagina, tamanho: TAMANHO_PAGINA, signal }),
+    `unidades-do-servico:${servicoId}`,
+    (signal) => listarTodasUnidadesDoServico({ servicoId, signal }),
     { ativo: Boolean(servicoId) },
   );
 
@@ -68,15 +54,22 @@ export default function ResultadosBusca({ servicoId, regiaoId, pagina }) {
     );
   }
 
-  const total = unidades.estado === ESTADOS.SUCESSO ? unidades.dados.total : null;
+  const pedindoLocal = local.estado === ESTADOS_LOCAL.PEDINDO;
+  const comLocalizacao = local.estado === ESTADOS_LOCAL.OK;
+  // Só mostra a lista depois de saber se há localização, para ela não "pular" de ordem.
+  const consulta =
+    unidades.estado === ESTADOS.SUCESSO && pedindoLocal
+      ? { ...unidades, estado: ESTADOS.CARREGANDO }
+      : unidades;
+
+  const nomeServico = servico.dados?.nome ?? null;
+  const total = unidades.estado === ESTADOS.SUCESSO ? unidades.dados.items.length : null;
   const titulo =
-    unidades.estado === ESTADOS.CARREGANDO
+    consulta.estado === ESTADOS.CARREGANDO || total === null
       ? "Buscando unidades"
       : total === 1
         ? "Encontramos uma unidade"
-        : total
-          ? `Encontramos ${total.toLocaleString("pt-BR")} unidades`
-          : "Resultado da busca";
+        : `Encontramos ${total.toLocaleString("pt-BR")} unidades`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,24 +78,11 @@ export default function ResultadosBusca({ servicoId, regiaoId, pagina }) {
           {titulo}
         </h1>
         <p className="text-lead text-salvia">
-          Resultado para{" "}
-          <strong className="text-grafite">
-            {servico.dados?.nome ?? "o serviço escolhido"}
-            {regiaoId && ` · ${regiao.dados?.nome ?? "região escolhida"}`}
-          </strong>
+          Resultado para <strong className="text-grafite">{nomeServico ?? "o serviço escolhido"}</strong>
+          {comLocalizacao && <> · mais próximas de você</>}
         </p>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {servico.dados && <Chip>{servico.dados.nome}</Chip>}
-          {regiao.dados && (
-            <Chip
-              aoRemover={() => router.push(urlResultados({ servicoId, pagina: 0 }))}
-              rotuloRemover={`Remover filtro de região: ${regiao.dados.nome}`}
-            >
-              {regiao.dados.nome}
-            </Chip>
-          )}
-          <Button variante="discreto" href={urlAlterarBusca(filtros)}>
+        <div>
+          <Button variante="discreto" href={`/?servicoId=${encodeURIComponent(servicoId)}`}>
             Alterar busca
           </Button>
         </div>
@@ -118,75 +98,124 @@ export default function ResultadosBusca({ servicoId, regiaoId, pagina }) {
       )}
 
       <EstadoConsulta
-        consulta={unidades}
-        rotuloCarregando="Carregando unidades…"
+        consulta={consulta}
+        rotuloCarregando={
+          unidades.estado === ESTADOS.SUCESSO && pedindoLocal
+            ? "Obtendo sua localização para mostrar as mais próximas…"
+            : "Buscando unidades…"
+        }
         esqueleto={
           <div className="flex flex-col gap-4">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-96 w-full rounded-3xl" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
           </div>
         }
         tituloErro="Não foi possível carregar as unidades"
         acaoErro={
-          <Button variante="discreto" href={urlAlterarBusca(filtros)}>
+          <Button variante="discreto" href="/">
             Voltar à busca
           </Button>
         }
         vazio={{
-          titulo: "Nenhuma unidade encontrada para estes filtros",
-          descricao: regiaoId
-            ? "Tente buscar em todas as regiões."
-            : "Tente outro serviço do catálogo.",
-          acao: regiaoId ? (
-            <Button variante="secundario" href={urlResultados({ servicoId, pagina: 0 })}>
-              Buscar em todas as regiões
-            </Button>
-          ) : (
+          titulo: "Nenhuma unidade com este serviço",
+          descricao: "O cadastro consultado não tem unidades com este serviço. Tente outro serviço do catálogo.",
+          acao: (
             <Button variante="secundario" href="/">
               Alterar busca
             </Button>
           ),
         }}
       >
-        {(pag) => (
-          <div className="flex flex-col gap-5">
-            <Alert tom="info" titulo="O que esta lista mostra">
-              Unidades com o serviço registrado no cadastro do CNES. O cadastro não garante vaga,
-              agenda ou atendimento hoje.
-            </Alert>
+        {(dados) => {
+          const ordenadas = ordenarPorDistancia(dados.items, local.origem);
+          const [primeira, ...demais] = ordenadas;
+          const visiveis = demais.slice(0, quantas);
 
-            <ol className="flex flex-col gap-4">
-              {pag.items.map((u) => (
-                <li key={u.id}>
-                  <CardUnidade unidade={u} />
-                </li>
-              ))}
-            </ol>
+          return (
+            <div className="flex flex-col gap-6">
+              <StatusLocalizacao local={local} />
 
-            {pag.totalPaginas > 1 && (
-              <nav aria-label="Páginas de resultados" className="flex flex-wrap items-center justify-between gap-3">
-                {pag.pagina > 0 ? (
-                  <Button variante="secundario" href={urlResultados({ ...filtros, pagina: pag.pagina - 1 })}>
-                    Anterior
-                  </Button>
-                ) : (
-                  <span />
-                )}
+              <CardDestaque unidade={primeira} servicoNome={nomeServico} comLocalizacao={comLocalizacao} />
+
+              {demais.length > 0 && (
+                <section aria-labelledby="titulo-outras" className="flex flex-col gap-3">
+                  <h2 id="titulo-outras" className="text-2xl font-bold">
+                    {comLocalizacao ? "Outras unidades próximas" : "Outras unidades"}
+                  </h2>
+                  <ol className="flex flex-col gap-3">
+                    {visiveis.map((u) => (
+                      <li key={u.id}>
+                        <CardUnidade unidade={u} comLocalizacao={comLocalizacao} />
+                      </li>
+                    ))}
+                  </ol>
+                  {demais.length > quantas && (
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-sm text-salvia">
+                        Mostrando {visiveis.length + 1} de {ordenadas.length.toLocaleString("pt-BR")} unidades
+                      </p>
+                      <Button variante="secundario" onClick={() => setQuantas((q) => q + POR_VEZ)}>
+                        Mostrar mais unidades
+                      </Button>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {!dados.completo && (
                 <p className="text-sm text-salvia">
-                  Página {pag.pagina + 1} de {pag.totalPaginas}
+                  A lista foi limitada às primeiras {dados.items.length.toLocaleString("pt-BR")} unidades
+                  de {dados.total.toLocaleString("pt-BR")}.
                 </p>
-                {pag.pagina + 1 < pag.totalPaginas ? (
-                  <Button variante="secundario" seta href={urlResultados({ ...filtros, pagina: pag.pagina + 1 })}>
-                    Próxima
-                  </Button>
-                ) : (
-                  <span />
-                )}
-              </nav>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          );
+        }}
       </EstadoConsulta>
     </div>
+  );
+}
+
+/** Diz como a lista foi ordenada e, sem localização, oferece pedir de novo. */
+function StatusLocalizacao({ local }) {
+  if (local.estado === ESTADOS_LOCAL.OK) {
+    const precisaoKm = local.origem?.precisaoMetros ? local.origem.precisaoMetros / 1000 : null;
+    return (
+      <p className="flex items-start gap-2 text-sm text-salvia">
+        <Icon nome="pin" className="mt-0.5 size-4 shrink-0 text-rota" />
+        <span>
+          Ordenado pela distância em linha reta até a sua localização atual, que não é salva.
+          {precisaoKm && precisaoKm >= 1 && (
+            <>
+              {" "}
+              Sua localização é aproximada (cerca de{" "}
+              {precisaoKm.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km).
+            </>
+          )}
+        </span>
+      </p>
+    );
+  }
+
+  const motivo =
+    local.estado === ESTADOS_LOCAL.NEGADA
+      ? "O acesso à localização foi bloqueado. Para liberar, toque no cadeado ao lado do endereço do site, permita a localização e use o botão abaixo."
+      : local.estado === ESTADOS_LOCAL.INDISPONIVEL
+        ? "Este aparelho não informou a localização."
+        : "Não foi possível obter a localização a tempo.";
+
+  return (
+    <Alert
+      tom="aviso"
+      titulo="Sem sua localização, a lista não está ordenada por proximidade"
+      acao={
+        <Button variante="secundario" onClick={local.pedirDeNovo}>
+          Usar minha localização
+        </Button>
+      }
+    >
+      {motivo} Enquanto isso, as unidades aparecem em ordem alfabética.
+    </Alert>
   );
 }

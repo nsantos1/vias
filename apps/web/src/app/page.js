@@ -7,8 +7,8 @@ import Skeleton from "@/components/ui/Skeleton";
 /**
  * Tela 1 de 3, Necessidade (referência docs/referencias/01-necessidade.webp).
  *
- * Layout original do Victor. O campo agora sugere os serviços reais da API Java
- * (GET /api/servicos). "Alterar busca" volta para cá com os filtros na URL.
+ * O campo sugere os serviços reais da API Java (GET /api/servicos). Não há
+ * escolha manual de local: os resultados usam a localização do aparelho (D-18).
  * O seletor "Atendimento pelo" (SUS/plano) fica fora até D-12 ser decidido (R-02).
  */
 export default function Home({ searchParams }) {
@@ -31,9 +31,9 @@ export default function Home({ searchParams }) {
             </p>
           </div>
 
-          {/* Os filtros da URL só existem na requisição: com cacheComponents, ficam em Suspense. */}
+          {/* O serviço da URL ("Alterar busca") só existe na requisição: com cacheComponents, fica em Suspense. */}
           <Suspense fallback={<Skeleton className="h-56 w-full" />}>
-            <FormularioComFiltros searchParams={searchParams} />
+            <FormularioComServico searchParams={searchParams} />
           </Suspense>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function Home({ searchParams }) {
   );
 }
 
-async function FormularioComFiltros({ searchParams }) {
-  const { servicoId = "", regiaoId = "" } = (await searchParams) ?? {};
-  return <FormularioBusca servicoInicial={String(servicoId)} regiaoInicial={String(regiaoId)} />;
+async function FormularioComServico({ searchParams }) {
+  const { servicoId = "" } = (await searchParams) ?? {};
+  return <FormularioBusca servicoInicial={String(servicoId)} />;
 }

@@ -54,6 +54,58 @@ const caminhos = {
   ),
   voltar: <path d="m15 5-7 7 7 7" />,
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  pin: (
+    <>
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </>
+  ),
+  lista: (
+    <>
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <path d="M9 4.5V3h6v1.5" />
+      <path d="M9 10h6" />
+      <path d="M9 14h6" />
+      <path d="M9 18h3" />
+    </>
+  ),
+  pessoa: (
+    <>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20a7 7 0 0 1 14 0" />
+    </>
+  ),
+  base: (
+    <>
+      <ellipse cx="12" cy="5.5" rx="7" ry="2.5" />
+      <path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
+      <path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
+    </>
+  ),
+  relogio: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  telefone: (
+    <path d="M6.5 3.5h3l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2Z" />
+  ),
+  acessibilidade: (
+    <>
+      <circle cx="12" cy="4.5" r="1.8" />
+      <path d="M6 8.5l6 1.5 6-1.5" />
+      <path d="M12 10v4.5l-3 5.5" />
+      <path d="M12 14.5l3 5.5" />
+    </>
+  ),
+  alvo: (
+    <>
+      <circle cx="12" cy="12" r="7.5" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22" />
+    </>
+  ),
 };
 
 export default function Icon({ nome, className }) {

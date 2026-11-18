@@ -11,7 +11,7 @@ export default function PaginaUnidades({ searchParams }) {
     <div className="mx-auto max-w-5xl px-4 pt-4 pb-10 sm:px-6 sm:pt-6">
       <div className="flex max-w-2xl flex-col gap-8">
         <Etapas atual={2} />
-        <Suspense fallback={<EstadoCarregando rotulo="Carregando unidades…" />}>
+        <Suspense fallback={<EstadoCarregando rotulo="Buscando unidades…" />}>
           <Resultados searchParams={searchParams} />
         </Suspense>
       </div>
@@ -22,7 +22,5 @@ export default function PaginaUnidades({ searchParams }) {
 async function Resultados({ searchParams }) {
   const params = (await searchParams) ?? {};
   const servicoId = typeof params.servicoId === "string" ? params.servicoId : "";
-  const regiaoId = typeof params.regiaoId === "string" ? params.regiaoId : "";
-  const pagina = Math.max(0, Number.parseInt(params.pagina ?? "0", 10) || 0);
-  return <ResultadosBusca servicoId={servicoId} regiaoId={regiaoId} pagina={pagina} />;
+  return <ResultadosBusca servicoId={servicoId} />;
 }

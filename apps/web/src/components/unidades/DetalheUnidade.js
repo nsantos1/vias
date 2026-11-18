@@ -2,9 +2,9 @@
 
 import EstadoConsulta from "@/components/estados/EstadoConsulta";
 import ValorInformado from "@/components/estados/ValorInformado";
-import Alert from "@/components/ui/Alert";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
 import { useConsulta } from "@/hooks/useConsulta";
 import { formatarData } from "@/lib/formatos";
@@ -16,19 +16,12 @@ import {
   textoAtendeSus,
 } from "@/lib/unidade";
 import { obterUnidade } from "@/services/api/unidades";
-
-function Linha({ rotulo, children }) {
-  return (
-    <div className="grid grid-cols-1 gap-1 border-b border-linha py-3 last:border-b-0 sm:grid-cols-[11rem_1fr] sm:gap-4">
-      <dt className="font-mono text-sm uppercase text-salvia">{rotulo}</dt>
-      <dd className="text-grafite">{children}</dd>
-    </div>
-  );
-}
+import LinhaInfo from "./LinhaInfo";
 
 /**
- * Tela de detalhe (FE-13). Busca a unidade pelo id no servidor (sitemap, regra 4),
- * nunca reaproveita dados da lista. Os avisos são os que a API escreveu.
+ * Tela de detalhe (FE-13), no estilo de card da referência 2. Busca a unidade
+ * pelo id na API (sitemap, regra 4), nunca reaproveita dados da lista.
+ * Os avisos são os que a API escreveu.
  */
 export default function DetalheUnidade({ id }) {
   const consulta = useConsulta(`unidade:${id}`, (signal) => obterUnidade(id, { signal }));
@@ -40,7 +33,7 @@ export default function DetalheUnidade({ id }) {
       esqueleto={
         <div className="flex flex-col gap-4">
           <Skeleton className="h-10 w-3/4" />
-          <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-96 w-full rounded-3xl" />
         </div>
       }
       tituloErro={
@@ -66,13 +59,13 @@ function Conteudo({ unidade: u }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <section
+      <article
         aria-labelledby="nome-unidade"
-        className="flex flex-col gap-4 rounded-2xl border border-linha bg-superficie p-5 shadow-sm sm:p-6"
+        className="flex flex-col gap-5 rounded-3xl border border-linha bg-superficie p-5 shadow-sm sm:p-7"
       >
         <div className="flex flex-col gap-1">
           <p className="font-mono text-label uppercase text-rota">Unidade de saúde</p>
-          <h1 id="nome-unidade" className="font-display text-3xl leading-tight font-bold text-pinho">
+          <h1 id="nome-unidade" className="font-display text-3xl leading-tight font-bold text-pinho sm:text-4xl">
             {u.nome}
           </h1>
           <p className="text-salvia">
@@ -81,38 +74,50 @@ function Conteudo({ unidade: u }) {
           </p>
         </div>
 
+        <div className="flex flex-col gap-3 rounded-2xl bg-nevoa p-4">
+          <p className="flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-rota text-papel">
+              <Icon nome="check" className="size-5" />
+            </span>
+            <span className="font-display text-lg font-semibold text-pinho">Serviços no cadastro</span>
+          </p>
+          {u.servicos?.length ? (
+            <ul className="flex flex-wrap gap-2">
+              {u.servicos.map((s) => (
+                <li key={s.id}>
+                  <Badge tom="neutro">{s.nome}</Badge>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ValorInformado valor={null} />
+          )}
+        </div>
+
         <dl>
-          <Linha rotulo="Serviços">
-            {u.servicos?.length ? (
-              <ul className="flex flex-wrap gap-2">
-                {u.servicos.map((s) => (
-                  <li key={s.id}>
-                    <Badge tom="neutro">{s.nome}</Badge>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <ValorInformado valor={null} />
-            )}
-          </Linha>
-          <Linha rotulo="Atendimento SUS">{textoAtendeSus(u.atendeSus)}</Linha>
-          <Linha rotulo="Endereço">
+          <LinhaInfo icone="pessoa" rotulo="Atendimento SUS">
+            {textoAtendeSus(u.atendeSus)}
+          </LinhaInfo>
+          <LinhaInfo icone="pin" rotulo="Endereço">
             <ValorInformado valor={enderecoEmTexto(u.endereco)} />
-          </Linha>
-          <Linha rotulo="Telefone">
+          </LinhaInfo>
+          <LinhaInfo icone="telefone" rotulo="Telefone">
             {telefone ? (
-              <a href={`tel:${String(u.telefone).replace(/\D/g, "")}`} className="font-semibold text-pinho underline">
+              <a
+                href={`tel:${String(u.telefone).replace(/\D/g, "")}`}
+                className="font-semibold text-pinho underline underline-offset-4"
+              >
                 {telefone}
               </a>
             ) : (
               <ValorInformado valor={null} />
             )}
-          </Linha>
-          <Linha rotulo="Horário">
+          </LinhaInfo>
+          <LinhaInfo icone="relogio" rotulo="Horário">
             <ValorInformado valor={u.horarioFuncionamento} />
-          </Linha>
-          <Linha rotulo="Acessibilidade">
-            <div className="flex flex-col gap-1">
+          </LinhaInfo>
+          <LinhaInfo icone="acessibilidade" rotulo="Acessibilidade">
+            <span className="flex flex-col gap-1">
               <span>
                 <Badge tom={acess.tom} comIcone={false}>
                   {acess.rotulo}
@@ -125,12 +130,12 @@ function Conteudo({ unidade: u }) {
                     ` · verificada em ${formatarData(u.acessibilidade.dataVerificacao)}`}
                 </span>
               )}
-            </div>
-          </Linha>
-          <Linha rotulo="Região">
-            <ValorInformado valor={u.regiao?.nome} />
-          </Linha>
-          <Linha rotulo="Fonte">
+            </span>
+          </LinhaInfo>
+          <LinhaInfo icone="alvo" rotulo="Bairro">
+            <ValorInformado valor={u.regiao?.nome ?? u.endereco?.bairro} />
+          </LinhaInfo>
+          <LinhaInfo icone="base" rotulo="Fonte">
             {prov ? (
               <span className="flex flex-col gap-0.5">
                 <span>{prov.nomeFonte ?? prov.fonte}</span>
@@ -143,22 +148,24 @@ function Conteudo({ unidade: u }) {
             ) : (
               <ValorInformado valor={null} />
             )}
-          </Linha>
+          </LinhaInfo>
         </dl>
-      </section>
 
-      {u.avisos?.length > 0 && (
-        <Alert tom="info" titulo="Antes de ir">
-          <ul className="flex list-disc flex-col gap-1 pl-5">
-            {u.avisos.map((aviso) => (
-              <li key={aviso}>{aviso}</li>
-            ))}
-          </ul>
-        </Alert>
-      )}
+        {u.avisos?.length > 0 && (
+          <div className="flex items-start gap-3 text-salvia">
+            <Icon nome="info" className="mt-0.5 size-6 shrink-0" />
+            <div className="flex flex-col gap-1">
+              <p className="font-semibold text-grafite">Antes de ir</p>
+              <ul className="flex flex-col gap-1">
+                {u.avisos.map((aviso) => (
+                  <li key={aviso}>{aviso}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        {mapas && (
+        {mapas ? (
           <Button
             href={mapas}
             target="_blank"
@@ -169,13 +176,12 @@ function Conteudo({ unidade: u }) {
           >
             Abrir no app de mapas
           </Button>
+        ) : (
+          <p className="text-sm text-salvia">
+            A fonte não informa coordenadas nem endereço desta unidade, então não há link para o mapa.
+          </p>
         )}
-      </div>
-      {!mapas && (
-        <p className="text-sm text-salvia">
-          A fonte não informa coordenadas nem endereço desta unidade, então não há link para o mapa.
-        </p>
-      )}
+      </article>
     </div>
   );
 }

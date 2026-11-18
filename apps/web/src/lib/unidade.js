@@ -26,6 +26,16 @@ export function textoAtendeSus(valor) {
   return ATENDE_SUS[valor] ?? ATENDE_SUS.NAO_INFORMADO;
 }
 
+/** Nome curto da fonte para a tela; sigla desconhecida aparece como veio. */
+const FONTES = Object.freeze({
+  CNES_DEMAS: "CNES (Ministério da Saúde)",
+});
+
+export function textoFonte(sigla) {
+  if (!sigla) return null;
+  return FONTES[sigla] ?? String(sigla);
+}
+
 /** "(11) 3473-0280"; formato desconhecido volta como veio; vazio vira null. */
 export function formatarTelefone(valor) {
   if (!valor) return null;

@@ -13,7 +13,7 @@ O P0 é o fluxo **busca → resultados → detalhe**, mais as páginas de erro. 
 | Rota | Fase | Público | Objetivo | Fonte de dados (proposta) | Bloqueio |
 |---|---|---|---|---|---|
 | `/` | P0 | Cidadão | Busca: escolher o serviço ou necessidade e a região | `GET /api/servicos`, `GET /api/regioes` | D-04 |
-| `/unidades` | P0 | Cidadão | Resultados da busca, com os filtros ativos | `GET /api/unidades?servicoId=…&regiaoId=…` | D-02, D-04 |
+| `/unidades` | P0 | Cidadão | Unidades com o serviço, **mais próximas primeiro** (localização do aparelho, D-18) | `GET /api/unidades?servicoId=…` (todas as páginas) | — |
 | `/unidades/[id]` | P0 | Cidadão | Detalhe do que a API sabe sobre a unidade | `GET /api/unidades/{id}` | D-02, D-03, D-04 |
 | `not-found` | P0 | Todos | Rota inexistente ou unidade não encontrada (404) | — | — |
 | `error` | P0 | Todos | Falha inesperada, com opção de tentar de novo | — | — |
@@ -42,8 +42,8 @@ Linhas tracejadas indicam módulos condicionais: eles ficam fora da navegação 
 
 ## Regras de navegação
 
-1. **Filtros na URL.** A busca envia os IDs reais do catálogo (`servicoId`, `regiaoId`) como query string. Voltar e recarregar mantêm a busca. Os nomes dos parâmetros são os do Alinhamento §5 e mudam se o Raphael mudar (D-04).
-2. **Só filtros confirmados.** `bairro` e `acessibilidade` só aparecem na tela depois que o backend confirmar nome e domínio. Filtro SUS/plano não entra.
+1. **Serviço na URL, localização não.** A busca envia o ID real do serviço (`servicoId`) na query string; voltar e recarregar mantêm a busca. O local da pessoa vem da localização do aparelho (D-18), sem escolha manual de região, e **nunca vai para a URL**.
+2. **Sem filtros extras.** Bairro e acessibilidade existem na API, mas não estão na tela; o filtro SUS/plano não entra (D-12). A ordem por proximidade é a resposta à pergunta “onde posso ser atendido?”.
 3. **Nada sensível na URL.** Nenhuma localização do cidadão, sintoma ou texto pessoal vai para a URL, para o log ou para o armazenamento.
 4. **Dados do servidor, não do navegador.** O detalhe e a rota buscam a unidade pelo `id`, nunca reaproveitam dados copiados da lista.
 5. **Texto livre não vira diagnóstico.** O campo de busca filtra o catálogo retornado pela API; não interpreta sintomas.
@@ -71,5 +71,5 @@ As três telas do P0 servem de base para os protótipos pedidos no PDF de DDD-Ja
 ## Aprovação
 
 - [ ] Grupo aprova `/` como tela de busca (sem `/buscar`).
-- [ ] Raphael confirma os nomes dos query params (`servicoId`, `regiaoId`).
+- [x] Raphael confirmou os query params (16/11). A tela usa só `servicoId`.
 - [ ] Grupo concorda que rota e painel ficam fora da navegação até os contratos D-05 e D-07.

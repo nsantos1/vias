@@ -1,68 +1,43 @@
-import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
+import Link from "next/link";
 import ValorInformado from "@/components/estados/ValorInformado";
-import { textoAcessibilidade, textoAtendeSus } from "@/lib/unidade";
+import Icon from "@/components/ui/Icon";
+import { formatarDistancia } from "@/lib/distancia";
+import { textoAtendeSus } from "@/lib/unidade";
 
 /**
- * Card de uma unidade na lista de resultados (FE-12, referência 02-unidade).
- * Mostra só o que a API devolveu; campo ausente aparece como "Não informado pela fonte".
+ * Item compacto da lista "Outras unidades" (abaixo do destaque).
+ * O card inteiro é um link para o detalhe, com área de toque grande.
  */
-export default function CardUnidade({ unidade }) {
-  const acess = textoAcessibilidade(unidade.acessibilidade);
-  const tituloId = `unidade-${unidade.id}`;
+export default function CardUnidade({ unidade, comLocalizacao }) {
+  const distancia = formatarDistancia(unidade.distanciaKm);
 
   return (
-    <article
-      aria-labelledby={tituloId}
-      className="flex flex-col gap-4 rounded-2xl border border-linha bg-superficie p-5 shadow-sm"
+    <Link
+      href={`/unidades/${encodeURIComponent(unidade.id)}`}
+      className="group flex items-center gap-4 rounded-2xl border border-linha bg-superficie p-4 transition-colors hover:border-rota hover:bg-nevoa/40"
     >
-      <div className="flex flex-col gap-1">
-        <p className="font-mono text-label uppercase text-rota">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className="font-mono text-xs uppercase text-rota">
           <ValorInformado valor={unidade.tipoUnidade} />
         </p>
-        <h2 id={tituloId} className="font-display text-xl font-semibold text-pinho">
+        <p className="font-display text-lg leading-snug font-semibold text-pinho group-hover:underline">
           {unidade.nome}
-        </h2>
+        </p>
+        <p className="text-sm text-salvia">
+          <ValorInformado valor={unidade.bairro} /> · SUS: {textoAtendeSus(unidade.atendeSus)}
+        </p>
       </div>
-
-      <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-        <dt className="font-mono uppercase text-salvia">Bairro</dt>
-        <dd>
-          <ValorInformado valor={unidade.bairro} />
-        </dd>
-        <dt className="font-mono uppercase text-salvia">Atende SUS</dt>
-        <dd>{textoAtendeSus(unidade.atendeSus)}</dd>
-        <dt className="font-mono uppercase text-salvia">Acessibilidade</dt>
-        <dd>
-          <Badge tom={acess.tom} comIcone={false}>
-            {acess.rotulo}
-          </Badge>
-        </dd>
-      </dl>
-
-      {unidade.servicos?.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="font-mono text-sm uppercase text-salvia">Serviços no cadastro</p>
-          <ul className="flex flex-wrap gap-2">
-            {unidade.servicos.map((nome) => (
-              <li key={nome}>
-                <Badge tom="neutro">{nome}</Badge>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div>
-        <Button
-          variante="secundario"
-          seta
-          href={`/unidades/${encodeURIComponent(unidade.id)}`}
-          aria-label={`Ver detalhes de ${unidade.nome}`}
-        >
-          Ver unidade
-        </Button>
+      <div className="flex shrink-0 flex-col items-end gap-1 text-right">
+        {distancia ? (
+          <>
+            <span className="font-semibold text-grafite">{distancia}</span>
+            <span className="text-xs text-salvia">em linha reta</span>
+          </>
+        ) : comLocalizacao ? (
+          <span className="max-w-24 text-xs text-salvia">Sem coordenadas na fonte</span>
+        ) : null}
       </div>
-    </article>
+      <Icon nome="seta" className="size-5 shrink-0 text-rota" />
+    </Link>
   );
 }
