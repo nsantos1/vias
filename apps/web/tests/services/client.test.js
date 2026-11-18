@@ -31,6 +31,16 @@ beforeAll(async () => {
       return res.end();
     }
     if (req.url.startsWith("/api/404")) return json(404, ERRO_404_FICTICIO);
+    if (req.url.startsWith("/api/erro-java")) {
+      return json(404, {
+        timestamp: "2026-11-16T23:35:38",
+        status: 404,
+        erro: "Not Found",
+        mensagem: "Registro fictício não encontrado.",
+        caminho: "/api/unidades/ficticio-inexistente",
+        campos: null,
+      });
+    }
     if (req.url.startsWith("/api/400")) return json(400, { status: 400, message: "servicoId inválido" });
     if (req.url.startsWith("/api/500")) {
       res.writeHead(500, { "Content-Type": "text/plain" });
@@ -98,6 +108,17 @@ describe("erros HTTP", () => {
       detalhe: "Unidade não encontrada",
     });
     expect(erro.podeTentarDeNovo).toBe(false);
+  });
+
+  test("404 no formato da API Java (mensagem, caminho) guarda o detalhe", async () => {
+    const erro = await capturarErro(requisitar("/erro-java", { base }));
+    expect(erro).toMatchObject({
+      tipo: TIPOS_ERRO.HTTP,
+      status: 404,
+      mensagem: "Não encontramos o que você procurou.",
+      detalhe: "Registro fictício não encontrado.",
+      caminho: "/api/unidades/ficticio-inexistente",
+    });
   });
 
   test("400 pede para revisar os filtros", async () => {

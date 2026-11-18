@@ -1,10 +1,15 @@
 import { requisitar } from "./client";
 
 /**
- * GET /api/regioes — regiões para o filtro.
- * Endpoint PROPOSTO no Alinhamento Técnico §5; ainda não confirmado (D-04).
- * Devolve o JSON como a API mandar; a adaptação entra aqui quando o DTO for confirmado.
+ * GET /api/regioes: regiões para o filtro (contrato confirmado em 16/11).
+ * Hoje a região é o bairro informado no cadastro do CNES.
+ * Cada item: { id, nome, tipo, codigoMunicipio, uf, fonte, totalUnidades }.
  */
 export function listarRegioes({ signal } = {}) {
   return requisitar("/regioes", { signal });
+}
+
+/** GET /api/regioes/{id}: uma região (404 se não existir). */
+export function obterRegiao(id, { signal } = {}) {
+  return requisitar(`/regioes/${encodeURIComponent(id)}`, { signal });
 }
