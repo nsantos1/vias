@@ -60,6 +60,7 @@ entity "SERVICO_SAUDE" as servico {
   * nome : VARCHAR2(100)
   descricao : VARCHAR2(300)
   campo_origem : VARCHAR2(80)
+  * categoria : VARCHAR2(15) <<CK>>
   * id_fonte : NUMBER(10) <<FK>>
 }
 entity "UNIDADE_SERVICO" as us {

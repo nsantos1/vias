@@ -6,23 +6,24 @@ usando **dados reais do CNES/DATASUS** com proveniência. Informação ausente n
 como `null` ou `NAO_INFORMADO`, nunca como resposta negativa.
 
 Entrega da disciplina **Domain Driven Design – Java**. A documentação completa (capa, diagramas,
-DER, protótipos, endpoints, instruções e limitações) está em
-[docs/VIAS-DDD-Java-Documentacao.pdf](docs/VIAS-DDD-Java-Documentacao.pdf).
+DER, protótipos, endpoints, instruções e limitações) é entregue em PDF no Portal do Aluno. Os
+diagramas ficam em [docs/diagramas](docs/diagramas).
 
 | | |
 |---|---|
-| Deploy | `https://vias-api.onrender.com` *(preencher após o deploy)* |
+| Repositório | https://github.com/nsantos1/vias |
+| Deploy | https://vias-dfwu.onrender.com |
 | Swagger | `/swagger-ui.html` |
 | Health check | `/actuator/health` |
 
 ## Equipe
 
-| Integrante | Frente |
-|---|---|
-| Victor | Front-end Next.js |
-| Raphael | Back-end Java (esta API) |
-| Nicolas | Banco Oracle |
-| Felipe | Algoritmo Python (rotas) |
+| Integrante | RM | Frente |
+|---|---|---|
+| Felipe de Andrade Godoi | 566209 | Algoritmo Python (rotas) |
+| Nicolas Marinho dos Santos | 563185 | Banco Oracle |
+| Raphael Naome Taketa | 562321 | Back-end Java (esta API) |
+| Victor Ribeiro Guimarães Lira | 566213 | Front-end Next.js |
 
 ## Camadas
 
@@ -34,8 +35,9 @@ br.com.vias
 ├── dto/          records de entrada (validados) e saída
 ├── controller/   REST: GET, POST, PUT, DELETE
 ├── exception/    exceções de domínio + GlobalExceptionHandler
+├── integracao/   clientes do Google Routes e do Olho Vivo (percurso)
 └── config/       Swagger e CORS
-src/main/resources/db/migration   V1 (tabelas) e V2 (carga real do CNES), aplicadas pelo Flyway
+src/main/resources/db/migration   V1 (tabelas), V2 (carga real do CNES), V3 e V4 (ajustes do catálogo e da data de carga), V5 e V6 (exames, serviços especializados e especialidades), aplicadas pelo Flyway
 scripts/                          baixar_cnes.py e gerar_carga_sql.py (carga reproduzível)
 ```
 

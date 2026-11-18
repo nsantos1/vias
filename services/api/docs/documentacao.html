@@ -91,10 +91,10 @@
   <div>
     <table>
       <tr><th>Nome completo</th><th>RM</th><th>Frente</th></tr>
-      <tr><td>Felipe <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Algoritmo Python</td></tr>
-      <tr><td>Nicolas <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Banco Oracle</td></tr>
-      <tr><td>Raphael <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Back-end Java</td></tr>
-      <tr><td>Victor <span class="pendente">[sobrenome]</span></td><td><span class="pendente">RM000000</span></td><td>Front-end Next.js</td></tr>
+      <tr><td>Felipe de Andrade Godoi</td><td>RM566209</td><td>Algoritmo Python</td></tr>
+      <tr><td>Nicolas Marinho dos Santos</td><td>RM563185</td><td>Banco Oracle</td></tr>
+      <tr><td>Raphael Naome Taketa</td><td>RM562321</td><td>Back-end Java</td></tr>
+      <tr><td>Victor Ribeiro Guimarães Lira</td><td>RM566213</td><td>Front-end Next.js</td></tr>
     </table>
     <p style="color:var(--cinza); margin-top:6mm">Engenharia de Software · 2º ano · FIAP Paulista · São Paulo, novembro de 2026</p>
   </div>
@@ -175,8 +175,9 @@
 ├── dto/          Records de entrada (Bean Validation) e de saída; a API nunca expõe a entidade
 ├── controller/   @RestController: GET, POST, PUT, DELETE
 ├── exception/    Exceções de domínio + GlobalExceptionHandler (@RestControllerAdvice)
+├── integracao/   Clientes HTTP do Google Routes e do Olho Vivo (SPTrans), usados no percurso
 └── config/       Swagger (springdoc) e CORS
-resources/db/migration   V1__criar_tabelas.sql e V2__carga_cnes_sao_paulo.sql (Flyway)
+resources/db/migration   V1 (tabelas), V2 (carga do CNES), V3 e V4 (ajustes do catálogo e da data de carga), V5 (exames e serviços especializados), V6 (especialidades) – Flyway
 scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (gera a V2)</pre>
   <ul>
     <li><b>Schema protegido:</b> <code>ddl-auto=none</code>. O Hibernate não altera o banco; o schema vem dos scripts versionados (Flyway).</li>
@@ -327,7 +328,7 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
 <!-- ============================ 9 ============================ -->
 <section class="secao">
   <h1>9. Endpoints da API</h1>
-  <p>URL base: <code><span class="pendente">https://vias-api.onrender.com</span></code> · Swagger em <code>/swagger-ui.html</code> · JSON · datas no formato ISO (<code>aaaa-mm-dd</code>).</p>
+  <p>URL base: <code>https://vias-dfwu.onrender.com</code> · Swagger em <code>/swagger-ui.html</code> · JSON · datas no formato ISO (<code>aaaa-mm-dd</code>).</p>
   <table>
     <tr><th style="width:12%">Método</th><th style="width:33%">Endpoint</th><th>Descrição</th><th style="width:15%">Sucesso / erros</th></tr>
     <tr><td colspan="4" style="background:#e8efed"><b>Unidades de saúde</b></td></tr>
@@ -338,11 +339,13 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
     <tr><td><span class="metodo PUT">PUT</span></td><td><code>/api/unidades/{id}/acessibilidade</code></td><td>Registra a acessibilidade verificada (qualquer unidade)</td><td>200 · 400 · 404 · 422</td></tr>
     <tr><td><span class="metodo DELETE">DELETE</span></td><td><code>/api/unidades/{id}</code></td><td>Exclui unidade de cadastro manual; unidade do CNES é recusada</td><td>204 · 404 · 422</td></tr>
     <tr><td colspan="4" style="background:#e8efed"><b>Catálogos e painel</b></td></tr>
-    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/servicos</code></td><td>Catálogo de serviços com o total de unidades vinculadas</td><td>200</td></tr>
+    <tr><td><span class="metodo GET">GET</span></td><td><code>/api/servicos</code></td><td>Catálogo com o total de unidades vinculadas: atendimentos, exames e especialidades (campo <code>categoria</code>)</td><td>200</td></tr>
     <tr><td><span class="metodo GET">GET</span></td><td><code>/api/servicos/{id}</code></td><td>Detalhe de um serviço</td><td>200 · 404</td></tr>
     <tr><td><span class="metodo GET">GET</span></td><td><code>/api/regioes?nome=LAPA</code></td><td>Regiões (bairros do CNES) com o total de unidades; <code>nome</code> filtra</td><td>200</td></tr>
     <tr><td><span class="metodo GET">GET</span></td><td><code>/api/regioes/{id}</code></td><td>Detalhe de uma região</td><td>200 · 404</td></tr>
     <tr><td><span class="metodo GET">GET</span></td><td><code>/api/gestao/resumo</code></td><td>Indicadores agregados do cadastro, com a definição de cada um</td><td>200</td></tr>
+    <tr><td colspan="4" style="background:#e8efed"><b>Percurso</b></td></tr>
+    <tr><td><span class="metodo POST">POST</span></td><td><code>/api/percursos</code></td><td>Percurso de transporte público até a unidade (Google Routes), com hora sugerida de saída e previsão ao vivo dos ônibus da SPTrans (Olho Vivo), indicando os acessíveis. A origem vai no corpo e não é gravada</td><td>200 · 400 · 404 · 503</td></tr>
   </table>
 
 <div style="break-inside:avoid">
@@ -375,6 +378,7 @@ PUT /api/unidades/84/acessibilidade
     <tr><td><code>HttpRequestMethodNotSupportedException</code></td><td>405</td><td>Método HTTP não suportado no endereço</td></tr>
     <tr><td><code>ConflitoException</code>, <code>DataIntegrityViolationException</code></td><td>409</td><td>Código CNES repetido; violação de constraint no Oracle</td></tr>
     <tr><td><code>RegraNegocioException</code></td><td>422</td><td>Edição/exclusão de dado oficial, acessibilidade sem comprovação, coordenada incompleta</td></tr>
+    <tr><td><code>ServicoExternoException</code></td><td>503</td><td>Serviço externo de rotas (Google Routes) não configurado ou sem resposta</td></tr>
     <tr><td><code>Exception</code></td><td>500</td><td>Erro inesperado (registrado no log, sem detalhes ao cliente)</td></tr>
   </table>
 
@@ -389,7 +393,7 @@ PUT /api/unidades/84/acessibilidade
     <tr><td>Spring Boot</td><td>3.5.7</td><td>Web, Data JPA, Validation, Actuator</td></tr>
     <tr><td>Maven</td><td>3.9 ou superior (ou o do IntelliJ)</td><td>Build e dependências</td></tr>
     <tr><td>Oracle Database</td><td>19c (servidor da FIAP) ou superior</td><td>Persistência; driver ojdbc11</td></tr>
-    <tr><td>Flyway</td><td>11 (gerenciado pelo Spring Boot)</td><td>Criação das tabelas e carga do CNES</td></tr>
+    <tr><td>Flyway</td><td>11 (gerenciado pelo Spring Boot)</td><td>Criação das tabelas e carga do CNES (V1 a V6)</td></tr>
     <tr><td>springdoc-openapi</td><td>2.8.9</td><td>Swagger UI</td></tr>
     <tr><td>IntelliJ IDEA</td><td>2025 ou superior</td><td>IDE</td></tr>
     <tr><td>Insomnia ou Postman</td><td>atual</td><td>Testes HTTP</td></tr>
@@ -397,8 +401,8 @@ PUT /api/unidades/84/acessibilidade
   </table>
   <h3>Links</h3>
   <ul>
-    <li><b>GitHub:</b> <span class="pendente">https://github.com/&lt;usuario&gt;/&lt;repositorio&gt;</span> (código em <code>services/api</code>)</li>
-    <li><b>Deploy:</b> <span class="pendente">https://vias-api.onrender.com</span> · Swagger em <code>/swagger-ui.html</code> · saúde em <code>/actuator/health</code></li>
+    <li><b>GitHub:</b> <a href="https://github.com/nsantos1/vias">https://github.com/nsantos1/vias</a> (código em <code>services/api</code>)</li>
+    <li><b>Deploy:</b> <a href="https://vias-dfwu.onrender.com">https://vias-dfwu.onrender.com</a> · Swagger em <code>/swagger-ui.html</code> · saúde em <code>/actuator/health</code></li>
   </ul>
 </section>
 
@@ -410,7 +414,7 @@ PUT /api/unidades/84/acessibilidade
     <li>Em Run › Edit Configurations › <code>ViasApiApplication</code> › Environment variables:<br>
       <code>DB_USER=rmSEU_RM;DB_PASS=sua_senha</code><br>
       A URL padrão já é <code>jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL</code> (para outro banco, defina <code>DB_URL</code>).</li>
-    <li>Rode <code>ViasApiApplication</code>. Na primeira subida, o Flyway cria as 5 tabelas e carrega as 1.092 unidades do CNES.</li>
+    <li>Rode <code>ViasApiApplication</code>. Na primeira subida, o Flyway aplica as migrations V1 a V6: cria as 5 tabelas, carrega as 1.092 unidades do CNES e o catálogo de 83 itens (atendimentos, exames e especialidades).</li>
     <li>Abra <code>http://localhost:8080/swagger-ui.html</code>.</li>
   </ol>
   <p>Se o schema já tiver sido criado pela frente Oracle, defina <code>FLYWAY_ENABLED=false</code>.</p>
@@ -425,7 +429,7 @@ python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json</
   <ol>
     <li>Suba o repositório no GitHub (público ou com acesso ao professor).</li>
     <li>No Render: New › Blueprint › repositório. O <code>render.yaml</code> cria o serviço <code>vias-api</code> (runtime Docker, pasta <code>services/api</code>, health check em <code>/actuator/health</code>).</li>
-    <li>Em Environment, preencha <code>DB_USER</code>, <code>DB_PASS</code> e <code>CORS_ORIGENS</code> (URL do site Next.js).</li>
+    <li>Em Environment, preencha <code>DB_USER</code>, <code>DB_PASS</code> e <code>CORS_ORIGENS</code> (URL do site Next.js). Para o percurso, também <code>GOOGLE_ROUTES_CHAVE</code> e <code>OLHOVIVO_TOKEN</code>.</li>
     <li>Deploy. No plano Free o serviço "dorme" após 15 min sem uso; a primeira requisição depois disso leva cerca de 1 minuto.</li>
   </ol>
   <h3>Variáveis de ambiente</h3>
@@ -436,6 +440,8 @@ python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json</
     <tr><td><code>CORS_ORIGENS</code></td><td>Não</td><td><code>http://localhost:3000</code> (separar várias por vírgula)</td></tr>
     <tr><td><code>FLYWAY_ENABLED</code></td><td>Não</td><td><code>true</code></td></tr>
     <tr><td><code>DB_POOL_SIZE</code></td><td>Não</td><td><code>3</code></td></tr>
+    <tr><td><code>GOOGLE_ROUTES_CHAVE</code></td><td>Para o percurso</td><td>vazia: <code>POST /api/percursos</code> responde 503. Chave do Google Cloud com o Routes API ativado</td></tr>
+    <tr><td><code>OLHOVIVO_TOKEN</code></td><td>Não</td><td>vazio: o percurso sai sem previsão ao vivo. Token gerado em sptrans.com.br/desenvolvedores</td></tr>
   </table>
 </section>
 
@@ -445,7 +451,7 @@ python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json</
   <table>
     <tr><th style="width:30%">Limitação</th><th>Situação e próximo passo</th></tr>
     <tr><td>Acessibilidade</td><td>O recurso CNES usado não publica acessibilidade física; as 1.092 unidades estão <code>NAO_INFORMADO</code>. Próximo passo: registrar vistorias pelo endpoint de acessibilidade, com fonte e data.</td></tr>
-    <tr><td>Catálogo de serviços</td><td>A API pública de estabelecimentos expõe apenas indicadores gerais (atendimento ambulatorial, hospitalar, centro cirúrgico etc.). Serviços especializados e equipamentos dependem de outro recurso do CNES, ainda não disponível nesta API.</td></tr>
+    <tr><td>Catálogo de serviços</td><td>Exames, serviços especializados e especialidades vêm dos arquivos de equipamentos, serviços e profissionais do CNES. Um vínculo indica que a unidade tem o recurso cadastrado; não garante vaga, agenda ou atendimento no dia.</td></tr>
     <tr><td>Indicadores do CNES</td><td>Indicador 0 ou vazio não gera vínculo e não é lido como "não oferece". Ex.: muitas UBS aparecem sem o indicador ambulatorial.</td></tr>
     <tr><td>Regiões</td><td>A região é o bairro digitado no CNES, com grafias diferentes para o mesmo lugar (ex.: "VL LEOPOLDINA", "V LEOPOLDINA", "VILA LEOPOLDINA"). A normalização (distrito ou região administrativa) depende da frente Oracle.</td></tr>
     <tr><td>Coordenadas e tipos</td><td>Exibidos como publicados pela fonte, sem correção manual. Algumas coordenadas apontam para o centro da cidade. O tipo "Centro de saúde/Unidade básica" também inclui unidades prisionais.</td></tr>

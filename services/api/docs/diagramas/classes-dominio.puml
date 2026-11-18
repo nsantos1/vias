@@ -53,6 +53,7 @@ package "br.com.vias.model" as model {
     - nome : String
     - descricao : String
     - campoOrigem : String
+    - categoria : String
     - fonte : FonteDado
   }
   class Regiao <<Entity>> {

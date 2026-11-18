@@ -30,6 +30,9 @@ package "controller" {
   class GestaoController <<RestController>> {
     + resumo()
   }
+  class PercursoController <<RestController>> {
+    + calcular(PercursoRequest)
+  }
 }
 
 package "service (BO)" as service {
@@ -54,6 +57,22 @@ package "service (BO)" as service {
   class GestaoService <<Service>> {
     + resumo() : ResumoGestaoResponse
   }
+  class PercursoService <<Service>> {
+    + calcular(PercursoRequest) : PercursoResponse
+  }
+}
+
+package "integracao (serviços externos)" as integracao {
+  class ClienteGoogleRoutes <<Component>> {
+    + configurado() : boolean
+    + calcular(origem, destino, chegarAte, sairEm) : List<RotaTransporte>
+  }
+  class ClienteOlhoVivo <<Component>> {
+    + configurado() : boolean
+    + buscarLinhas(letreiro) : List<Linha>
+    + previsaoDaLinha(codigoLinha) : PrevisaoLinha
+  }
+  class RotaTransporte <<record>>
 }
 
 package "repository (DAO)" as repository {
@@ -82,6 +101,7 @@ package "exception" {
   class RecursoNaoEncontradoException
   class RegraNegocioException
   class ConflitoException
+  class ServicoExternoException
   class ErroResposta <<record>>
 }
 
@@ -89,6 +109,7 @@ UnidadeSaudeController --> UnidadeSaudeService
 ServicoSaudeController --> ServicoSaudeService
 RegiaoController --> RegiaoService
 GestaoController --> GestaoService
+PercursoController --> PercursoService
 UnidadeSaudeService --> UnidadeSaudeRepository
 UnidadeSaudeService --> UnidadeServicoRepository
 UnidadeSaudeService --> ServicoSaudeRepository
@@ -97,8 +118,13 @@ UnidadeSaudeService --> FonteDadoRepository
 ServicoSaudeService --> ServicoSaudeRepository
 RegiaoService --> RegiaoRepository
 GestaoService --> UnidadeSaudeRepository
+PercursoService --> UnidadeSaudeRepository
+PercursoService --> ClienteGoogleRoutes
+PercursoService --> ClienteOlhoVivo
+ClienteGoogleRoutes ..> RotaTransporte
 GlobalExceptionHandler ..> ErroResposta
 GlobalExceptionHandler ..> RecursoNaoEncontradoException
 GlobalExceptionHandler ..> RegraNegocioException
 GlobalExceptionHandler ..> ConflitoException
+GlobalExceptionHandler ..> ServicoExternoException
 @enduml
