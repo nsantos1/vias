@@ -16,14 +16,14 @@ export default function ResumoRota({ trechos = [], claro = false }) {
       {trechos.map((t, i) => (
         <span role="listitem" key={i} className="flex items-center gap-1">
           {i > 0 && (
-            <Icon nome="seta" className={claro ? "size-4 text-papel/60" : "size-4 text-salvia"} />
+            <Icon nome="avancar" className={claro ? "size-3.5 text-papel/60" : "size-3.5 text-salvia"} />
           )}
           {t.tipo === "A_PE" ? (
             <span
               className={
                 claro
-                  ? "flex items-center gap-1 text-sm text-papel/90"
-                  : "flex items-center gap-1 text-sm text-salvia"
+                  ? "flex items-center gap-1 text-sm font-semibold text-papel"
+                  : "flex items-center gap-1 text-sm font-medium text-salvia"
               }
             >
               <Icon nome="caminhar" className="size-4" />
@@ -48,7 +48,7 @@ export function SeloLinha({ trecho }) {
   return (
     <span
       style={cores}
-      className="flex items-center gap-1 rounded-md bg-pinho px-2 py-0.5 text-sm font-semibold text-papel ring-1 ring-papel/30"
+      className="flex items-center gap-1.5 rounded-pill bg-pinho px-3 py-0.5 text-sm font-semibold text-papel ring-1 ring-papel/30"
     >
       <Icon nome={ICONES[trecho.tipo] ?? "onibus"} className="size-4" />
       <span className="sr-only">{rotuloTipo(trecho.tipo)} </span>

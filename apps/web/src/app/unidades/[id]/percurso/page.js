@@ -1,29 +1,20 @@
 import { Suspense } from "react";
-import FundoPercurso, { FaixaPercurso } from "@/components/decor/FundoPercurso";
 import EstadoCarregando from "@/components/estados/EstadoCarregando";
 import PlanejadorPercurso from "@/components/percurso/PlanejadorPercurso";
-import Etapas from "@/components/ui/Etapas";
 
 export const metadata = { title: "Percurso" };
 
 /**
  * Tela 3 de 3, Percurso: transporte público até a unidade (D-20).
- * Visual final de 19/11 (D-24): coluna à esquerda e a cidade com a trilha até
- * o hospital à direita (no celular, numa faixa no topo).
+ * Dois momentos (D-24, D-25): o formulário, com a cidade à direita, e o
+ * resultado em tela cheia (cartão "Faltam X para sair", mapa, opções e passo a
+ * passo lado a lado). Quem troca um pelo outro é o PlanejadorPercurso.
  */
 export default function PaginaPercurso({ params }) {
   return (
-    <div className="tela-percurso relative isolate">
-      <FundoPercurso />
-      <FaixaPercurso />
-
-      <div className="tela-percurso__coluna flex flex-col gap-7 px-4 pb-14 sm:px-6 lg:pb-24">
-        <Etapas atual={3} percursoDisponivel className="surgir" />
-        <Suspense fallback={<EstadoCarregando rotulo="Carregando…" />}>
-          <Planejador params={params} />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<EstadoCarregando rotulo="Carregando…" />}>
+      <Planejador params={params} />
+    </Suspense>
   );
 }
 

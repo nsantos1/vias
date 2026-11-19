@@ -55,6 +55,8 @@
     background-color: var(--color-papel);
     color: var(--color-grafite);
     font-family: var(--font-sans);
+    /* Os anéis que pulsam nas bordas (etapas, pinos) nunca criam rolagem lateral no celular. */
+    overflow-x: clip;
   }
 
   h1,
@@ -387,6 +389,81 @@
     );
   }
 
+
+  /* ===== Resultado do percurso em tela cheia (D-25) ===== */
+  .percurso-resultado::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(60% 50% at 85% 10%, rgb(60 194 116 / 0.07), transparent 70%),
+      radial-gradient(50% 60% at 0% 80%, rgb(60 194 116 / 0.06), transparent 70%),
+      linear-gradient(180deg, #f3f6f1 0%, #eef3ec 100%);
+  }
+  .cartao-saida {
+    background:
+      radial-gradient(70% 120% at 100% 0%, rgb(60 194 116 / 0.28) 0%, transparent 60%),
+      linear-gradient(120deg, #0e3a31 0%, #125541 55%, #0f4a3a 100%);
+    box-shadow: 0 30px 70px rgb(14 58 49 / 0.28);
+  }
+  .cartao-claro {
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: 0 18px 50px rgb(18 59 53 / 0.08), 0 1px 3px rgb(18 59 53 / 0.05);
+  }
+  .cartao-mapas {
+    background: linear-gradient(110deg, #0e3a31 0%, #145a45 100%);
+    box-shadow: 0 18px 44px rgb(14 58 49 / 0.25);
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
+  }
+  .cartao-mapas:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 54px rgb(14 58 49 / 0.35);
+  }
+  .cartao-opcao {
+    border: 1px solid rgb(213 222 215 / 0.8);
+    box-shadow: 0 6px 18px rgb(18 59 53 / 0.05);
+    transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+  }
+  .cartao-opcao:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-rota);
+    box-shadow: 0 12px 28px rgb(18 59 53 / 0.1);
+  }
+  .cartao-opcao--escolhida {
+    border: 2px solid var(--color-rota);
+    box-shadow: 0 14px 34px rgb(45 124 96 / 0.16);
+  }
+  .cartao-opcao--escolhida::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 6px;
+    background: var(--color-lima);
+  }
+  .ponto-vivo {
+    box-shadow: 0 0 0 0 rgb(215 243 106 / 0.7);
+    animation: ponto-vivo 2s ease-out infinite;
+  }
+  .trilha-pontilhada {
+    background-image: radial-gradient(circle, var(--color-rota) 1.2px, transparent 1.6px);
+    background-size: 18px 4px;
+    background-repeat: repeat-x;
+    background-position: 0 center;
+    opacity: 0.7;
+    animation: trilha-andar 1.6s linear infinite;
+  }
+  .passo {
+    animation: surgir 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .passo:nth-child(1) { animation-delay: 260ms; }
+  .passo:nth-child(2) { animation-delay: 320ms; }
+  .passo:nth-child(3) { animation-delay: 380ms; }
+  .passo:nth-child(4) { animation-delay: 440ms; }
+  .passo:nth-child(5) { animation-delay: 500ms; }
+  .passo:nth-child(6) { animation-delay: 560ms; }
+  .passo:nth-child(n + 7) { animation-delay: 620ms; }
+
   /* Rodapé */
   .onda-rodape__ponto {
     position: absolute;
@@ -591,6 +668,46 @@ body:has(.tela-inicio:not([style*="display: none"])) .rodape__conteudo {
   }
 }
 
+/* Resultado do percurso (D-25): conteúdo largo, selo "Etapa 3 de 3" no cabeçalho e rodapé claro. */
+body:has(.percurso-resultado:not([style*="display: none"])) > .rodape {
+  display: none;
+}
+body:has(.percurso-resultado:not([style*="display: none"])) .selo-vidro {
+  display: none;
+}
+.selo-etapa {
+  position: absolute;
+  z-index: 20;
+  top: -4.4rem;
+  right: max(1rem, calc((100vw - 112rem) / 2 + 4rem));
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 10px 30px rgb(18 59 53 / 0.08);
+}
+@media (min-width: 64rem) {
+  body:has(.percurso-resultado:not([style*="display: none"])) .cabecalho__conteudo {
+    max-width: 112rem;
+    padding-inline: 4rem;
+    padding-top: 1.5rem;
+  }
+}
+
+/* "Voltar para landing page": no cabeçalho, só na tela inicial e só no computador (no celular fica no fim da busca). */
+@media (min-width: 64rem) {
+  body:has(.tela-inicio:not([style*="display: none"])) .link-landing {
+    display: inline-flex;
+  }
+}
+.link-landing {
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+.link-landing:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgb(18 59 53 / 0.16);
+}
+.link-landing:hover svg {
+  transform: translateX(-3px);
+}
+
 @keyframes surgir {
   from {
     opacity: 0;
@@ -630,6 +747,16 @@ body:has(.tela-inicio:not([style*="display: none"])) .rodape__conteudo {
   to {
     opacity: 0;
     transform: scale(1.7);
+  }
+}
+@keyframes ponto-vivo {
+  to {
+    box-shadow: 0 0 0 8px rgb(215 243 106 / 0);
+  }
+}
+@keyframes trilha-andar {
+  to {
+    background-position: 18px center;
   }
 }
 @keyframes brilhar {

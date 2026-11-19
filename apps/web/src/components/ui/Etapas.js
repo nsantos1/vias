@@ -16,11 +16,12 @@ const ETAPAS = [
  *   com "em breve" escrito (decisão R-01). Não é clicável.
  * O estado nunca depende só da cor: há texto, ícone e peso da fonte.
  */
-export default function Etapas({ atual, percursoDisponivel = false, className }) {
+export default function Etapas({ atual, percursoDisponivel = false, semRotulo = false, className }) {
   const progresso = (atual - 1) / (ETAPAS.length - 1);
   return (
     <nav aria-label="Etapas da busca" className={cn("flex flex-col gap-3", className)}>
-      <p className="font-mono text-label uppercase text-grafite">
+      {/* `semRotulo`: o "Etapa N de 3" já aparece em outro lugar da tela (resultado do percurso). */}
+      <p className={semRotulo ? "sr-only" : "font-mono text-label uppercase text-grafite"}>
         Etapa {atual} de {ETAPAS.length}
       </p>
       <ol className="relative grid grid-cols-3">

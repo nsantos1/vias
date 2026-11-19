@@ -3,7 +3,9 @@ import FormularioBusca from "@/components/busca/FormularioBusca";
 import CenaCidade from "@/components/decor/CenaCidade";
 import LinhasFundo from "@/components/decor/LinhasFundo";
 import Etapas from "@/components/ui/Etapas";
+import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
+import { SITE_INSTITUCIONAL } from "@/lib/site";
 
 /**
  * Tela 1 de 3, Necessidade (referência final de 19/11, docs/decisoes.md D-21).
@@ -48,6 +50,15 @@ export default function Home({ searchParams }) {
               <FormularioComServico searchParams={searchParams} />
             </Suspense>
           </div>
+
+          {/* No celular e no tablet o cabeçalho não tem espaço: o link fica no fim da busca. */}
+          <a
+            href={SITE_INSTITUCIONAL}
+            className="-mt-3 inline-flex min-h-11 items-center justify-center gap-2 self-center rounded-pill px-4 text-sm font-semibold text-pinho underline decoration-linha underline-offset-4 hover:decoration-rota lg:hidden"
+          >
+            <Icon nome="voltar" className="size-4 text-rota" />
+            Voltar para landing page
+          </a>
         </div>
       </div>
     </div>
