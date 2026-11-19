@@ -73,21 +73,24 @@ export default function PlanejadorPercurso({ id }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <p className="font-mono text-label uppercase text-rota">Como chegar</p>
-        <h1 className="font-display text-3xl leading-tight font-bold text-pinho sm:text-4xl">
+      <div className="surgir flex flex-col gap-1.5" style={{ "--atraso": "80ms" }}>
+        <p className="font-mono text-label font-medium uppercase text-rota">Como chegar</p>
+        <h1 className="text-[2rem] leading-[1.08] font-bold tracking-[-0.03em] sm:text-[2.4rem]">
           {u?.nome ?? (unidade.estado === ESTADOS.CARREGANDO ? "Carregando unidade…" : "Unidade de saúde")}
         </h1>
-        {u && enderecoEmTexto(u.endereco) && <p className="text-salvia">{enderecoEmTexto(u.endereco)}</p>}
+        {u && enderecoEmTexto(u.endereco) && (
+          <p className="text-lg text-salvia">{enderecoEmTexto(u.endereco)}</p>
+        )}
       </div>
 
       <form
         onSubmit={aoEnviar}
         noValidate
         aria-labelledby="titulo-quando"
-        className="flex flex-col gap-5 rounded-3xl border border-linha bg-superficie p-5 shadow-sm sm:p-7"
+        className="cartao-destaque surgir flex flex-col gap-5 rounded-[1.75rem] bg-superficie p-5 sm:p-7"
+        style={{ "--atraso": "160ms" }}
       >
-        <h2 id="titulo-quando" className="font-display text-2xl font-semibold text-pinho">
+        <h2 id="titulo-quando" className="text-[1.6rem] leading-tight font-bold">
           A que horas é o seu atendimento?
         </h2>
 
@@ -99,10 +102,12 @@ export default function PlanejadorPercurso({ id }) {
             value={hora}
             onChange={(e) => setHora(e.target.value)}
             erro={erroHora}
+            dica="Hora marcada do atendimento."
           />
           <TextField
             rotulo="Dia"
             type="date"
+            alto
             value={data}
             onChange={(e) => setData(e.target.value)}
             dica="Em branco, vale hoje."
@@ -116,11 +121,11 @@ export default function PlanejadorPercurso({ id }) {
               <label
                 key={opcao.valor}
                 className={cn(
-                  "flex min-h-11 cursor-pointer items-center rounded-pill border px-4 text-sm font-semibold",
+                  "pilula-folga flex min-h-11 cursor-pointer items-center rounded-pill border px-5 text-sm font-semibold",
                   "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-rota",
                   folga === opcao.valor
-                    ? "border-pinho bg-pinho text-papel"
-                    : "border-borda-campo bg-papel text-grafite hover:bg-nevoa",
+                    ? "border-pinho bg-pinho text-papel shadow-[0_6px_16px_rgb(18_59_53/0.25)]"
+                    : "border-borda-campo bg-papel text-grafite hover:border-rota hover:bg-nevoa",
                 )}
               >
                 <input
@@ -140,7 +145,14 @@ export default function PlanejadorPercurso({ id }) {
         <StatusLocal local={local} unidade={u} />
 
         <div className="flex flex-col gap-3">
-          <Button type="submit" largo seta disabled={!temLocal} carregando={calculando && Boolean(pedido?.horarioAtendimento)}>
+          <Button
+            type="submit"
+            largo
+            seta
+            disabled={!temLocal}
+            carregando={calculando && Boolean(pedido?.horarioAtendimento)}
+            className="botao-brilho"
+          >
             Ver quando sair
           </Button>
           <Button

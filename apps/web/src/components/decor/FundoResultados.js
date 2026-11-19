@@ -1,6 +1,9 @@
 import Image from "next/image";
 import predio from "@/assets/resultado-predio.webp";
 
+// O mesmo "sizes" no fundo e na faixa faz o navegador baixar a imagem uma vez só.
+const TAMANHOS = "(min-width: 1024px) 64vw, 100vw";
+
 // Curva branca da esquerda (viewBox 0 0 600 1000), por onde corre a luz.
 const CURVA = "M-40 290 C 60 360, 120 400, 210 430 S 420 520, 600 760";
 
@@ -21,7 +24,7 @@ export default function FundoResultados() {
           placeholder="blur"
           loading="eager"
           fetchPriority="high"
-          sizes="64vw"
+          sizes={TAMANHOS}
           className="object-cover object-[78%_50%]"
         />
       </div>
@@ -67,7 +70,9 @@ export function FaixaPredio() {
         alt=""
         fill
         placeholder="blur"
-        sizes="100vw"
+        loading="eager"
+        fetchPriority="high"
+        sizes={TAMANHOS}
         className="fundo-resultados__imagem object-cover object-[80%_30%]"
       />
     </div>
