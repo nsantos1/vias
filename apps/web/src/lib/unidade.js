@@ -79,3 +79,73 @@ export function linkMapas({ latitude, longitude, endereco, nome } = {}) {
   }
   return null;
 }
+
+/*
+ * O CNES publica os textos em MAIÚSCULAS e sem acento ("POLICLINICA",
+ * "TURNOS DA MANHA"). Para leitura, a tela passa para minúsculas e devolve os
+ * acentos das palavras mais comuns. O conteúdo não muda: só a forma de escrever.
+ */
+const ACENTOS = Object.freeze({
+  saude: "saúde",
+  clinica: "clínica",
+  policlinica: "policlínica",
+  basica: "básica",
+  medico: "médico",
+  medica: "médica",
+  farmacia: "farmácia",
+  odontologica: "odontológica",
+  odontologico: "odontológico",
+  laboratorio: "laboratório",
+  atencao: "atenção",
+  movel: "móvel",
+  diagnostico: "diagnóstico",
+  especialidade: "especialidade",
+  manha: "manhã",
+  sabado: "sábado",
+  sabados: "sábados",
+  horario: "horário",
+  horarios: "horários",
+  servico: "serviço",
+  servicos: "serviços",
+  sao: "são",
+  joao: "joão",
+  jose: "josé",
+  avenida: "avenida",
+  praca: "praça",
+  regiao: "região",
+  publica: "pública",
+  hospitalar: "hospitalar",
+  urgencia: "urgência",
+  emergencia: "emergência",
+  pratica: "prática",
+  psicossocial: "psicossocial",
+  continuo: "contínuo",
+  plantao: "plantão",
+  ininterrupto: "ininterrupto",
+  periodo: "período",
+  agendamento: "agendamento",
+  unico: "único",
+});
+const MINUSCULAS = new Set(["de", "da", "do", "das", "dos", "e", "a", "o", "em", "na", "no", "nas", "nos"]);
+
+// Troca palavra por palavra (letras), sem mexer em pontuação, números e espaços.
+function comAcentos(valor, trocar = (p) => p) {
+  let indice = 0;
+  return String(valor)
+    .trim()
+    .toLowerCase()
+    .replace(/\p{L}+/gu, (p) => trocar(ACENTOS[p] ?? p, indice++));
+}
+
+/** "ATENDIMENTOS NOS TURNOS DA MANHA" → "Atendimentos nos turnos da manhã"; vazio → null. */
+export function textoLegivel(valor) {
+  if (!valor || !String(valor).trim()) return null;
+  const texto = comAcentos(valor);
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/** "PROF JOSE AZEVEDO ANTUNES" → "Prof José Azevedo Antunes" (preposições em minúsculas); vazio → null. */
+export function nomeProprio(valor) {
+  if (!valor || !String(valor).trim()) return null;
+  return comAcentos(valor, (p, i) => (i > 0 && MINUSCULAS.has(p) ? p : p.charAt(0).toUpperCase() + p.slice(1)));
+}

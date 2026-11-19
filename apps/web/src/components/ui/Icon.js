@@ -149,6 +149,12 @@ const caminhos = {
     </>
   ),
   avancar: <path d="m9 5 7 7-7 7" />,
+  mapa: (
+    <>
+      <path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5l-6-2Z" />
+      <path d="M9 4.5v13M15 6.5v13" />
+    </>
+  ),
   alvo: (
     <>
       <circle cx="12" cy="12" r="7.5" />

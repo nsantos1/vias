@@ -6,7 +6,7 @@ import EstadoConsulta from "@/components/estados/EstadoConsulta";
 import EstadoVazio from "@/components/estados/EstadoVazio";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
-import Icon from "@/components/ui/Icon";
+import Contador from "@/components/ui/Contador";
 import Skeleton from "@/components/ui/Skeleton";
 import { ESTADOS, useConsulta } from "@/hooks/useConsulta";
 import { ESTADOS_LOCAL, useLocalizacao } from "@/hooks/useLocalizacao";
@@ -64,28 +64,41 @@ export default function ResultadosBusca({ servicoId }) {
 
   const nomeServico = servico.dados?.nome ?? null;
   const total = unidades.estado === ESTADOS.SUCESSO ? unidades.dados.items.length : null;
-  const titulo =
-    consulta.estado === ESTADOS.CARREGANDO || total === null
-      ? "Buscando unidades"
-      : total === 1
-        ? "Encontramos uma unidade"
-        : `Encontramos ${total.toLocaleString("pt-BR")} unidades`;
+  const pronto = consulta.estado !== ESTADOS.CARREGANDO && total !== null;
+  const titulo = !pronto
+    ? "Buscando unidades"
+    : total === 1
+      ? "Encontramos 1 unidade"
+      : `Encontramos ${total.toLocaleString("pt-BR")} unidades`;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-4xl leading-[1.05] font-bold sm:text-5xl" aria-live="polite">
-          {titulo}
+    <div className="flex flex-col gap-7">
+      <div className="surgir flex flex-col gap-2" style={{ "--atraso": "80ms" }}>
+        <h1 className="text-[2.15rem] leading-[1.08] font-bold tracking-[-0.03em] sm:text-[2.6rem]" aria-live="polite">
+          {/* O leitor de tela ouve a frase inteira; o número animado é só visual. */}
+          <span className="sr-only">{titulo}</span>
+          <span aria-hidden="true">
+            {pronto ? (
+              <>
+                Encontramos <Contador key={total} valor={total} className="titulo-gradiente tabular-nums" />{" "}
+                {total === 1 ? "unidade" : "unidades"}
+              </>
+            ) : (
+              titulo
+            )}
+          </span>
         </h1>
-        <p className="text-lead text-salvia">
-          Resultado para <strong className="text-grafite">{nomeServico ?? "o serviço escolhido"}</strong>
-          {comLocalizacao && <> · mais próximas de você</>}
-        </p>
-        <div>
-          <Button variante="discreto" href={`/?servicoId=${encodeURIComponent(servicoId)}`}>
+        <p className="text-lg text-grafite">
+          Resultado para{" "}
+          <strong className="font-semibold text-rota">{nomeServico ?? "o serviço escolhido"}</strong>
+          {comLocalizacao && <> - mais próximas de você.</>}{" "}
+          <Link
+            href={`/?servicoId=${encodeURIComponent(servicoId)}`}
+            className="ml-1 inline py-3 text-base font-semibold whitespace-nowrap text-pinho underline decoration-linha underline-offset-4 hover:decoration-rota"
+          >
             Alterar busca
-          </Button>
-        </div>
+          </Link>
+        </p>
       </div>
 
       {servico.estado === ESTADOS.ERRO && (
@@ -133,7 +146,7 @@ export default function ResultadosBusca({ servicoId }) {
           const visiveis = demais.slice(0, quantas);
 
           return (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-7">
               <StatusLocalizacao local={local} />
 
               <CardDestaque
@@ -145,12 +158,17 @@ export default function ResultadosBusca({ servicoId }) {
 
               {demais.length > 0 && (
                 <section aria-labelledby="titulo-outras" className="flex flex-col gap-3">
-                  <h2 id="titulo-outras" className="text-2xl font-bold">
-                    {comLocalizacao ? "Outras unidades próximas" : "Outras unidades"}
+                  <h2
+                    id="titulo-outras"
+                    className="surgir text-[1.35rem] font-bold text-grafite"
+                    style={{ "--atraso": "360ms" }}
+                  >
+                    {comLocalizacao ? "Outras unidades próximas:" : "Outras unidades:"}
                   </h2>
                   <ol className="flex flex-col gap-3">
-                    {visiveis.map((u) => (
-                      <li key={u.id}>
+                    {visiveis.map((u, i) => (
+                      // Só as primeiras entram em sequência; as de "Mostrar mais" já aparecem prontas.
+                      <li key={u.id} className={i < POR_VEZ ? "surgir" : undefined} style={{ "--atraso": `${420 + i * 60}ms` }}>
                         <CardUnidade unidade={u} comLocalizacao={comLocalizacao} />
                       </li>
                     ))}
@@ -168,6 +186,12 @@ export default function ResultadosBusca({ servicoId }) {
                 </section>
               )}
 
+              {comLocalizacao && (
+                <p className="rounded-2xl bg-papel/85 px-4 py-3 text-center text-sm text-salvia backdrop-blur-sm">
+                  Distâncias em linha reta até a sua localização atual, que não sai do aparelho nem é salva.
+                </p>
+              )}
+
               {!dados.completo && (
                 <p className="text-sm text-salvia">
                   A lista foi limitada às primeiras {dados.items.length.toLocaleString("pt-BR")} unidades
@@ -182,23 +206,19 @@ export default function ResultadosBusca({ servicoId }) {
   );
 }
 
-/** Diz como a lista foi ordenada e, sem localização, oferece pedir de novo. */
+/**
+ * Sem localização, avisa que a lista não está por proximidade e oferece pedir
+ * de novo. Com localização, só fala quando ela é imprecisa (mais de 1 km); o
+ * "em linha reta" e o "não é salva" ficam no cartão e no rodapé da lista.
+ */
 function StatusLocalizacao({ local }) {
   if (local.estado === ESTADOS_LOCAL.OK) {
     const precisaoKm = local.origem?.precisaoMetros ? local.origem.precisaoMetros / 1000 : null;
+    if (!precisaoKm || precisaoKm < 1) return null;
     return (
-      <p className="flex items-start gap-2 text-sm text-salvia">
-        <Icon nome="pin" className="mt-0.5 size-4 shrink-0 text-rota" />
-        <span>
-          Ordenado pela distância em linha reta até a sua localização atual, que não é salva.
-          {precisaoKm && precisaoKm >= 1 && (
-            <>
-              {" "}
-              Sua localização é aproximada (cerca de{" "}
-              {precisaoKm.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km).
-            </>
-          )}
-        </span>
+      <p className="text-sm text-salvia">
+        Sua localização é aproximada (cerca de{" "}
+        {precisaoKm.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km), então as distâncias também são.
       </p>
     );
   }
