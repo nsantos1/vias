@@ -1,7 +1,5 @@
 import OndaRodape from "@/components/decor/OndaRodape";
-
-// Endereço da landing institucional (projeto separado).
-const SITE_INSTITUCIONAL = "https://vias-viainteligentedeacessoasaude.vercel.app";
+import { SITE_INSTITUCIONAL } from "@/lib/site";
 
 /**
  * Rodapé comum, escuro como o da landing, com a onda das referências de UI.

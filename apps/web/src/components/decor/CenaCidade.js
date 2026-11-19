@@ -18,7 +18,7 @@ const TRILHA =
 /**
  * Ilustração da tela inicial: cidade com a trilha até a unidade.
  * É só decoração (aria-hidden) e não representa nenhum lugar real: o cartão
- * "Hospital Central VIAS · 1,2 km" faz parte do desenho (decisão R-03: a
+ * "Hospital Central · 1,2 km" faz parte do desenho (decisão R-03: a
  * ilustração aparece só na busca, nunca perto de uma unidade de verdade).
  *
  * Animações só com transform/opacity (baratas) e desligadas com
@@ -63,7 +63,7 @@ export default function CenaCidade({ className }) {
         <Icon nome="hospital" className="size-[2.3em] text-rota" />
         <span className="flex min-w-0 flex-1 flex-col justify-center gap-[0.3em]">
           <span className="text-[0.74em] leading-none text-salvia">Unidade mais próxima</span>
-          <span className="text-[1em] leading-tight font-bold whitespace-nowrap text-pinho">Hospital Central VIAS</span>
+          <span className="text-[1em] leading-tight font-bold whitespace-nowrap text-pinho">Hospital Central</span>
           <span className="flex items-center gap-[0.3em] text-[0.82em] leading-none text-salvia">
             <Icon nome="pin" className="size-[1.05em] text-pinho" />
             1,2 km

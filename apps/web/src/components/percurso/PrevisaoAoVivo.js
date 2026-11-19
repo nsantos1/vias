@@ -12,10 +12,14 @@ function textoAcessivel(acessivel) {
  * ônibus. Mostra só o que a SPTrans informou: quando ela não informa se o
  * veículo é acessível, a tela diz isso, nunca presume.
  */
-export default function PrevisaoAoVivo({ aoVivo, embarque }) {
+export default function PrevisaoAoVivo({ aoVivo, embarque, compacta = false }) {
   if (!aoVivo) return null;
 
   if (aoVivo.status !== "DISPONIVEL") {
+    // Na linha do tempo do resultado (D-25), só a frase, ao lado do selo da operadora.
+    if (compacta) {
+      return <p className="pt-0.5 text-salvia">{aoVivo.mensagem ?? "Sem previsão ao vivo para este trecho."}</p>;
+    }
     return (
       <p className="flex items-start gap-2 text-sm text-salvia">
         <Icon nome="info" className="mt-0.5 size-4 shrink-0" />

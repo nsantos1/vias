@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import FundoPercurso, { FaixaPercurso } from "@/components/decor/FundoPercurso";
 import EstadoConsulta from "@/components/estados/EstadoConsulta";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
+import Etapas from "@/components/ui/Etapas";
 import { TextField } from "@/components/ui/Field";
 import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
@@ -71,8 +73,26 @@ export default function PlanejadorPercurso({ id }) {
     pedir(null);
   }
 
+  // Com o percurso calculado, a tela inteira vira o resultado (D-25).
+  if (percurso.estado === ESTADOS.SUCESSO) {
+    return (
+      <ResultadoPercurso
+        key={percurso.dados.calculadoEm}
+        dados={percurso.dados}
+        origem={pedido?.origem}
+        aoAlterar={() => setPedido(null)}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="tela-percurso relative isolate">
+      <FundoPercurso />
+      <FaixaPercurso />
+
+      <div className="tela-percurso__coluna flex flex-col gap-7 px-4 pb-14 sm:px-6 lg:pb-24">
+        <Etapas atual={3} percursoDisponivel className="surgir" />
+        <div className="flex flex-col gap-6">
       <div className="surgir flex flex-col gap-1.5" style={{ "--atraso": "80ms" }}>
         <p className="font-mono text-label font-medium uppercase text-rota">Como chegar</p>
         <h1 className="text-[2rem] leading-[1.08] font-bold tracking-[-0.03em] sm:text-[2.4rem]">
@@ -185,8 +205,10 @@ export default function PlanejadorPercurso({ id }) {
           }
           tituloErro="Não foi possível calcular o percurso"
         >
-          {(dados) => <ResultadoPercurso key={dados.calculadoEm} dados={dados} origem={pedido?.origem} />}
+          {() => null}
         </EstadoConsulta>
+      </div>
+        </div>
       </div>
     </div>
   );
