@@ -4,11 +4,12 @@ import { useState } from "react";
 import EstadoConsulta from "@/components/estados/EstadoConsulta";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
-import { SelectField, TextField } from "@/components/ui/Field";
+import { TextField } from "@/components/ui/Field";
 import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
 import { ESTADOS, useConsulta } from "@/hooks/useConsulta";
 import { ESTADOS_LOCAL, useLocalizacao } from "@/hooks/useLocalizacao";
+import { cn } from "@/lib/cn";
 import { FOLGAS, FOLGA_PADRAO, dataLocal, linkComoChegar, montarHorario } from "@/lib/percurso";
 import { enderecoEmTexto } from "@/lib/unidade";
 import { calcularPercurso } from "@/services/api/percursos";
@@ -16,16 +17,15 @@ import { obterUnidade } from "@/services/api/unidades";
 import ResultadoPercurso from "./ResultadoPercurso";
 
 /**
- * Tela 3 de 3, Percurso (D-20): a pessoa diz quando precisa estar na unidade e
- * o VIAS sugere a hora de sair, as linhas e, nos ônibus da SPTrans, quais
- * veículos acessíveis vão passar. A localização só sai do aparelho quando a
- * pessoa toca em "Ver percurso".
+ * Tela 3 de 3, Percurso (D-20): a pessoa diz a hora do atendimento e o VIAS
+ * responde "saia até HH:MM", com o mapa, as opções de ônibus, metrô e trem e,
+ * nos ônibus da SPTrans, quais veículos acessíveis vão passar.
+ * A localização só sai do aparelho quando a pessoa pede o percurso.
  */
 export default function PlanejadorPercurso({ id }) {
   const unidade = useConsulta(`unidade:${id}`, (signal) => obterUnidade(id, { signal }));
   const local = useLocalizacao();
 
-  const [modo, setModo] = useState("horario");
   const [data, setData] = useState("");
   const [hora, setHora] = useState("");
   const [folga, setFolga] = useState(FOLGA_PADRAO);
@@ -40,20 +40,9 @@ export default function PlanejadorPercurso({ id }) {
 
   const u = unidade.dados;
   const temLocal = local.estado === ESTADOS_LOCAL.OK && Boolean(local.origem);
+  const calculando = percurso.estado === ESTADOS.CARREGANDO;
 
-  function aoEnviar(evento) {
-    evento.preventDefault();
-    if (!temLocal) return;
-    let horarioAtendimento = null;
-    if (modo === "horario") {
-      // Sem dia escolhido, vale hoje.
-      horarioAtendimento = montarHorario(data || dataLocal(), hora);
-      if (!horarioAtendimento) {
-        setErroHora("Informe o horário do atendimento.");
-        return;
-      }
-    }
-    setErroHora(null);
+  function pedir(horarioAtendimento) {
     setPedido({
       chave: `${horarioAtendimento ?? "agora"}|${folga}|${Date.now()}`,
       unidadeId: id,
@@ -61,6 +50,25 @@ export default function PlanejadorPercurso({ id }) {
       horarioAtendimento,
       folgaMinutos: Number(folga),
     });
+  }
+
+  function aoEnviar(evento) {
+    evento.preventDefault();
+    if (!temLocal) return;
+    // Sem dia escolhido, vale hoje.
+    const horario = montarHorario(data || dataLocal(), hora);
+    if (!horario) {
+      setErroHora("Informe a hora do atendimento, ou use “Sair agora”.");
+      return;
+    }
+    setErroHora(null);
+    pedir(horario);
+  }
+
+  function sairAgora() {
+    if (!temLocal) return;
+    setErroHora(null);
+    pedir(null);
   }
 
   return (
@@ -76,75 +84,81 @@ export default function PlanejadorPercurso({ id }) {
       <form
         onSubmit={aoEnviar}
         noValidate
+        aria-labelledby="titulo-quando"
         className="flex flex-col gap-5 rounded-3xl border border-linha bg-superficie p-5 shadow-sm sm:p-7"
       >
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-3 font-display text-xl font-semibold text-pinho">
-            Quando você precisa estar lá?
-          </legend>
-          <div className="flex flex-wrap gap-3">
-            {[
-              { valor: "horario", rotulo: "Tenho horário marcado" },
-              { valor: "agora", rotulo: "Quero sair agora" },
-            ].map((opcao) => (
+        <h2 id="titulo-quando" className="font-display text-2xl font-semibold text-pinho">
+          A que horas é o seu atendimento?
+        </h2>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            rotulo="Horário"
+            type="time"
+            destaque
+            value={hora}
+            onChange={(e) => setHora(e.target.value)}
+            erro={erroHora}
+          />
+          <TextField
+            rotulo="Dia"
+            type="date"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            dica="Em branco, vale hoje."
+          />
+        </div>
+
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 font-semibold text-grafite">Quero chegar</legend>
+          <div className="flex flex-wrap gap-2">
+            {FOLGAS.map((opcao) => (
               <label
                 key={opcao.valor}
-                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-pill border border-borda-campo bg-papel px-4 has-[:checked]:border-rota has-[:checked]:bg-nevoa has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-rota"
+                className={cn(
+                  "flex min-h-11 cursor-pointer items-center rounded-pill border px-4 text-sm font-semibold",
+                  "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-rota",
+                  folga === opcao.valor
+                    ? "border-pinho bg-pinho text-papel"
+                    : "border-borda-campo bg-papel text-grafite hover:bg-nevoa",
+                )}
               >
                 <input
                   type="radio"
-                  name="modo"
+                  name="folga"
                   value={opcao.valor}
-                  checked={modo === opcao.valor}
-                  onChange={() => setModo(opcao.valor)}
-                  className="size-5 accent-[var(--color-rota)]"
+                  checked={folga === opcao.valor}
+                  onChange={() => setFolga(opcao.valor)}
+                  className="sr-only"
                 />
-                <span className="font-semibold">{opcao.rotulo}</span>
+                {opcao.rotulo}
               </label>
             ))}
           </div>
         </fieldset>
 
-        {modo === "horario" && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField rotulo="Dia" type="date" value={data} onChange={(e) => setData(e.target.value)} />
-            <TextField
-              rotulo="Horário"
-              type="time"
-              obrigatorio
-              value={hora}
-              onChange={(e) => setHora(e.target.value)}
-              erro={erroHora}
-            />
-            <SelectField
-              className="sm:col-span-2"
-              rotulo="Chegar com antecedência"
-              dica="Sem dia escolhido, vale hoje. A antecedência dá tempo para a recepção."
-              opcoes={FOLGAS}
-              textoVazio="Escolha"
-              value={folga}
-              onChange={(e) => setFolga(e.target.value || FOLGA_PADRAO)}
-            />
-          </div>
-        )}
-
         <StatusLocal local={local} unidade={u} />
+
+        <div className="flex flex-col gap-3">
+          <Button type="submit" largo seta disabled={!temLocal} carregando={calculando && Boolean(pedido?.horarioAtendimento)}>
+            Ver quando sair
+          </Button>
+          <Button
+            variante="secundario"
+            largo
+            disabled={!temLocal}
+            carregando={calculando && !pedido?.horarioAtendimento}
+            onClick={sairAgora}
+          >
+            Não tenho horário: sair agora
+          </Button>
+        </div>
 
         <p className="flex items-start gap-2 text-sm text-salvia">
           <Icon nome="info" className="mt-0.5 size-4 shrink-0" />
-          Ao tocar em “Ver percurso”, sua localização vai para o serviço do VIAS e para o Google só para
-          calcular o caminho. Ela não é salva.
+          Para calcular, sua localização vai para o serviço do VIAS e para o Google, só nesta consulta. Ela não é
+          salva. O mapa usa o OpenStreetMap.
         </p>
-
-        <Button
-          type="submit"
-          largo
-          seta
-          disabled={!temLocal}
-          carregando={percurso.estado === ESTADOS.CARREGANDO}
-        >
-          Ver percurso
-        </Button>
       </form>
 
       <div aria-live="polite">
@@ -154,12 +168,12 @@ export default function PlanejadorPercurso({ id }) {
           esqueleto={
             <div className="flex flex-col gap-4">
               <Skeleton className="h-48 w-full rounded-3xl" />
-              <Skeleton className="h-64 w-full rounded-3xl" />
+              <Skeleton className="h-72 w-full rounded-3xl" />
             </div>
           }
           tituloErro="Não foi possível calcular o percurso"
         >
-          {(dados) => <ResultadoPercurso dados={dados} />}
+          {(dados) => <ResultadoPercurso key={dados.calculadoEm} dados={dados} origem={pedido?.origem} />}
         </EstadoConsulta>
       </div>
     </div>
@@ -179,7 +193,7 @@ function StatusLocal({ local, unidade }) {
     return (
       <p className="flex items-center gap-2 text-salvia">
         <Icon nome="pin" className="size-5 shrink-0 text-rota" />
-        Vamos partir da sua localização atual.
+        Saindo da sua localização atual.
       </p>
     );
   }

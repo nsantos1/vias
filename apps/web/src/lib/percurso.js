@@ -95,3 +95,142 @@ export function numero(valor) {
   const n = Number(valor);
   return Number.isFinite(n) ? n : null;
 }
+
+// ---------------------------------------------------------------- mapa e opções (D-20, revisão de 18/11)
+
+/**
+ * Decodifica uma polilinha do Google ("encoded polyline", precisão 5) em
+ * [[lat, lon], …]. Texto inválido devolve o que deu para ler, sem inventar pontos.
+ */
+export function decodificarPolilinha(texto) {
+  if (typeof texto !== "string" || !texto) return [];
+  const pontos = [];
+  let indice = 0;
+  let lat = 0;
+  let lon = 0;
+  while (indice < texto.length) {
+    const valores = [];
+    for (let k = 0; k < 2; k += 1) {
+      let resultado = 0;
+      let deslocamento = 0;
+      let byte;
+      do {
+        if (indice >= texto.length) return pontos;
+        byte = texto.charCodeAt(indice++) - 63;
+        resultado |= (byte & 0x1f) << deslocamento;
+        deslocamento += 5;
+      } while (byte >= 0x20);
+      valores.push(resultado & 1 ? ~(resultado >> 1) : resultado >> 1);
+    }
+    lat += valores[0];
+    lon += valores[1];
+    pontos.push([lat / 1e5, lon / 1e5]);
+  }
+  return pontos;
+}
+
+/** A API manda `geometria` como lista; versões antigas mandavam um texto só. */
+export function geometriasDo(trecho) {
+  const g = trecho?.geometria;
+  if (Array.isArray(g)) return g.filter((x) => typeof x === "string" && x);
+  return typeof g === "string" && g ? [g] : [];
+}
+
+/** Linhas (lat/lon) de cada trecho para o mapa; trecho sem geometria fica sem linha. */
+export function linhasDoMapa(trechos = []) {
+  return trechos
+    .map((trecho, indice) => ({
+      indice,
+      tipo: trecho.tipo,
+      cor: trecho.linha?.cor ?? null,
+      pontos: geometriasDo(trecho).flatMap(decodificarPolilinha),
+    }))
+    .filter((l) => l.pontos.length > 1);
+}
+
+/** "ONIBUS", "TRILHOS" (metrô ou trem), "MISTO" ou "A_PE". */
+export function categoriaDaOpcao(opcao) {
+  const tipos = new Set((opcao?.trechos ?? []).map((t) => t.tipo).filter((t) => t !== "A_PE"));
+  if (!tipos.size) return "A_PE";
+  const trilhos = tipos.has("METRO") || tipos.has("TREM");
+  const onibus = tipos.has("ONIBUS") || tipos.has("OUTRO");
+  if (trilhos && onibus) return "MISTO";
+  return trilhos ? "TRILHOS" : "ONIBUS";
+}
+
+export const FILTROS = Object.freeze([
+  { valor: "TODAS", rotulo: "Todas", aceita: () => true },
+  { valor: "ONIBUS", rotulo: "Só ônibus", aceita: (c) => c === "ONIBUS" },
+  { valor: "TRILHOS", rotulo: "Com metrô ou trem", aceita: (c) => c === "TRILHOS" || c === "MISTO" },
+]);
+
+/**
+ * Escolhe a opção a destacar dentro de uma lista: a que a API recomendou, se
+ * estiver nela; senão, com horário marcado, a que chega a tempo saindo mais
+ * tarde; sem horário, a que chega primeiro (a mesma regra da API).
+ */
+export function escolherDestaque(opcoes, comHorario) {
+  if (!opcoes?.length) return null;
+  const daApi = opcoes.find((o) => o.recomendada);
+  if (daApi) return daApi;
+  const aTempo = opcoes.filter((o) => o.chegaATempo !== false);
+  const base = comHorario && aTempo.length ? aTempo : opcoes;
+  return [...base].sort((a, b) =>
+    comHorario && aTempo.length
+      ? String(b.saida).localeCompare(String(a.saida))
+      : String(a.chegada).localeCompare(String(b.chegada)),
+  )[0];
+}
+
+function somarMinutos(isoLocal, minutos) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(isoLocal ?? "");
+  if (!m || !Number.isFinite(minutos)) return null;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5] + minutos));
+  return d.toISOString().slice(0, 16) + ":00";
+}
+
+/**
+ * Hora de início de cada trecho, para a linha do tempo: ônibus e metrô usam o
+ * horário de embarque da API; a caminhada começa onde o trecho anterior termina.
+ */
+export function horariosDosTrechos(opcao) {
+  let cursor = opcao?.saida ?? null;
+  return (opcao?.trechos ?? []).map((t) => {
+    if (t.tipo === "A_PE") {
+      const inicio = cursor;
+      cursor = somarMinutos(cursor, t.duracaoMinutos ?? 0);
+      return inicio;
+    }
+    const inicio = t.embarque?.horario ?? cursor;
+    cursor = t.desembarque?.horario ?? somarMinutos(inicio, t.duracaoMinutos ?? 0);
+    return inicio;
+  });
+}
+
+/** Minutos entre dois horários locais "AAAA-MM-DDTHH:mm:ss" (b - a). */
+export function minutosEntre(a, b) {
+  const pa = Date.parse(`${String(a).slice(0, 19)}Z`);
+  const pb = Date.parse(`${String(b).slice(0, 19)}Z`);
+  if (Number.isNaN(pa) || Number.isNaN(pb)) return null;
+  return Math.round((pb - pa) / 60_000);
+}
+
+/**
+ * Ônibus acessível da previsão ao vivo que serve para o embarque planejado:
+ * o primeiro com chegada entre 3 min antes e 20 min depois do horário de
+ * embarque (antes disso, a pessoa ainda não chegou ao ponto). Sem horário de embarque, o próximo acessível. A previsão só cobre
+ * ônibus que já estão rodando, então um embarque distante não tem um.
+ */
+export function onibusAcessivelParaEmbarque(trecho) {
+  const aoVivo = trecho?.aoVivo;
+  if (aoVivo?.status !== "DISPONIVEL") return null;
+  const embarque = trecho.embarque?.horario;
+  if (!embarque) return aoVivo.proximoAcessivel ?? null;
+  return (
+    (aoVivo.onibus ?? []).find((o) => {
+      if (o.acessivel !== true) return false;
+      const diferenca = minutosEntre(embarque, o.previsto);
+      return diferenca !== null && diferenca >= -3 && diferenca <= 20;
+    }) ?? null
+  );
+}

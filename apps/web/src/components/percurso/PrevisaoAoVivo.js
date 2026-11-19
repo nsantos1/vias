@@ -1,5 +1,5 @@
 import Icon from "@/components/ui/Icon";
-import { horaDe } from "@/lib/percurso";
+import { horaDe, minutosEntre } from "@/lib/percurso";
 
 function textoAcessivel(acessivel) {
   if (acessivel === true) return "acessível";
@@ -12,7 +12,7 @@ function textoAcessivel(acessivel) {
  * ônibus. Mostra só o que a SPTrans informou: quando ela não informa se o
  * veículo é acessível, a tela diz isso, nunca presume.
  */
-export default function PrevisaoAoVivo({ aoVivo }) {
+export default function PrevisaoAoVivo({ aoVivo, embarque }) {
   if (!aoVivo) return null;
 
   if (aoVivo.status !== "DISPONIVEL") {
@@ -25,11 +25,21 @@ export default function PrevisaoAoVivo({ aoVivo }) {
   }
 
   const proximo = aoVivo.proximoAcessivel;
+  // Quando o embarque planejado ainda está longe, a previsão mostra os ônibus de agora.
+  const distante = embarque && aoVivo.onibus?.length
+    ? minutosEntre(aoVivo.onibus.at(-1).previsto, embarque) > 15
+    : false;
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-linha bg-nevoa p-3">
       <p className="font-mono text-label uppercase text-rota">
         Ao vivo · SPTrans{aoVivo.consultadoAs && <> às {aoVivo.consultadoAs}</>}
       </p>
+      {distante && (
+        <p className="text-sm text-salvia">
+          Seu embarque está previsto para {horaDe(embarque)}. Estes são os ônibus da linha que já estão a caminho
+          do ponto agora; perto do horário, calcule de novo.
+        </p>
+      )}
       <p className="flex items-start gap-2 font-semibold text-pinho">
         <Icon nome="acessibilidade" className="mt-0.5 size-5 shrink-0" />
         {proximo ? (

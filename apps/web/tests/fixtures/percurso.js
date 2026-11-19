@@ -16,7 +16,15 @@ export const PERCURSO_FICTICIO = Object.freeze({
       distanciaMetros: 9100,
       chegaATempo: true,
       trechos: [
-        { tipo: "A_PE", duracaoMinutos: 5, distanciaMetros: 350, de: "Sua localização", para: "Parada fictícia A" },
+        {
+          tipo: "A_PE",
+          duracaoMinutos: 5,
+          distanciaMetros: 350,
+          de: "Sua localização",
+          para: "Parada fictícia A",
+          // Polilinha de exemplo da documentação do Google (não é um caminho real).
+          geometria: ["_p~iF~ps|U_ulLnnqC"],
+        },
         {
           tipo: "ONIBUS",
           veiculo: "Ônibus",
@@ -29,6 +37,7 @@ export const PERCURSO_FICTICIO = Object.freeze({
           desembarque: { nome: "Parada fictícia B", horario: "2026-11-19T13:50:00" },
           paradas: 12,
           intervaloMinutos: 10,
+          geometria: ["_p~iF~ps|U_ulLnnqC_mqNvxq`@"],
           aoVivo: {
             status: "DISPONIVEL",
             parada: "PONTO FICTÍCIO",
@@ -51,6 +60,24 @@ export const PERCURSO_FICTICIO = Object.freeze({
           paradas: 1,
         },
         { tipo: "A_PE", duracaoMinutos: 4, distanciaMetros: 250, de: "Estação fictícia 2", para: "Unidade fictícia" },
+      ],
+    },
+    {
+      recomendada: false,
+      saida: "2026-11-19T13:40:00",
+      chegada: "2026-11-19T14:10:00",
+      duracaoMinutos: 30,
+      chegaATempo: true,
+      trechos: [
+        { tipo: "A_PE", duracaoMinutos: 4, distanciaMetros: 300, para: "Parada fictícia C" },
+        {
+          tipo: "ONIBUS",
+          linha: { codigo: "8888-10" },
+          embarque: { nome: "Parada fictícia C", horario: "2026-11-19T13:44:00" },
+          desembarque: { nome: "Parada fictícia D", horario: "2026-11-19T14:05:00" },
+          aoVivo: { status: "FORA_DA_JANELA", mensagem: "Mensagem fictícia de janela.", onibus: [] },
+        },
+        { tipo: "A_PE", duracaoMinutos: 5, distanciaMetros: 300, para: "Unidade fictícia" },
       ],
     },
     {
