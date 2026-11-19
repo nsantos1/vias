@@ -8,7 +8,7 @@ import Skeleton from "@/components/ui/Skeleton";
 import { SITE_INSTITUCIONAL } from "@/lib/site";
 
 /**
- * Tela 1 de 3, Necessidade (referência final de 19/11, docs/decisoes.md D-21).
+ * Tela 1 de 3, Necessidade (referência final de 19/11, D-21).
  *
  * O campo sugere os serviços reais da API Java (GET /api/servicos). Não há
  * escolha manual de local: os resultados usam a localização do aparelho (D-18).

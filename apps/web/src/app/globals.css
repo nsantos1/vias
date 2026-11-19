@@ -232,7 +232,8 @@
     padding: 0 0.9em 0 1.1em;
     font-size: 1.28cqw;
     border-radius: 1.2em;
-    background: rgb(250 252 248 / 0.97);
+    /* Opaco: o cartão cobre o texto que já vem desenhado na imagem. */
+    background: #fafcf8;
     border: 1px solid rgb(255 255 255 / 0.9);
     box-shadow: 0 1.2em 2.6em rgb(18 59 53 / 0.22);
     animation:

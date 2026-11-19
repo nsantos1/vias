@@ -7,7 +7,7 @@ Responsável: Victor. Atualizado em 14/11/2026.
 - **Fonte oficial:** enunciado *GS CitizenTech – Engenharia de Software, 2º ano de Fev – FIAP 2026* (PDF de 37 páginas, aberto em 04/11/2026).
 - **Não existe disciplina nem rubrica de Front-end** nesse enunciado. As 7 disciplinas são Agile, AR-VR, Data Science, Database Design, DDD-Java, Dynamic Programming e Network. O grupo confirmou essa leitura. Por isso esta tabela **não cria critérios nem pesos de “Front-end”**: ela só lista o que as outras entregas pedem e depende da interface.
 - O enunciado cita a interface no desafio do curso: *“Página web, script em Python e circuito no simulador, cada um fazendo bem a sua parte”* (p. 17).
-- **Prazo oficial:** 19/11/2026 às 23h55, no Teams ou Portal do Aluno de cada disciplina, com um envio por equipe. **Prazo interno do grupo:** 18/11/2026 (Alinhamento Técnico). Ver [decisoes.md](decisoes.md), item D-06.
+- **Prazo oficial:** 19/11/2026 às 23h55, no Teams ou Portal do Aluno de cada disciplina, com um envio por equipe. **Prazo interno do grupo:** 18/11/2026 (Alinhamento Técnico).
 
 ## Rastreabilidade: requisito → cartão → evidência
 
