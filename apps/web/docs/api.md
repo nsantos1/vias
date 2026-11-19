@@ -11,7 +11,7 @@ Todo acesso à API Java passa por [`src/services/api/`](../src/services/api/). N
 | `regioes.js` | `listarRegioes()` → `GET /api/regioes`; `obterRegiao(id)` → `GET /api/regioes/{id}` |
 | `unidades.js` | `listarUnidades({ servicoId, regiaoId, bairro, acessibilidade, pagina, tamanho })` → `GET /api/unidades`; `obterUnidade(id)` → `GET /api/unidades/{id}` |
 
-**Contrato confirmado em 16–18/11** ([D-04](decisoes.md)): a API Java do Raphael está publicada em `https://vias-dfwu.onrender.com` (Swagger em `/swagger-ui.html`). Os formatos de cada resposta estão comentados em cada módulo. A lista de unidades é paginada (`pagina` começa em 0, `tamanho` vai de 1 a 100) e os erros vêm como `{ timestamp, status, erro, mensagem, caminho, campos }`.
+**Contrato confirmado em 16–18/11** (D-04): a API Java do Raphael está publicada em `https://vias-dfwu.onrender.com` (Swagger em `/swagger-ui.html`). Os formatos de cada resposta estão comentados em cada módulo. A lista de unidades é paginada (`pagina` começa em 0, `tamanho` vai de 1 a 100) e os erros vêm como `{ timestamp, status, erro, mensagem, caminho, campos }`.
 
 **Limite de tempo de 60 s:** a API roda no plano gratuito do Render, que “dorme” sem uso; a primeira consulta levou cerca de 90 s em 18/11. Depois de 5 s de espera, as telas mostram o `AvisoDemora` (“o serviço pode levar até 1 minuto para iniciar”). **Antes de apresentar, abra o app uma vez para acordar a API.**
 

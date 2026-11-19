@@ -15,12 +15,12 @@ jest.mock("next/dynamic", () => () => {
   return Mapa;
 });
 
-test("destaca até que horas sair e quanto antes a pessoa chega", () => {
+test("destaca quanto falta para sair, até que horas sair e a chegada prevista", () => {
   render(<ResultadoPercurso dados={PERCURSO_FICTICIO} />);
 
-  expect(screen.getByRole("heading", { name: "Saia até 13:25" })).toBeInTheDocument();
-  expect(screen.getByText("Faltam 25 min para sair.")).toBeInTheDocument();
-  expect(screen.getByText(/26 min antes do atendimento/)).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Faltam 25 min para sair." })).toBeInTheDocument();
+  expect(screen.getByText(/Saia até 13:25 e chegue às 14:04, 26 min antes do atendimento/)).toBeInTheDocument();
+  expect(screen.getByText("Chegada prevista")).toBeInTheDocument();
   expect(screen.getByText(/Ônibus acessível da linha 9999-10 previsto no ponto às/)).toBeInTheDocument();
 });
 
@@ -50,17 +50,22 @@ test("previsão ao vivo não presume acessibilidade; metrô diz que não é info
   expect(screen.getByText(/Acessibilidade da estação não informada/)).toBeInTheDocument();
 });
 
-test("filtros separam ônibus de metrô e trem, e escolher uma opção troca o destaque", () => {
+test("lista todas as opções e escolher uma troca o destaque", () => {
   render(<ResultadoPercurso dados={PERCURSO_FICTICIO} />);
 
-  fireEvent.click(screen.getByRole("button", { name: /Só ônibus/ }));
-  // Sem metrô, sobra a opção só de ônibus.
-  expect(screen.getByRole("heading", { name: "Saia até 13:40" })).toBeInTheDocument();
+  expect(screen.getByText("3 opções")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Saia até 13:25/ })).toHaveAttribute("aria-pressed", "true");
 
-  fireEvent.click(screen.getByRole("button", { name: /Todas/ }));
   fireEvent.click(screen.getByRole("button", { name: /Saia até 13:50/ }));
-  expect(screen.getByRole("heading", { name: "Saia até 13:50" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Faltam 50 min para sair." })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /Saia até 13:50/ })).toHaveAttribute("aria-pressed", "true");
+});
+
+test("o botão Alterar horário volta ao formulário", () => {
+  const aoAlterar = jest.fn();
+  render(<ResultadoPercurso dados={PERCURSO_FICTICIO} aoAlterar={aoAlterar} />);
+  fireEvent.click(screen.getByRole("button", { name: /Alterar horário/ }));
+  expect(aoAlterar).toHaveBeenCalled();
 });
 
 test("fontes e link do mapa", () => {
@@ -78,5 +83,6 @@ test("sem opções, mostra o aviso da API em vez de inventar um percurso", () =>
 
   expect(screen.getByText("Não encontramos percurso fictício.")).toBeInTheDocument();
   expect(screen.queryByText(/Saia até/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/para sair/)).not.toBeInTheDocument();
   expect(screen.queryByTestId("mapa")).not.toBeInTheDocument();
 });

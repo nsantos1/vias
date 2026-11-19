@@ -41,3 +41,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# Registro interno de decisões do front-end: fica só no computador do Victor
+docs/decisoes.md

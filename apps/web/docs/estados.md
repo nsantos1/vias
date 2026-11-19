@@ -52,7 +52,7 @@ Seguem o documento de contexto (§7.4 e §11): concretos, sem frases absolutas, 
 
 ## Desatualizado (stale)
 
-O Front-end **não calcula** se um dado está velho: não existe regra de validade combinada com o Nicolas e o Raphael. O `AvisoDesatualizado` só aparece quando a API mandar essa indicação. O campo que vai trazer isso depende do DTO de proveniência ([D-03](decisoes.md)).
+O Front-end **não calcula** se um dado está velho: não existe regra de validade combinada com o Nicolas e o Raphael. O `AvisoDesatualizado` só aparece quando a API mandar essa indicação. O campo que vai trazer isso depende do DTO de proveniência (D-03).
 
 ## Uso numa tela
 

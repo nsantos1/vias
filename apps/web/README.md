@@ -60,7 +60,6 @@ Vitrine de componentes (só em desenvolvimento): <http://localhost:3000/dev/comp
 ## Documentação
 
 - [Conformidade acadêmica](docs/conformidade.md): o que cada disciplina pede da interface
-- [Decisões pendentes](docs/decisoes.md): contratos que dependem do grupo
 - [Sitemap e fluxo](docs/sitemap.md): páginas, navegação e estados
 - [Referências de UI](docs/referencias-ui.md): telas de referência e o que depende de contrato
 - [Tokens visuais](docs/tokens.md): cores, fontes e contraste medido

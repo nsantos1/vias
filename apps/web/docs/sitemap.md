@@ -2,7 +2,7 @@
 
 Responsável: Victor. Atualizado em 14/11/2026. **Status: proposta, aguardando aprovação do grupo.**
 
-Base: documento de contexto do Victor (§5 e §6) e Alinhamento Técnico do MVP (§2 e §7). Os endpoints aparecem como **propostos**: nenhum está confirmado como disponível ([decisoes.md](decisoes.md), D-04).
+Base: documento de contexto do Victor (§5 e §6) e Alinhamento Técnico do MVP (§2 e §7). Os endpoints aparecem como **propostos**: nenhum está confirmado como disponível (D-04).
 
 ## Escopo do P0
 
