@@ -48,6 +48,7 @@ function Moldura({ campoId, rotulo, rotuloOculto, obrigatorio, dica, dicaId, err
  * - `aoLimpar`: mostra o botão "Limpar campo" quando há texto. Precisa de
  *   Client Component, porque recebe uma função.
  * - `destaque`: borda verde mais grossa, como o campo principal da busca.
+ * - `alto`: mesma altura do `destaque`, com a borda comum (para alinhar campos lado a lado).
  * - `pilula`: campo branco arredondado e com sombra (tela inicial). Use com
  *   `rotuloOculto` só quando o texto da tela já disser o que digitar: o rótulo
  *   continua existindo para o leitor de tela.
@@ -62,6 +63,7 @@ export function TextField({
   icone,
   aoLimpar,
   destaque = false,
+  alto = false,
   pilula = false,
   rotuloOculto = false,
   adorno,
@@ -90,6 +92,7 @@ export function TextField({
           className={cn(
             controle,
             destaque && "min-h-14 border-2 text-lg",
+            alto && "min-h-14 text-lg",
             pilula && "campo-pilula min-h-15 rounded-pill text-base placeholder:text-[0.9375rem] sm:min-h-16 sm:text-lg sm:placeholder:text-lg",
             icone && (pilula ? "pl-12 sm:pl-14" : "pl-13"),
             (aoLimpar || adorno) && (pilula ? "pr-12 sm:pr-16" : "pr-13"),

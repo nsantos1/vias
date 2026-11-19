@@ -59,7 +59,12 @@ export default function Etapas({ atual, percursoDisponivel = false, className })
                   indisponivel && "border-2 border-dashed border-linha text-salvia shadow-none",
                 )}
               >
-                <Icon nome={concluida ? "check" : icone} className="size-[18px]" />
+                {/* Na última etapa, a atual é um ponto lima: um check ali pareceria "concluída". */}
+                {ativa && ultima ? (
+                  <span className="size-3.5 rounded-full bg-lima shadow-[0_0_10px_rgb(215_243_106/0.8)]" />
+                ) : (
+                  <Icon nome={concluida ? "check" : icone} className="size-[18px]" />
+                )}
               </span>
 
               <span

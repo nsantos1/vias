@@ -77,7 +77,10 @@ export default function ResultadoPercurso({ dados, origem }) {
 
           <Mapa opcao={atual} dados={dados} origem={origem} />
 
-          <section aria-labelledby="titulo-opcoes" className="flex flex-col gap-3">
+          <section
+            aria-labelledby="titulo-opcoes"
+            className="cartao-destaque flex flex-col gap-3 rounded-[1.75rem] bg-superficie p-5 sm:p-7"
+          >
             <div className="flex flex-col gap-3">
               <h3 id="titulo-opcoes" className="text-2xl font-bold">
                 Escolha como ir
@@ -120,7 +123,10 @@ export default function ResultadoPercurso({ dados, origem }) {
           </section>
 
           {atual && (
-            <section aria-labelledby="titulo-passos" className="flex flex-col gap-4">
+            <section
+              aria-labelledby="titulo-passos"
+              className="cartao-destaque flex flex-col gap-4 rounded-[1.75rem] bg-superficie p-5 sm:p-7"
+            >
               <h3 id="titulo-passos" className="text-2xl font-bold">
                 Passo a passo
               </h3>
@@ -181,7 +187,7 @@ function Destaque({ opcao, dados }) {
         {comHorario ? `Atendimento às ${horaDe(dados.horarioAtendimento)}` : "Saindo agora"}
       </p>
       <div className="flex flex-col gap-1">
-        <h3 id="titulo-saida" className="font-display text-4xl leading-tight font-bold sm:text-5xl">
+        <h3 id="titulo-saida" className="font-display text-4xl leading-tight font-bold text-papel sm:text-5xl">
           {comHorario ? "Saia até" : "Saia às"} {horaDe(opcao.saida)}
         </h3>
         {faltam !== null && (
