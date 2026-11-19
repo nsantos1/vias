@@ -1,0 +1,83 @@
+@startuml der
+!theme plain
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+hide circle
+hide empty members
+
+entity "FONTE_DADO" as fonte {
+  * id_fonte : NUMBER(10) <<PK>>
+  --
+  * sigla : VARCHAR2(30) <<UK>>
+  * nome : VARCHAR2(150)
+  url : VARCHAR2(300)
+  * oficial : CHAR(1)
+}
+entity "REGIAO" as regiao {
+  * id_regiao : NUMBER(10) <<PK>>
+  --
+  * nome : VARCHAR2(100)
+  * tipo_regiao : VARCHAR2(25)
+  * codigo_municipio : VARCHAR2(7)
+  * uf : CHAR(2)
+  * id_fonte : NUMBER(10) <<FK>>
+  UK (nome, tipo_regiao, codigo_municipio)
+}
+entity "UNIDADE_SAUDE" as unidade {
+  * id_unidade : NUMBER(10) <<PK>>
+  --
+  codigo_cnes : VARCHAR2(7) <<UK>>
+  * nome : VARCHAR2(150)
+  razao_social : VARCHAR2(150)
+  codigo_tipo_unidade : NUMBER(3)
+  tipo_unidade : VARCHAR2(120)
+  logradouro : VARCHAR2(150)
+  numero : VARCHAR2(10)
+  bairro : VARCHAR2(80)
+  cep : VARCHAR2(8)
+  codigo_municipio : VARCHAR2(7)
+  uf : CHAR(2)
+  telefone : VARCHAR2(30)
+  latitude : NUMBER(10,7)
+  longitude : NUMBER(10,7)
+  horario_funcionamento : VARCHAR2(120)
+  * atende_sus : VARCHAR2(15)
+  * status_acessibilidade : VARCHAR2(15)
+  fonte_acessibilidade : VARCHAR2(200)
+  data_verificacao_acessibilidade : DATE
+  id_regiao : NUMBER(10) <<FK>>
+  * id_fonte : NUMBER(10) <<FK>>
+  data_referencia_fonte : DATE
+  * data_carga : TIMESTAMP
+  data_atualizacao : TIMESTAMP
+}
+entity "SERVICO_SAUDE" as servico {
+  * id_servico : NUMBER(10) <<PK>>
+  --
+  * codigo : VARCHAR2(40) <<UK>>
+  * nome : VARCHAR2(100)
+  descricao : VARCHAR2(300)
+  campo_origem : VARCHAR2(80)
+  * categoria : VARCHAR2(15) <<CK>>
+  * id_fonte : NUMBER(10) <<FK>>
+}
+entity "UNIDADE_SERVICO" as us {
+  * id_unidade_servico : NUMBER(10) <<PK>>
+  --
+  * id_unidade : NUMBER(10) <<FK>>
+  * id_servico : NUMBER(10) <<FK>>
+  * id_fonte : NUMBER(10) <<FK>>
+  data_referencia_fonte : DATE
+  UK (id_unidade, id_servico)
+}
+
+regiao |o--o{ unidade
+unidade ||--o{ us
+servico ||--o{ us
+fonte ||--o{ unidade
+fonte ||--o{ us
+fonte ||--o{ servico
+fonte ||--o{ regiao
+@enduml
