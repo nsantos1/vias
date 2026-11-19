@@ -23,8 +23,13 @@ const MAX_SUGESTOES = 12;
  *
  * Não há escolha manual de local (decisão do Victor, 18/11, D-18): a tela de
  * resultados usa a localização do aparelho para ordenar pelas mais próximas.
+ *
+ * `visual="inicio"`: campo em pílula e botão com brilho da tela inicial (D-21).
+ * O rótulo do campo fica só para leitor de tela, porque o título e o texto da
+ * tela já dizem o que digitar; o comportamento é o mesmo.
  */
-export default function FormularioBusca({ servicoInicial = "" }) {
+export default function FormularioBusca({ servicoInicial = "", visual }) {
+  const inicio = visual === "inicio";
   const router = useRouter();
   const listaId = useId();
   const servicos = useConsulta("servicos", (signal) => listarServicos({ signal }));
@@ -114,10 +119,19 @@ export default function FormularioBusca({ servicoInicial = "" }) {
           <TextField
             rotulo="Exame, serviço ou especialidade"
             icone="busca"
-            destaque
+            destaque={!inicio}
+            pilula={inicio}
+            rotuloOculto={inicio}
+            adorno={inicio ? "teclado" : undefined}
             name="servico"
             autoComplete="off"
-            placeholder={servicos.estado === "carregando" ? "Carregando serviços…" : undefined}
+            placeholder={
+              servicos.estado === "carregando"
+                ? "Carregando serviços…"
+                : inicio
+                  ? "Exame, serviço ou especialidade"
+                  : undefined
+            }
             disabled={indisponivel}
             erro={erro}
             value={valor}
@@ -201,12 +215,19 @@ export default function FormularioBusca({ servicoInicial = "" }) {
         )}
 
         <div className="flex flex-col items-center gap-3">
-          <Button type="submit" largo seta carregando={enviando} disabled={servicos.estado !== "sucesso"}>
+          <Button
+            type="submit"
+            largo
+            seta
+            carregando={enviando}
+            disabled={servicos.estado !== "sucesso"}
+            className={inicio ? "botao-brilho min-h-15 sm:min-h-16" : undefined}
+          >
             Buscar unidades
           </Button>
           <p className="text-center text-salvia">Encontre unidades com o serviço procurado.</p>
           <p className="flex items-start gap-2 text-sm text-salvia">
-            <Icon nome="pin" className="mt-0.5 size-4 text-rota" />
+            <Icon nome={inicio ? "info" : "pin"} className="mt-0.5 size-4 text-rota" />
             <span>
               Para mostrar as unidades mais perto de você, o VIAS vai pedir sua localização. Ela
               fica só no seu aparelho: não é enviada nem salva.

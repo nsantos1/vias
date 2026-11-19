@@ -127,6 +127,28 @@ const caminhos = {
       <path d="M12 14.5l3 5.5" />
     </>
   ),
+  // Prédio com cruz (unidade de saúde).
+  hospital: (
+    <>
+      <path d="M4 21V8.5L12 4l8 4.5V21" />
+      <path d="M2.5 21h19" />
+      <path d="M12 8.5v5M9.5 11h5" />
+      <path d="M10 21v-3.5h4V21" />
+    </>
+  ),
+  teclado: (
+    <>
+      <rect x="2.5" y="6" width="19" height="12" rx="2" />
+      <path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M7 14h10" />
+    </>
+  ),
+  escudo: (
+    <>
+      <path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6L12 3Z" />
+      <path d="m9 12 2.2 2.2L15.5 10" />
+    </>
+  ),
+  avancar: <path d="m9 5 7 7-7 7" />,
   alvo: (
     <>
       <circle cx="12" cy="12" r="7.5" />

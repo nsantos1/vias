@@ -19,10 +19,10 @@ function useCampo({ id, dica, erro }) {
   return { campoId, dicaId, erroId, descricao };
 }
 
-function Moldura({ campoId, rotulo, obrigatorio, dica, dicaId, erro, erroId, className, children }) {
+function Moldura({ campoId, rotulo, rotuloOculto, obrigatorio, dica, dicaId, erro, erroId, className, children }) {
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={campoId} className="font-semibold text-grafite">
+      <label htmlFor={campoId} className={rotuloOculto ? "sr-only" : "font-semibold text-grafite"}>
         {rotulo}
         {obrigatorio && <span className="font-normal text-salvia"> (obrigatório)</span>}
       </label>
@@ -48,6 +48,10 @@ function Moldura({ campoId, rotulo, obrigatorio, dica, dicaId, erro, erroId, cla
  * - `aoLimpar`: mostra o botão "Limpar campo" quando há texto. Precisa de
  *   Client Component, porque recebe uma função.
  * - `destaque`: borda verde mais grossa, como o campo principal da busca.
+ * - `pilula`: campo branco arredondado e com sombra (tela inicial). Use com
+ *   `rotuloOculto` só quando o texto da tela já disser o que digitar: o rótulo
+ *   continua existindo para o leitor de tela.
+ * - `adorno`: ícone decorativo à direita, mostrado enquanto o campo está vazio.
  */
 export function TextField({
   id,
@@ -58,18 +62,24 @@ export function TextField({
   icone,
   aoLimpar,
   destaque = false,
+  pilula = false,
+  rotuloOculto = false,
+  adorno,
   className,
   ...inputProps
 }) {
   const { campoId, dicaId, erroId, descricao } = useCampo({ id, dica, erro });
   const temTexto = Boolean(inputProps.value);
   return (
-    <Moldura {...{ campoId, rotulo, obrigatorio, dica, dicaId, erro, erroId, className }}>
+    <Moldura {...{ campoId, rotulo, rotuloOculto, obrigatorio, dica, dicaId, erro, erroId, className }}>
       <div className="relative">
         {icone && (
           <Icon
             nome={icone}
-            className="pointer-events-none absolute top-1/2 left-4 size-6 -translate-y-1/2 text-rota"
+            className={cn(
+              "pointer-events-none absolute top-1/2 z-[1] size-6 -translate-y-1/2",
+              pilula ? "left-4 text-pinho sm:left-5" : "left-4 text-rota",
+            )}
           />
         )}
         <input
@@ -80,12 +90,21 @@ export function TextField({
           className={cn(
             controle,
             destaque && "min-h-14 border-2 text-lg",
-            icone && "pl-13",
-            aoLimpar && "pr-13",
-            erro ? "border-erro" : destaque ? "border-rota" : "border-borda-campo",
+            pilula && "campo-pilula min-h-15 rounded-pill text-base placeholder:text-[0.9375rem] sm:min-h-16 sm:text-lg sm:placeholder:text-lg",
+            icone && (pilula ? "pl-12 sm:pl-14" : "pl-13"),
+            (aoLimpar || adorno) && (pilula ? "pr-12 sm:pr-16" : "pr-13"),
+            erro ? "border-erro" : destaque ? "border-rota" : pilula ? "border-white" : "border-borda-campo",
           )}
           {...inputProps}
         />
+        {adorno && !temTexto && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 right-2 hidden h-8 -translate-y-1/2 items-center border-l border-linha pr-3 pl-4 text-salvia sm:flex"
+          >
+            <Icon nome={adorno} className="size-6" />
+          </span>
+        )}
         {aoLimpar && temTexto && !inputProps.disabled && (
           <button
             type="button"

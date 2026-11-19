@@ -82,3 +82,288 @@
     }
   }
 }
+
+/*
+ * Tela inicial (D-21, referência final de 19/11).
+ * Animações só de transform/opacity, curtas na entrada e lentas em laço;
+ * o bloco prefers-reduced-motion acima desliga todas.
+ */
+@layer components {
+  .surgir {
+    animation: surgir 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--atraso, 0ms);
+  }
+
+  .titulo-gradiente {
+    background: linear-gradient(100deg, #1d7a52 0%, #23a35f 55%, #3cc274 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Selo "Projeto FIAP · 2026": vidro claro sobre a ilustração */
+  .selo-vidro {
+    background: rgb(246 247 241 / 0.72);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    box-shadow: 0 8px 24px rgb(18 59 53 / 0.12);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Etapas */
+  .etapas-trilho {
+    background: linear-gradient(90deg, var(--color-rota), #3cc274 70%, rgb(60 194 116 / 0));
+  }
+  .etapa-ativa {
+    box-shadow: 0 0 0 5px rgb(60 194 116 / 0.18), 0 6px 18px rgb(18 59 53 / 0.35);
+  }
+  .etapa-ativa::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: inherit;
+    border: 2px solid rgb(60 194 116 / 0.55);
+    animation: pulso 2.6s ease-out infinite;
+  }
+
+  /* Campo em pílula */
+  .campo-pilula {
+    border-width: 1px;
+    box-shadow: 0 10px 30px rgb(18 59 53 / 0.09), 0 1px 2px rgb(18 59 53 / 0.06);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .campo-pilula:hover {
+    box-shadow: 0 14px 36px rgb(18 59 53 / 0.13), 0 1px 2px rgb(18 59 53 / 0.06);
+  }
+  .campo-pilula:focus-visible {
+    outline-offset: 3px;
+    border-color: var(--color-rota);
+    box-shadow: 0 0 0 6px rgb(60 194 116 / 0.16), 0 14px 36px rgb(18 59 53 / 0.13);
+  }
+
+  /* Botão principal com brilho verde e reflexo ao passar o mouse */
+  .botao-brilho {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-image: linear-gradient(100deg, #0e3a31 0%, #135c46 55%, #0e3a31 100%);
+    box-shadow: 0 10px 28px rgb(47 174 110 / 0.38), 0 0 0 1px rgb(60 194 116 / 0.25);
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
+  }
+  .botao-brilho::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.22) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+  .botao-brilho:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgb(47 174 110 / 0.5), 0 0 0 1px rgb(60 194 116 / 0.4);
+  }
+  .botao-brilho:not(:disabled):hover::before {
+    transition: transform 0.8s ease;
+    transform: translateX(120%);
+  }
+  .botao-brilho:not(:disabled):hover svg:last-of-type {
+    transform: translateX(4px);
+  }
+  .botao-brilho svg {
+    transition: transform 0.25s ease;
+  }
+  .botao-brilho:not(:disabled):active {
+    transform: translateY(0);
+  }
+
+  /* Ilustração da cidade */
+  .cena-cidade {
+    container-type: inline-size;
+  }
+  .cena-cidade__imagem {
+    -webkit-mask-image: linear-gradient(90deg, transparent 2%, #000 32%),
+      linear-gradient(180deg, transparent 0%, #000 10%, #000 84%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 2%, #000 32%),
+      linear-gradient(180deg, transparent 0%, #000 10%, #000 84%, transparent 100%);
+    mask-composite: intersect;
+    animation: cena-entrar 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cena-cidade__brilho,
+  .cena-cidade__cometa {
+    stroke-linecap: round;
+    stroke-dasharray: 90 1000;
+    animation: cometa 4.2s cubic-bezier(0.45, 0, 0.25, 1) 0.9s infinite;
+  }
+  .cena-cidade__brilho {
+    stroke-opacity: 0.22;
+  }
+  /* Invisíveis até a animação começar, depois que a imagem já entrou. */
+  .cena-cidade__pulso,
+  .cena-cidade__ponto {
+    opacity: 0;
+    position: absolute;
+    translate: -50% -50%;
+    border-radius: 999px;
+  }
+  .cena-cidade__pulso {
+    width: 7cqw;
+    aspect-ratio: 2.2;
+    border: 2px solid rgb(185 255 140 / 0.9);
+    box-shadow: 0 0 18px rgb(120 255 120 / 0.6);
+    animation: pulso-chao 2.8s ease-out 1.2s infinite;
+  }
+  .cena-cidade__pulso--grande {
+    width: 9cqw;
+  }
+  .cena-cidade__ponto {
+    width: 3.6cqw;
+    aspect-ratio: 1;
+    border: 2px solid rgb(185 255 140 / 0.85);
+    animation: pulso 2.4s ease-out 1.6s infinite;
+  }
+  .cena-cidade__cartao {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 0 0.9em 0 1.1em;
+    font-size: 1.28cqw;
+    border-radius: 1.2em;
+    background: rgb(250 252 248 / 0.97);
+    border: 1px solid rgb(255 255 255 / 0.9);
+    box-shadow: 0 1.2em 2.6em rgb(18 59 53 / 0.22);
+    animation:
+      cartao-entrar 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both,
+      flutuar 5s ease-in-out 1.3s infinite;
+  }
+
+  /* Rodapé */
+  .onda-rodape__ponto {
+    position: absolute;
+    left: 78%;
+    top: 61%;
+    width: 1.1rem;
+    height: 1.1rem;
+    translate: -50% -50%;
+    border-radius: 999px;
+    background: var(--color-lima);
+    box-shadow: 0 0 0 4px rgb(215 243 106 / 0.25), 0 0 22px rgb(215 243 106 / 0.9);
+  }
+  .onda-rodape__ponto::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+    border: 2px solid rgb(215 243 106 / 0.7);
+    animation: pulso 2.8s ease-out infinite;
+  }
+}
+
+
+/*
+ * Ajustes de layout da tela inicial fora de @layer: precisam vencer as
+ * classes utilitárias (max-w-5xl, mt-auto) do cabeçalho e do rodapé comuns.
+ */
+/* Na tela inicial o cabeçalho flutua sobre a ilustração e o rodapé sobe sobre ela. */
+body:has(.tela-inicio) > .cabecalho {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+}
+body:has(.tela-inicio) .cabecalho__conteudo,
+body:has(.tela-inicio) .rodape__conteudo {
+  max-width: 90rem;
+}
+/* No celular as etapas sobem um pouco sobre a faixa da cidade, já dissolvida. */
+.tela-inicio__conteudo {
+  margin-top: -1.75rem;
+}
+.faixa-cidade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--color-papel) 0%,
+    rgb(246 247 241 / 0.7) 14%,
+    rgb(246 247 241 / 0) 32%,
+    rgb(246 247 241 / 0) 58%,
+    var(--color-papel) 90%
+  );
+}
+.faixa-cidade .cena-cidade__imagem {
+  /* Na faixa, quem dissolve as bordas é o véu acima, não a máscara lateral. */
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+@media (min-width: 64rem) {
+  .tela-inicio__conteudo {
+    margin-top: 0;
+    padding-top: 5.5rem;
+  }
+}
+@media (min-width: 64rem) {
+  body:has(.tela-inicio) .cabecalho__conteudo {
+    max-width: none;
+    padding-left: max(1.5rem, calc((100vw - 90rem) / 2 + 1.5rem));
+    padding-right: max(1.5rem, 7vw);
+    padding-top: 1.5rem;
+  }
+  body:has(.tela-inicio) > .rodape {
+    position: relative;
+    margin-top: -7rem;
+  }
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes cena-entrar {
+  from {
+    opacity: 0;
+    transform: scale(1.045);
+  }
+}
+@keyframes cartao-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+@keyframes flutuar {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes cometa {
+  from {
+    stroke-dashoffset: 90;
+  }
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+@keyframes pulso {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+@keyframes pulso-chao {
+  from {
+    opacity: 0.95;
+    scale: 0.35;
+  }
+  to {
+    opacity: 0;
+    scale: 1.25;
+  }
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import Icon from "@/components/ui/Icon";
 import CabecalhoTela from "./CabecalhoTela";
 import Wordmark from "./Wordmark";
 
@@ -13,8 +14,8 @@ import Wordmark from "./Wordmark";
  */
 export default function SiteHeader() {
   return (
-    <header className="relative z-10">
-      <div className="mx-auto flex max-w-5xl items-center px-4 py-3 sm:px-6 sm:py-4">
+    <header className="cabecalho relative z-10">
+      <div className="cabecalho__conteudo mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
         <Suspense
           fallback={
             <Link
@@ -28,6 +29,10 @@ export default function SiteHeader() {
         >
           <CabecalhoTela />
         </Suspense>
+        <p className="selo-vidro hidden shrink-0 items-center gap-2 rounded-pill px-5 py-2.5 text-sm font-medium text-pinho md:flex">
+          <Icon nome="escudo" className="size-5 text-rota" />
+          Projeto FIAP · 2026
+        </p>
       </div>
     </header>
   );
