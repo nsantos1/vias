@@ -90,19 +90,19 @@
   </div>
   <div>
     <table>
-      <tr><th>Nome completo</th><th>RM</th><th>Frente</th></tr>
-      <tr><td>Felipe de Andrade Godoi</td><td>RM566209</td><td>Algoritmo Python</td></tr>
-      <tr><td>Nicolas Marinho dos Santos</td><td>RM563185</td><td>Banco Oracle</td></tr>
-      <tr><td>Raphael Naome Taketa</td><td>RM562321</td><td>Back-end Java</td></tr>
-      <tr><td>Victor Ribeiro Guimarães Lira</td><td>RM566213</td><td>Front-end Next.js</td></tr>
+      <tr><th>Nome completo</th><th>RM</th></tr>
+      <tr><td>Felipe de Andrade Godoi</td><td>RM566209</td></tr>
+      <tr><td>Nicolas Marinho dos Santos</td><td>RM563185</td></tr>
+      <tr><td>Raphael Naome Taketa</td><td>RM562321</td></tr>
+      <tr><td>Victor Ribeiro Guimarães Lira</td><td>RM566213</td></tr>
     </table>
     <p style="color:var(--cinza); margin-top:6mm">Engenharia de Software · 2º ano · FIAP Paulista · São Paulo, novembro de 2026</p>
   </div>
 </section>
 
-<!-- ============================ SUMÁRIO ============================ -->
+<!-- ============================ ÍNDICE ============================ -->
 <section class="secao sumario">
-  <h1>Sumário</h1>
+  <h1>Índice</h1>
   <ol>
     <li><span>1. Descritivo da solução</span><span>3</span></li>
     <li><span>2. Justificativa</span><span>3</span></li>
@@ -112,10 +112,10 @@
     <li><span>6. Diagrama de classes</span><span>7</span></li>
     <li><span>7. Diagrama Entidade-Relacionamento (DER)</span><span>9</span></li>
     <li><span>8. Protótipos de tela</span><span>10</span></li>
-    <li><span>9. Endpoints da API</span><span>12</span></li>
-    <li><span>10. Tratamento de exceções</span><span>14</span></li>
-    <li><span>11. Instruções para executar o projeto</span><span>15</span></li>
-    <li><span>12. Limitações conhecidas e próximos passos</span><span>17</span></li>
+    <li><span>9. Endpoints da API</span><span>13</span></li>
+    <li><span>10. Tratamento de exceções</span><span>15</span></li>
+    <li><span>11. Instruções para executar o projeto</span><span>16</span></li>
+    <li><span>12. Limitações conhecidas e próximos passos</span><span>18</span></li>
   </ol>
   <div class="nota" style="margin-top:10mm">
     <b>Ficha da CitizenTech</b><br>
@@ -130,7 +130,7 @@
 <section class="secao">
   <h1>1. Descritivo da solução</h1>
   <p>O <b>VIAS – Via Inteligente de Acesso à Saúde</b> ajuda o cidadão a descobrir qual unidade de saúde corresponde à sua necessidade e a entender como chegar até ela pelo percurso que consegue utilizar. O diferencial não é apenas listar a unidade mais próxima: é <b>cruzar a necessidade com os serviços cadastrados</b>, considerar acessibilidade <b>apenas quando houver informação válida</b> e mostrar sempre <b>de onde veio cada dado</b>.</p>
-  <p>A solução tem quatro frentes: o site em <b>Next.js</b> (Victor), esta <b>API em Java / Spring Boot</b> (Raphael), o <b>banco Oracle</b> (Nicolas) e o <b>algoritmo de rotas em Python</b> (Felipe). O site nunca acessa o banco diretamente; toda consulta passa pela API.</p>
+  <p>A solução tem quatro partes: o site em <b>Next.js</b>, esta <b>API em Java / Spring Boot</b>, o <b>banco Oracle</b> e o <b>algoritmo de rotas em Python</b>. O site nunca acessa o banco diretamente; toda consulta passa pela API.</p>
   <p>Esta entrega implementa a API, com <b>1.092 unidades de saúde reais</b> do município de São Paulo, carregadas do <b>CNES/DATASUS</b> (API de Dados Abertos do Ministério da Saúde) em 16/11/2026:</p>
   <table>
     <tr><th>Tipo de unidade (CNES)</th><th style="width:20%">Unidades</th></tr>
@@ -165,8 +165,8 @@
 
 <section class="secao">
   <h1>4. Arquitetura e organização do código</h1>
-<pre>Cidadão / Gestor → Front-end Next.js (Victor) → API Java / Spring Boot (Raphael) → Oracle FIAP (Nicolas)
-                                                   └─ (próxima fase) módulo Python de rotas (Felipe), via HTTP/JSON</pre>
+<pre>Cidadão / Gestor → Front-end Next.js → API Java / Spring Boot → Oracle FIAP
+                                       └─ (próxima fase) módulo Python de rotas, via HTTP/JSON</pre>
   <p>O código fica em <code>services/api</code> e segue o padrão das aulas (fluxo Controller → Service → Repository → Banco):</p>
 <pre>br.com.vias
 ├── model/        Entidades JPA: UnidadeSaude, ServicoSaude, UnidadeServico, Regiao, FonteDado + enums
@@ -185,7 +185,7 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
     <li><b>Credenciais:</b> somente variáveis de ambiente (<code>DB_URL</code>, <code>DB_USER</code>, <code>DB_PASS</code>); nada no Git.</li>
     <li><b>Sem dados pessoais:</b> o banco não guarda cidadãos, localização, sintomas nem histórico de rotas.</li>
   </ul>
-  <div class="alerta"><b>Schema provisório.</b> O modelo segue o núcleo de quatro tabelas do alinhamento técnico (REGIAO, UNIDADE_SAUDE, SERVICO_SAUDE, UNIDADE_SERVICO), mais FONTE_DADO para a proveniência. Ele será ajustado ao schema final aprovado pela frente Oracle.</div>
+  <div class="alerta"><b>Schema.</b> O modelo segue o núcleo de quatro tabelas do alinhamento técnico (REGIAO, UNIDADE_SAUDE, SERVICO_SAUDE, UNIDADE_SERVICO), mais FONTE_DADO para a proveniência.</div>
 </section>
 
 <!-- ============================ 5 ============================ -->
@@ -207,23 +207,23 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
   "endereco": { "logradouro": "RUA BERGSON", "numero": "52", "bairro": "VL LEOPOLDINA", "cep": "05301060", ... },
   "horarioFuncionamento": "ATENDIMENTO NOS TURNOS DA MANHA, TARDE E NOITE", "atendeSus": "SIM",
   "acessibilidade": { "status": "NAO_INFORMADO", "fonte": null, "dataVerificacao": null },
-  "servicos": [ { "codigo": "SERVICO_APOIO", "fonte": "CNES_DEMAS", "dataReferencia": "2026-04-02" } ],
+  "servicos": [ { "codigo": "ATEND_ATENCAO_PRIMARIA", "nome": "Atenção primária (UBS)", "fonte": "CNES_SR", ... }, ... ],
   "proveniencia": { "fonte": "CNES_DEMAS", "oficial": true, "dataReferencia": "2026-04-02",
-                    "dataCarga": "2026-11-16T19:44:23", "dataAtualizacao": null },
+                    "dataCarga": "2026-11-18T18:39:44", "dataAtualizacao": null },
   "camposCadastraisProtegidos": true,
-  "avisos": [ "Horario de funcionamento e o informado no cadastro da fonte; confirme com a unidade antes de ir.",
-              "A fonte nao informa a acessibilidade desta unidade.",
-              "Servicos listados sao vinculos cadastrais; nao garantem vaga, agenda ou atendimento hoje." ] }</pre>
+  "avisos": [ "Horário de funcionamento é o informado no cadastro da fonte; confirme com a unidade antes de ir.",
+              "A fonte não informa a acessibilidade desta unidade.",
+              "Serviços listados são vínculos cadastrais; não garantem vaga, agenda ou atendimento hoje." ] }</pre>
 </section>
 
 <!-- ============================ 6 ============================ -->
 <section class="secao">
   <h1>6. Diagrama de classes</h1>
-  <p>Os diagramas refletem o código Java entregue. A Figura 1 mostra a camada modelo; a Figura 2, as camadas Controller, Service (BO), Repository (DAO) e Exception.</p>
+  <p>Os diagramas refletem o código Java entregue. A Figura 1 mostra a camada modelo; a Figura 2, as camadas Controller, Service (BO), Repository (DAO), Integração e Exception.</p>
   <figure><img src="diagramas/classes-dominio.svg" style="max-height:205mm"><figcaption>Figura 1 – Camada modelo (pacote br.com.vias.model)</figcaption></figure>
 </section>
 <section class="secao">
-  <figure><img src="diagramas/classes-camadas.svg" style="width:100%"><figcaption>Figura 2 – Camadas Controller, Service (BO), Repository (DAO) e Exception</figcaption></figure>
+  <figure><img src="diagramas/classes-camadas.svg" style="width:100%"><figcaption>Figura 2 – Camadas Controller, Service (BO), Repository (DAO), Integração e Exception</figcaption></figure>
 </section>
 
 <!-- ============================ 7 ============================ -->
@@ -234,7 +234,7 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
     <tr><th>Relacionamento</th><th>Cardinalidade</th><th>Regra</th></tr>
     <tr><td>REGIAO → UNIDADE_SAUDE</td><td>1:N (opcional)</td><td>Hoje a região é o bairro informado no CNES (granularidade provisória)</td></tr>
     <tr><td>UNIDADE_SAUDE ↔ SERVICO_SAUDE</td><td>N:N via UNIDADE_SERVICO</td><td>UNIQUE (unidade, serviço); apagar a unidade apaga os vínculos</td></tr>
-    <tr><td>FONTE_DADO → demais tabelas</td><td>1:N</td><td>Toda linha aponta a sua fonte (CNES_DEMAS ou CADASTRO_MANUAL)</td></tr>
+    <tr><td>FONTE_DADO → demais tabelas</td><td>1:N</td><td>Toda linha aponta a sua fonte (CNES_DEMAS, CNES_EQ, CNES_SR, CNES_PF ou CADASTRO_MANUAL)</td></tr>
   </table>
   <p>Constraints relevantes: <code>codigo_cnes</code> UNIQUE e com 7 dígitos (<code>REGEXP_LIKE</code>); estados de acessibilidade e SUS por <code>CHECK</code>; acessibilidade afirmada exige fonte e data; latitude e longitude juntas.</p>
 </section>
@@ -242,86 +242,31 @@ scripts/                 baixar_cnes.py (baixa o CNES) e gerar_carga_sql.py (ger
 <!-- ============================ 8 ============================ -->
 <section class="secao">
   <h1>8. Protótipos de tela</h1>
-  <p>Telas do site em Next.js que consomem esta API, preenchidas com dados reais devolvidos por ela. As telas finais são de responsabilidade do front-end (Victor).</p>
-
-  <div class="tela">
-    <div class="janela">
-      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br</span></div>
-      <div class="topo-app"><b>VIAS</b><span>Buscar · Painel do gestor</span></div>
-      <div class="corpo">
-        <div style="font-size:13pt;font-weight:800;margin-bottom:2mm">Do que você precisa?</div>
-        <div class="caixa-busca">Ex.: posto de saúde, pronto atendimento, hospital</div>
-        <div class="filtros">
-          <span class="filtro on">Posto de saúde (UBS)</span><span class="filtro">Pronto atendimento</span><span class="filtro">Hospital</span><span class="filtro">Policlínica</span>
-        </div>
-        <div class="filtros">
-          <span class="filtro">Bairro: <b>PERDIZES</b></span><span class="filtro on">Atende SUS</span><span class="filtro">Acessibilidade: qualquer</span><span class="filtro">Serviço: todos</span>
-        </div>
-        <div style="margin-top:4mm"><span class="btn">Buscar</span></div>
-      </div>
-    </div>
-    <div class="anot"><b>Tela 1 – Busca.</b> Uma caixa principal e filtros por tipo, bairro/região, SUS, acessibilidade e serviço. As listas de filtros vêm de <code>GET /api/servicos</code> e <code>GET /api/regioes?nome=</code>.</div>
-  </div>
-
-  <div class="tela">
-    <div class="janela">
-      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/busca?tipo=2&amp;bairro=PERDIZES&amp;sus=SIM</span></div>
-      <div class="topo-app"><b>VIAS</b><span>2 unidades encontradas</span></div>
-      <div class="corpo">
-        <div class="cartao"><b>UBS JARDIM VERA CRUZ PERDIZES</b> · Centro de saúde / Unidade básica · PERDIZES<br>
-          <span class="selo s-sim">Atende SUS</span><span class="selo s-ni">Acessibilidade: não informada</span><span class="selo s-svc">Serviço de apoio</span>
-          <div style="font-size:7.5pt;color:#666;margin-top:1mm">Fonte: CNES/DATASUS</div></div>
-        <div class="cartao"><b>UBS VILA ANGLO JOSE SERRA RIBEIRO</b> · Centro de saúde / Unidade básica · PERDIZES<br>
-          <span class="selo s-sim">Atende SUS</span><span class="selo s-ni">Acessibilidade: não informada</span><span class="selo s-svc">Serviço de apoio</span>
-          <div style="font-size:7.5pt;color:#666;margin-top:1mm">Fonte: CNES/DATASUS</div></div>
-        <div style="font-size:8pt;color:#555">Página 1 de 1 · <u>Ver no mapa</u></div>
-      </div>
-    </div>
-    <div class="anot"><b>Tela 2 – Resultados.</b> Cartões com nome, tipo, bairro e selos com texto (nunca só cor). "Não informada" aparece como estado neutro, e não como negativo. <b>API:</b> <code>GET /api/unidades?tipoUnidade=2&amp;bairro=PERDIZES&amp;atendeSus=SIM</code>.</div>
+  <p>Telas reais do site em Next.js, publicado na Vercel e ligado a esta API no Render. Todos os dados mostrados vêm da API: unidades, serviços e especialidades do CNES, e o percurso calculado pelo Google Routes com a previsão da SPTrans. Site: <a href="https://vias-jet.vercel.app">https://vias-jet.vercel.app</a> (capturas de 18/11/2026).</p>
+  <figure class="tela"><img src="prototipos/01-inicio.jpg" style="max-height:98mm; border:1px solid #ccd"><figcaption>Tela 1 – Necessidade: o cidadão busca por exame, serviço ou especialidade. <b>API:</b> <code>GET /api/servicos</code></figcaption></figure>
+  <figure class="tela"><img src="prototipos/02-busca-sugestoes.jpg" style="max-height:98mm; border:1px solid #ccd"><figcaption>Tela 1 – Busca com sugestões do catálogo real, agrupadas por categoria e com o total de unidades de cada item</figcaption></figure>
+</section>
+<section class="secao">
+  <div class="grid2">
+    <figure class="tela"><img src="prototipos/03-resultados.jpg" style="max-height:200mm; border:1px solid #ccd"><figcaption>Tela 2 – Resultados: unidades com a especialidade, ordenadas pela distância. <b>API:</b> <code>GET /api/unidades?servicoId=…</code></figcaption></figure>
+    <figure class="tela"><img src="prototipos/04-detalhe.jpg" style="max-height:200mm; border:1px solid #ccd"><figcaption>Tela 2 – Detalhe da unidade: serviços, SUS, endereço, horário, acessibilidade, fonte e avisos. <b>API:</b> <code>GET /api/unidades/{id}</code></figcaption></figure>
   </div>
 </section>
-
 <section class="secao">
-  <div class="tela">
-    <div class="janela">
-      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/unidades/84</span></div>
-      <div class="topo-app"><b>VIAS</b><span>Detalhe da unidade</span></div>
-      <div class="corpo">
-        <div style="font-size:12pt;font-weight:800">UBS PARQUE DA LAPA</div>
-        <div style="color:#555">Centro de saúde / Unidade básica · CNES 2027461</div>
-        <div class="grid2" style="margin-top:2.5mm">
-          <div><b>Endereço</b><br>RUA BERGSON, 52 – VL LEOPOLDINA<br>CEP 05301-060 · São Paulo/SP<br><b>Telefone</b> (11) 5237-4117</div>
-          <div><b>Horário cadastral</b><br>Atendimento nos turnos da manhã, tarde e noite<br><b>SUS</b> <span class="selo s-sim">Atende SUS</span><br><b>Acessibilidade</b> <span class="selo s-ni">Não informada pela fonte</span></div>
-        </div>
-        <div style="margin-top:2mm"><b>Serviços registrados:</b> <span class="selo s-svc">Serviço de apoio</span></div>
-        <div class="aviso">⚠ O horário é o do cadastro; confirme com a unidade antes de ir. · A fonte não informa a acessibilidade. · Serviços registrados não garantem vaga ou atendimento hoje.</div>
-        <div style="font-size:7.5pt;color:#666;margin-top:2mm">Fonte: CNES/DATASUS · atualizado pela fonte em 02/04/2026 · carregado em 16/11/2026</div>
-        <div style="margin-top:3mm"><span class="btn">Como chegar</span></div>
-      </div>
+  <div class="grid2" style="grid-template-columns: 1fr 1fr; align-items:start">
+    <figure class="tela"><img src="prototipos/05-percurso.jpg" style="max-height:225mm; border:1px solid #ccd"><figcaption>Tela 3 – Percurso de transporte público ("sair agora"): opções de ônibus e metrô, mapa e passo a passo com a previsão da SPTrans. <b>API:</b> <code>POST /api/percursos</code></figcaption></figure>
+    <div>
+      <h3>Como as telas usam a API</h3>
+      <table>
+        <tr><th>Tela</th><th>Requisição</th></tr>
+        <tr><td>1. Necessidade</td><td><code>GET /api/servicos</code></td></tr>
+        <tr><td>2. Resultados</td><td><code>GET /api/unidades</code>, <code>GET /api/servicos/{id}</code></td></tr>
+        <tr><td>2. Detalhe</td><td><code>GET /api/unidades/{id}</code></td></tr>
+        <tr><td>3. Percurso</td><td><code>POST /api/percursos</code></td></tr>
+      </table>
+      <p>O cadastro, a alteração e a exclusão de unidades (<code>POST</code>, <code>PUT</code> e <code>DELETE /api/unidades</code>) e o painel de indicadores (<code>GET /api/gestao/resumo</code>) são operações de gestão. Não têm tela no site público e são demonstrados pelo Swagger (<code>/swagger-ui.html</code>).</p>
+      <p>Na Tela 3, a localização da pessoa vai no corpo da requisição e não é gravada. Na captura, a origem foi simulada (Praça da Sé).</p>
     </div>
-    <div class="anot"><b>Tela 3 – Detalhe.</b> Mostra apenas o que a fonte informa, os avisos devolvidos pela API e a proveniência. "Como chegar" chama o módulo de rotas (Python) na próxima fase. <b>API:</b> <code>GET /api/unidades/{id}</code>; registro de vistoria: <code>PUT /api/unidades/{id}/acessibilidade</code>.</div>
-  </div>
-
-  <div class="tela">
-    <div class="janela">
-      <div class="barra"><i></i><i></i><i></i><span class="url">vias.app.br/gestao</span></div>
-      <div class="topo-app"><b>VIAS</b><span>Painel do gestor</span></div>
-      <div class="corpo">
-        <div class="grid2" style="grid-template-columns:repeat(4,1fr)">
-          <div class="kpi"><div class="n">1.092</div>unidades</div>
-          <div class="kpi"><div class="n">658</div>atendem SUS</div>
-          <div class="kpi"><div class="n">0</div>com acessibilidade verificada</div>
-          <div class="kpi"><div class="n">0</div>sem coordenadas</div>
-        </div>
-        <div style="margin-top:3mm"><b>Unidades por tipo</b></div>
-        <div>UBS <span class="barra-h" style="width:50mm"></span> 548</div>
-        <div>Policlínica <span class="barra-h" style="width:29mm"></span> 314</div>
-        <div>Hospital geral <span class="barra-h" style="width:15mm"></span> 165</div>
-        <div>Pronto atendimento <span class="barra-h" style="width:6mm"></span> 65</div>
-        <div class="aviso">Acessibilidade: 1.092 unidades sem informação na fonte. Indicador mostra a lacuna de dados, não a falta de acessibilidade.</div>
-      </div>
-    </div>
-    <div class="anot"><b>Tela 4 – Painel do gestor.</b> Indicadores agregados, sem dados pessoais, cada um com a sua definição. <b>API:</b> <code>GET /api/gestao/resumo</code>.</div>
   </div>
 </section>
 
@@ -386,6 +331,15 @@ PUT /api/unidades/84/acessibilidade
 
 <section class="secao">
   <h1>11. Instruções para executar o projeto</h1>
+  <div class="nota">
+    <b>Acesso rápido, sem instalar nada.</b> O projeto já está publicado; basta um navegador.
+    <ol style="margin:2mm 0 0">
+      <li><b>Site:</b> abra <a href="https://vias-jet.vercel.app">https://vias-jet.vercel.app</a>, busque um exame ou especialidade (ex.: "cirurgia"), abra uma unidade e veja o percurso.</li>
+      <li><b>API e CRUD:</b> abra <a href="https://vias-dfwu.onrender.com/swagger-ui.html">https://vias-dfwu.onrender.com/swagger-ui.html</a> e use <i>Try it out</i> em cada endpoint (GET, POST, PUT e DELETE de <code>/api/unidades</code>).</li>
+      <li>Se a primeira resposta demorar cerca de 1 minuto, é o Render (plano gratuito) acordando o serviço; depois fica rápido.</li>
+    </ol>
+    Os passos abaixo são para rodar o código na própria máquina.
+  </div>
   <h3>Ferramentas e versões</h3>
   <table>
     <tr><th>Ferramenta</th><th>Versão</th><th>Uso</th></tr>
@@ -397,12 +351,16 @@ PUT /api/unidades/84/acessibilidade
     <tr><td>springdoc-openapi</td><td>2.8.9</td><td>Swagger UI</td></tr>
     <tr><td>IntelliJ IDEA</td><td>2025 ou superior</td><td>IDE</td></tr>
     <tr><td>Insomnia ou Postman</td><td>atual</td><td>Testes HTTP</td></tr>
+    <tr><td>Git</td><td>2.40 ou superior</td><td>Clonar o repositório</td></tr>
+    <tr><td>Docker Desktop</td><td>4.x (opcional)</td><td>Rodar tudo local com <code>docker compose</code></td></tr>
+    <tr><td>Python</td><td>3.11 ou superior (opcional)</td><td>Scripts de atualização da carga do CNES</td></tr>
     <tr><td>Render.com</td><td>Plano Free, runtime Docker</td><td>Deploy</td></tr>
   </table>
   <h3>Links</h3>
   <ul>
     <li><b>GitHub:</b> <a href="https://github.com/nsantos1/vias">https://github.com/nsantos1/vias</a> (código em <code>services/api</code>)</li>
     <li><b>Deploy:</b> <a href="https://vias-dfwu.onrender.com">https://vias-dfwu.onrender.com</a> · Swagger em <code>/swagger-ui.html</code> · saúde em <code>/actuator/health</code></li>
+    <li><b>Site (front-end Next.js, Vercel):</b> <a href="https://vias-jet.vercel.app">https://vias-jet.vercel.app</a></li>
   </ul>
 </section>
 
@@ -417,7 +375,7 @@ PUT /api/unidades/84/acessibilidade
     <li>Rode <code>ViasApiApplication</code>. Na primeira subida, o Flyway aplica as migrations V1 a V6: cria as 5 tabelas, carrega as 1.092 unidades do CNES e o catálogo de 83 itens (atendimentos, exames e especialidades).</li>
     <li>Abra <code>http://localhost:8080/swagger-ui.html</code>.</li>
   </ol>
-  <p>Se o schema já tiver sido criado pela frente Oracle, defina <code>FLYWAY_ENABLED=false</code>.</p>
+  <p>Se o schema já tiver sido criado no banco, defina <code>FLYWAY_ENABLED=false</code>.</p>
   <h3>Alternativa – tudo local com Docker</h3>
 <pre>cd services/api
 docker compose up --build        # Oracle Free + API → http://localhost:8080/swagger-ui.html</pre>
@@ -453,10 +411,9 @@ python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json</
     <tr><td>Acessibilidade</td><td>O recurso CNES usado não publica acessibilidade física; as 1.092 unidades estão <code>NAO_INFORMADO</code>. Próximo passo: registrar vistorias pelo endpoint de acessibilidade, com fonte e data.</td></tr>
     <tr><td>Catálogo de serviços</td><td>Exames, serviços especializados e especialidades vêm dos arquivos de equipamentos, serviços e profissionais do CNES. Um vínculo indica que a unidade tem o recurso cadastrado; não garante vaga, agenda ou atendimento no dia.</td></tr>
     <tr><td>Indicadores do CNES</td><td>Indicador 0 ou vazio não gera vínculo e não é lido como "não oferece". Ex.: muitas UBS aparecem sem o indicador ambulatorial.</td></tr>
-    <tr><td>Regiões</td><td>A região é o bairro digitado no CNES, com grafias diferentes para o mesmo lugar (ex.: "VL LEOPOLDINA", "V LEOPOLDINA", "VILA LEOPOLDINA"). A normalização (distrito ou região administrativa) depende da frente Oracle.</td></tr>
+    <tr><td>Regiões</td><td>A região é o bairro digitado no CNES, com grafias diferentes para o mesmo lugar (ex.: "VL LEOPOLDINA", "V LEOPOLDINA", "VILA LEOPOLDINA"). A normalização (distrito ou região administrativa) é um próximo passo.</td></tr>
     <tr><td>Coordenadas e tipos</td><td>Exibidos como publicados pela fonte, sem correção manual. Algumas coordenadas apontam para o centro da cidade. O tipo "Centro de saúde/Unidade básica" também inclui unidades prisionais.</td></tr>
     <tr><td>Rotas e transporte</td><td>A API não calcula rotas: a lógica pertence ao módulo Python. A integração HTTP (contrato <code>POST /calcular-rota</code>), GTFS e Olho Vivo ficam para a próxima fase, após validar fontes e contrato.</td></tr>
-    <tr><td>Schema</td><td>Provisório até a validação conjunta com a frente Oracle.</td></tr>
   </table>
   <div class="nota"><b>Fonte dos dados:</b> CNES – API de Dados Abertos do Ministério da Saúde (DEMAS), recurso <code>/cnes/estabelecimentos</code>, município 355030, tipos 2, 4, 5 e 73, consultado em 16/11/2026. Somente estabelecimentos ativos. Nenhum dado pessoal de cidadãos é armazenado.</div>
 </section>
