@@ -210,6 +210,7 @@ mvn test
 - [README da API Java](services/api/README.md), com endpoints, camadas e variáveis
 - [Diagramas: DER e classes](services/api/docs/diagramas)
 - [ETL e carga de dados](data/etl/README.md)
+- [Repositório da landing page](https://vias-viainteligentedeacessoasaude.vercel.app)
 
 ---
 
