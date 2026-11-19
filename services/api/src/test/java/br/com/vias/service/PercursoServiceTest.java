@@ -64,7 +64,7 @@ class PercursoServiceTest {
         unidade.setLongitude(new BigDecimal("-46.66"));
         when(unidades.findById(7L)).thenReturn(Optional.of(unidade));
         when(google.configurado()).thenReturn(true);
-        when(google.calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), any(), any())).thenReturn(rotasFixture);
+        when(google.calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), any(), any(), any())).thenReturn(rotasFixture);
     }
 
     private PercursoService service(Instant agora) {
@@ -127,7 +127,33 @@ class PercursoServiceTest {
         assertThat(r.chegarAte()).isNull();
         assertThat(r.opcoes().get(0).chegada()).isEqualTo(LocalDateTime.of(2026, 11, 19, 13, 25));
         assertThat(r.opcoes().get(0).chegaATempo()).isNull();
-        verify(google).calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), isNull(), eq(AGORA));
+        verify(google).calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), isNull(), eq(AGORA), isNull());
+        verify(google).calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), isNull(), eq(AGORA),
+                eq(PercursoService.MODOS_TRILHOS));
+    }
+
+    @Test
+    void rotaRepetidaNasDuasConsultasApareceUmaVez() {
+        // O duble devolve a mesma fixture para a consulta geral e para a de metro e trem.
+        PercursoResponse r = service(AGORA).calcular(pedido(LocalDateTime.of(2026, 11, 19, 14, 30), 15));
+        assertThat(r.opcoes()).hasSize(2);
+    }
+
+    @Test
+    void consultaDeTrilhosComFalhaNaoDerrubaOPercurso() {
+        when(google.calcular(anyDouble(), anyDouble(), anyDouble(), anyDouble(), any(), any(),
+                eq(PercursoService.MODOS_TRILHOS))).thenThrow(new ServicoExternoException("teste"));
+        PercursoResponse r = service(AGORA).calcular(pedido(null, null));
+        assertThat(r.opcoes()).hasSize(2);
+    }
+
+    @Test
+    void caminhadaLevaAGeometriaDosPassosAPe() {
+        Opcao opcao = PercursoService.montarOpcao(rotasFixture.get(0), "UNIDADE TESTE", null,
+                LocalDateTime.of(2026, 11, 19, 13, 0));
+        assertThat(opcao.trechos().get(0).geometria()).containsExactly("abc");
+        assertThat(opcao.trechos().get(1).geometria()).containsExactly("def");
+        assertThat(opcao.trechos().get(3).geometria()).isEmpty();
     }
 
     @Test

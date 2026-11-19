@@ -32,10 +32,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +62,8 @@ public class PercursoService {
     /** Distancia maxima entre a parada do Google e a da SPTrans para considerar o mesmo ponto. */
     static final double RAIO_PARADA_METROS = 250;
     static final int MAXIMO_ONIBUS = 5;
+    /** Tipos de veiculo do Google para a consulta so com metro e trem. */
+    static final List<String> MODOS_TRILHOS = List.of("SUBWAY", "TRAIN", "LIGHT_RAIL", "RAIL");
 
     /** Letreiro da SPTrans: numero da linha e sufixo, como "8000-10" ou "N205-11". */
     private static final Pattern LETREIRO = Pattern.compile("^([0-9A-Z]{3,5})-(\\d{1,2})$");
@@ -109,13 +113,26 @@ public class PercursoService {
             throw new RegraNegocioException("Escolha um horário dentro dos próximos 7 dias.");
         }
 
-        List<RotaTransporte> rotas = google.calcular(
-                req.origem().latitude(), req.origem().longitude(),
-                unidade.getLatitude().doubleValue(), unidade.getLongitude().doubleValue(),
-                alvo == null ? null : alvo.atZone(FUSO).toInstant(),
-                alvo == null ? agora.atZone(FUSO).toInstant() : null);
+        double oLat = req.origem().latitude();
+        double oLon = req.origem().longitude();
+        double dLat = unidade.getLatitude().doubleValue();
+        double dLon = unidade.getLongitude().doubleValue();
+        Instant chegarAte = alvo == null ? null : alvo.atZone(FUSO).toInstant();
+        Instant sairEm = alvo == null ? agora.atZone(FUSO).toInstant() : null;
 
-        List<Opcao> opcoes = rotas.stream().map(r -> montarOpcao(r, unidade.getNome(), alvo, agora)).toList();
+        // O Google devolve so as melhores rotas, quase sempre de onibus. Uma segunda consulta, so com
+        // metro e trem, garante que as opcoes sobre trilhos tambem aparecam. Se ela falhar, segue sem.
+        CompletableFuture<List<RotaTransporte>> sobreTrilhos = CompletableFuture
+                .supplyAsync(() -> google.calcular(oLat, oLon, dLat, dLon, chegarAte, sairEm, MODOS_TRILHOS))
+                .exceptionally(erro -> {
+                    log.warn("Consulta de metrô e trem falhou: {}", erro.getMessage());
+                    return List.of();
+                });
+        List<RotaTransporte> rotas = new ArrayList<>(google.calcular(oLat, oLon, dLat, dLon, chegarAte, sairEm, null));
+        rotas.addAll(sobreTrilhos.join());
+
+        List<Opcao> opcoes = semRepetidas(
+                rotas.stream().map(r -> montarOpcao(r, unidade.getNome(), alvo, agora)).toList());
         List<Opcao> possiveis = opcoes.stream().filter(o -> !o.saida().isBefore(agora.minusMinutes(1))).toList();
 
         List<String> avisos = new ArrayList<>();
@@ -181,37 +198,59 @@ public class PercursoService {
         List<Trecho> trechos = new ArrayList<>();
         Duration caminhada = Duration.ZERO;
         int metros = 0;
+        List<String> geometriaCaminhada = new ArrayList<>();
         String ultimoLugar = "Sua localização";
         for (Passo passo : passos) {
             if (passo.aPe()) {
                 caminhada = caminhada.plus(Objects.requireNonNullElse(passo.duracao(), Duration.ZERO));
                 metros += Objects.requireNonNullElse(passo.distanciaMetros(), 0);
+                if (passo.geometria() != null) {
+                    geometriaCaminhada.add(passo.geometria());
+                }
                 continue;
             }
             Transporte t = passo.transporte();
-            adicionarCaminhada(trechos, caminhada, metros, ultimoLugar, t.embarque().nome());
+            adicionarCaminhada(trechos, caminhada, metros, ultimoLugar, t.embarque().nome(), geometriaCaminhada);
             caminhada = Duration.ZERO;
             metros = 0;
+            geometriaCaminhada = new ArrayList<>();
             trechos.add(new Trecho(
                     tipo(t.tipoVeiculo()), t.nomeVeiculo(), minutos(passo.duracao()), passo.distanciaMetros(),
                     t.embarque().nome(), t.desembarque().nome(),
                     new PercursoResponse.Linha(t.linhaCurta(), t.linhaNome(), t.cor(), t.corTexto(), t.operadora()),
                     t.sentido(), parada(t.embarque()), parada(t.desembarque()), t.paradas(),
-                    minutos(t.intervalo()), null, passo.geometria()));
+                    minutos(t.intervalo()), null,
+                    passo.geometria() == null ? List.of() : List.of(passo.geometria())));
             ultimoLugar = t.desembarque().nome();
         }
-        adicionarCaminhada(trechos, caminhada, metros, ultimoLugar, nomeUnidade);
+        adicionarCaminhada(trechos, caminhada, metros, ultimoLugar, nomeUnidade, geometriaCaminhada);
 
         return new Opcao(false, saida, chegada, Duration.between(saida, chegada).toMinutes(),
                 rota.distanciaMetros(), alvo == null ? null : !chegada.isAfter(alvo), trechos);
     }
 
-    private static void adicionarCaminhada(List<Trecho> trechos, Duration duracao, int metros, String de, String para) {
+    private static void adicionarCaminhada(List<Trecho> trechos, Duration duracao, int metros, String de, String para,
+                                           List<String> geometria) {
         if (duracao.isZero() && metros == 0) {
             return;
         }
         trechos.add(new Trecho("A_PE", null, minutos(duracao), metros, de, para,
-                null, null, null, null, null, null, null, null));
+                null, null, null, null, null, null, null, List.copyOf(geometria)));
+    }
+
+    /** As duas consultas ao Google podem trazer a mesma rota: fica a primeira de cada (saida + linhas). */
+    static List<Opcao> semRepetidas(List<Opcao> opcoes) {
+        Map<String, Opcao> unicas = new LinkedHashMap<>();
+        for (Opcao o : opcoes) {
+            StringBuilder chave = new StringBuilder(String.valueOf(o.saida()));
+            for (Trecho t : o.trechos()) {
+                if (!"A_PE".equals(t.tipo())) {
+                    chave.append('|').append(t.tipo()).append(':').append(t.linha() == null ? "" : t.linha().codigo());
+                }
+            }
+            unicas.putIfAbsent(chave.toString(), o);
+        }
+        return List.copyOf(unicas.values());
     }
 
     /**
