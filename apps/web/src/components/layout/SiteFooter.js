@@ -10,25 +10,24 @@ const SITE_INSTITUCIONAL = "https://vias-viainteligentedeacessoasaude.vercel.app
  */
 export default function SiteFooter() {
   return (
-    <footer className="mt-auto">
+    <footer className="rodape mt-auto">
       <OndaRodape />
       <div className="bg-rodape text-rodape-texto">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 pt-2 pb-8 text-sm sm:px-6">
+        <div className="rodape__conteudo mx-auto flex max-w-5xl flex-col gap-2 px-4 pb-7 text-sm sm:px-6">
           <p>
             <span className="font-semibold text-papel">VIAS</span> — Via Inteligente de
             Acesso à Saúde
+            <span aria-hidden="true" className="hidden sm:inline"> · </span>
+            <a
+              href={SITE_INSTITUCIONAL}
+              className="flex min-h-11 items-center font-semibold text-lima underline-offset-4 hover:underline focus-visible:outline-lima sm:inline sm:min-h-0"
+            >
+              Sobre o VIAS
+            </a>
           </p>
           <p>
             Projeto acadêmico da FIAP Global Solution 2026. O VIAS não substitui a
             orientação de um profissional de saúde.
-          </p>
-          <p>
-            <a
-              href={SITE_INSTITUCIONAL}
-              className="inline-flex min-h-11 items-center font-semibold text-lima underline underline-offset-4 focus-visible:outline-lima"
-            >
-              Sobre o VIAS
-            </a>
           </p>
         </div>
       </div>

@@ -1,31 +1,38 @@
 import { cn } from "@/lib/cn";
 import Icon from "./Icon";
 
-const ETAPAS = ["Necessidade", "Unidade", "Percurso"];
+const ETAPAS = [
+  { nome: "Necessidade", icone: "pin" },
+  { nome: "Unidade", icone: "hospital" },
+  { nome: "Percurso", icone: "check" },
+];
 
 /**
  * Indicador "ETAPA N DE 3": Necessidade → Unidade → Percurso (referências de UI).
- * - Etapa concluída: círculo cheio com check e "(concluída)" para leitor de tela.
- * - Etapa atual: aria-current="step" e nome em negrito.
- * - Percurso: com `percursoDisponivel` (D-20) aparece normal; sem ele, apagado
+ * - Etapa concluída: círculo verde com check e "(concluída)" para leitor de tela.
+ * - Etapa atual: aria-current="step", círculo escuro com brilho e nome em negrito.
+ * - Próximas etapas: círculo claro com o ícone da etapa.
+ * - Percurso: com `percursoDisponivel` (D-20) aparece normal; sem ele, tracejado
  *   com "em breve" escrito (decisão R-01). Não é clicável.
- * O estado nunca depende só da cor: há texto, check e peso da fonte.
+ * O estado nunca depende só da cor: há texto, ícone e peso da fonte.
  */
 export default function Etapas({ atual, percursoDisponivel = false, className }) {
+  const progresso = (atual - 1) / (ETAPAS.length - 1);
   return (
     <nav aria-label="Etapas da busca" className={cn("flex flex-col gap-3", className)}>
-      <p className="font-mono text-label uppercase text-rota">
+      <p className="font-mono text-label uppercase text-grafite">
         Etapa {atual} de {ETAPAS.length}
       </p>
       <ol className="relative grid grid-cols-3">
-        {/* Trilho entre os círculos (decorativo): cinza inteiro + parte concluída em verde */}
-        <span aria-hidden="true" className="absolute top-[15px] right-4 left-4 h-0.5 bg-linha" />
+        {/* Trilho entre os círculos (decorativo): cinza inteiro + parte percorrida em verde */}
+        <span aria-hidden="true" className="absolute top-[19px] right-5 left-5 h-0.5 rounded bg-linha" />
         <span
           aria-hidden="true"
-          className="absolute top-[15px] left-4 h-0.5 bg-rota"
-          style={{ width: `calc((100% - 2rem) * ${(atual - 1) / (ETAPAS.length - 1)})` }}
+          className="etapas-trilho absolute top-[19px] left-5 h-0.5 rounded"
+          // Acende até a etapa atual e um pouco além, como um caminho em andamento.
+          style={{ width: `min(calc((100% - 2.5rem) * ${progresso} + 4.5rem), calc(100% - 2.5rem))` }}
         />
-        {ETAPAS.map((nome, indice) => {
+        {ETAPAS.map(({ nome, icone }, indice) => {
           const numero = indice + 1;
           const concluida = numero < atual;
           const ativa = numero === atual;
@@ -45,26 +52,25 @@ export default function Etapas({ atual, percursoDisponivel = false, className })
               <span
                 aria-hidden="true"
                 className={cn(
-                  "relative z-[1] flex size-8 items-center justify-center rounded-full border-2",
-                  concluida && "border-rota bg-rota text-papel",
-                  ativa && "border-rota bg-pinho",
-                  !concluida && !ativa && "border-linha bg-papel",
-                  indisponivel && "border-dashed",
+                  "relative z-[1] flex size-10 items-center justify-center rounded-full transition-colors",
+                  concluida && "bg-rota text-papel",
+                  ativa && "etapa-ativa bg-pinho text-papel",
+                  !concluida && !ativa && "border border-white bg-superficie text-rota shadow-[0_4px_14px_rgb(18_59_53/0.12)]",
+                  indisponivel && "border-2 border-dashed border-linha text-salvia shadow-none",
                 )}
               >
-                {concluida && <Icon nome="check" className="size-4" />}
-                {ativa && <span className="size-3 rounded-full bg-lima" />}
+                <Icon nome={concluida ? "check" : icone} className="size-[18px]" />
               </span>
 
               <span
                 className={cn(
-                  "text-sm sm:text-base",
+                  "text-sm leading-tight sm:text-base",
                   ativa ? "font-semibold text-pinho" : "text-salvia",
                 )}
               >
                 {nome}
                 {concluida && <span className="sr-only"> (concluída)</span>}
-                {indisponivel && <span className="block text-xs text-salvia">em breve</span>}
+                {indisponivel && <span className="block">em breve</span>}
               </span>
             </li>
           );
