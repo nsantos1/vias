@@ -2,42 +2,47 @@ import Link from "next/link";
 import ValorInformado from "@/components/estados/ValorInformado";
 import Icon from "@/components/ui/Icon";
 import { formatarDistancia } from "@/lib/distancia";
-import { textoAtendeSus } from "@/lib/unidade";
+import { nomeProprio, textoLegivel } from "@/lib/unidade";
 
 /**
- * Item compacto da lista "Outras unidades" (abaixo do destaque).
- * O card inteiro é um link para o detalhe, com área de toque grande.
+ * Item da lista "Outras unidades próximas" (referência final de 19/11, D-22).
+ * O cartão inteiro é um link para o detalhe, com área de toque grande.
+ * À direita, só o que o resumo da API traz: SUS quando o CNES diz que sim.
  */
 export default function CardUnidade({ unidade, comLocalizacao }) {
-  const distancia = formatarDistancia(unidade.distanciaKm);
+  const distancia = formatarDistancia(unidade.distanciaKm)?.replace(/^≈\s*/, "");
+  const local = [textoLegivel(unidade.tipoUnidade), nomeProprio(unidade.bairro)].filter(Boolean).join(" · ");
 
   return (
     <Link
       href={`/unidades/${encodeURIComponent(unidade.id)}`}
-      className="group flex items-center gap-4 rounded-2xl border border-linha bg-superficie p-4 transition-colors hover:border-rota hover:bg-nevoa/40"
+      className="cartao-unidade group flex items-center gap-4 rounded-2xl bg-superficie px-5 py-4"
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="font-mono text-xs uppercase text-rota">
-          <ValorInformado valor={unidade.tipoUnidade} />
-        </p>
-        <p className="font-display text-lg leading-snug font-semibold text-pinho group-hover:underline">
-          {unidade.nome}
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        {comLocalizacao && (
+          <p className="text-sm font-medium text-rota">
+            {distancia ? (
+              <>
+                A {distancia}
+                <span className="sr-only"> em linha reta</span>
+              </>
+            ) : (
+              <span className="text-salvia">Sem coordenadas na fonte</span>
+            )}
+          </p>
+        )}
+        <p className="font-display leading-snug font-bold text-pinho group-hover:underline">{unidade.nome}</p>
         <p className="text-sm text-salvia">
-          <ValorInformado valor={unidade.bairro} /> · SUS: {textoAtendeSus(unidade.atendeSus)}
+          <ValorInformado valor={local || null} />
         </p>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1 text-right">
-        {distancia ? (
-          <>
-            <span className="font-semibold text-grafite">{distancia}</span>
-            <span className="text-xs text-salvia">em linha reta</span>
-          </>
-        ) : comLocalizacao ? (
-          <span className="max-w-24 text-xs text-salvia">Sem coordenadas na fonte</span>
-        ) : null}
-      </div>
-      <Icon nome="seta" className="size-5 shrink-0 text-rota" />
+      {unidade.atendeSus === "SIM" && (
+        <span className="hidden shrink-0 items-center gap-1.5 text-sm text-grafite sm:flex">
+          <Icon nome="check" className="size-4 text-rota" />
+          Atende SUS
+        </span>
+      )}
+      <Icon nome="avancar" className="size-5 shrink-0 text-pinho transition-transform group-hover:translate-x-1" />
     </Link>
   );
 }

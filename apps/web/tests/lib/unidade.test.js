@@ -56,3 +56,29 @@ test("fonte: siglas conhecidas viram nome legível; desconhecida aparece como ve
   expect(textoFonte("OUTRA")).toBe("OUTRA");
   expect(textoFonte(null)).toBeNull();
 });
+
+describe("textoLegivel e nomeProprio", () => {
+  const { textoLegivel, nomeProprio } = jest.requireActual("@/lib/unidade");
+
+  test("devolve os acentos comuns sem mudar o conteúdo", () => {
+    expect(textoLegivel("ATENDIMENTOS NOS TURNOS DA MANHA E A TARDE")).toBe(
+      "Atendimentos nos turnos da manhã e a tarde",
+    );
+    expect(textoLegivel("CENTRO DE SAUDE/UNIDADE BASICA")).toBe("Centro de saúde/unidade básica");
+    expect(textoLegivel("POLICLINICA")).toBe("Policlínica");
+    expect(textoLegivel("ATENDIMENTO CONTINUO (PLANTAO:INCLUI SABADOS, DOMINGOS)")).toBe(
+      "Atendimento contínuo (plantão:inclui sábados, domingos)",
+    );
+  });
+
+  test("nome próprio com preposições em minúsculas", () => {
+    expect(nomeProprio("PROF JOSE AZEVEDO ANTUNES")).toBe("Prof José Azevedo Antunes");
+    expect(nomeProprio("VILA DAS MERCES")).toBe("Vila das Merces");
+  });
+
+  test("vazio continua vazio (nunca vira texto inventado)", () => {
+    expect(textoLegivel(null)).toBeNull();
+    expect(textoLegivel("  ")).toBeNull();
+    expect(nomeProprio(undefined)).toBeNull();
+  });
+});
