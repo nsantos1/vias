@@ -17,7 +17,8 @@ O Raphael publicou a API (branch `backend-java`, rodando em `https://vias-dfwu.o
 | D-15 | **Resolvido:** a API não expõe equipamentos; o detalhe mostra só os serviços do cadastro |
 | D-16 | **Implementado** no detalhe da unidade |
 | D-18 | **Decidido pelo Victor (18/11):** o local da pessoa vem da localização do aparelho, sem escolha manual de região. Ver abaixo |
-| D-19 | **Aberto:** catálogo só com 6 indicadores genéricos; exames e especialidades dependem de carga nova (Nicolas) e de `categoria` na API (Raphael). Front já preparado. Ver abaixo |
+| D-19 | **Testado no Oracle da FIAP, aguardando deploy:** migrations V5 (exames e serviços especializados) e V6 (especialidades dos profissionais) do CNES/DATASUS, 83 itens no catálogo, e campo `categoria` na API, na branch `feat/api-exames-especialidades`. Falta o Raphael revisar, testar no Oracle e publicar. Ver abaixo |
+| D-20 | **Implementado (18/11), falta configurar as chaves e publicar:** percurso de transporte público até a unidade, com hora sugerida de saída e ônibus acessíveis ao vivo (Google Routes + SPTrans Olho Vivo). Substitui D-05, D-14 e D-17 para o MVP. Ver abaixo |
 
 ### D-18 — Unidades mais próximas pela localização do aparelho
 
@@ -28,12 +29,56 @@ O Raphael publicou a API (branch `backend-java`, rodando em `https://vias-dfwu.o
 - **Unidades sem coordenadas** vão para o fim da lista, com “Sem coordenadas na fonte”.
 - **Possível evolução (Raphael):** um parâmetro `lat`/`lon` com ordenação no Oracle Spatial evitaria baixar todas as unidades do serviço. Como a localização iria para o servidor, isso exige combinar a política de logs antes.
 
+### D-20 — Percurso de transporte público (Victor, 18/11)
+
+- **Decisão (Victor, 18/11):** a etapa 3 mostra como chegar de transporte público. As linhas e os horários vêm do **Google Routes API** (modo `TRANSIT`). A acessibilidade de cada ônibus vem da **SPTrans Olho Vivo**. O Google não informa nem filtra acessibilidade no transporte público (conferido na referência da API v2 em 18/11), e por isso não foi usado sozinho.
+- **API Java:** `POST /api/percursos` com `{ unidadeId, origem: { latitude, longitude }, horarioAtendimento, folgaMinutos }`, na branch `feat/api-percurso`.
+  - Sem `horarioAtendimento`, calcula saindo agora. Com ele, mira chegar `folgaMinutos` antes (padrão 15) e recomenda a opção que chega a tempo saindo mais tarde.
+  - Devolve as opções com `saida`, `chegada` e os trechos: a pé, ônibus, metrô ou trem, com linha, sentido, embarque, desembarque, paradas e intervalo. Inclui também a geometria do Google, para um mapa futuro.
+  - Nos ônibus da SPTrans, o campo `aoVivo` traz os próximos veículos no ponto, cada um com `acessivel` (`true`, `false` ou `null` quando a SPTrans não informa), e o `proximoAcessivel`.
+  - A previsão ao vivo só é consultada quando falta menos de 1 hora para o embarque, porque a Olho Vivo só prevê ônibus que já estão rodando. Posição de veículo com mais de 10 minutos não aparece.
+  - **Metrô e trem:** “acessibilidade não informada”, porque nenhuma das fontes informa.
+  - **Erros:** 503 sem chave do Google ou com o Google fora do ar; 422 para horário passado, horário a mais de 7 dias ou unidade sem coordenadas. Se a Olho Vivo falhar, o percurso sai mesmo assim, com o status do ao vivo `INDISPONIVEL`.
+- **Privacidade:** a origem vai **no corpo do POST**, nunca na URL, só quando a pessoa toca em “Ver percurso”, e a tela avisa antes. A API manda a origem ao Google e não grava nem registra em log. A precisão do GPS não é enviada. Isso muda a regra da D-18 só para esta tela.
+- **Segredos:** `GOOGLE_ROUTES_CHAVE` e `OLHOVIVO_TOKEN` ficam só no servidor (Render e `.env` local), nunca em variável `NEXT_PUBLIC_`.
+- **Mapa:** a linha do trajeto ainda não é desenhada, porque o front não tem biblioteca de mapa (FE-14). A geometria real já vem na resposta. O botão “Abrir no Google Maps” leva só o destino.
+- **Testes:** API com 14 testes novos (fixture fictícia do Google e Olho Vivo simulada); front com 3 arquivos novos de teste (fixture fictícia em `tests/fixtures/percurso.js`).
+- **Falta:** a chave do Google (Routes API ativado e faturamento ligado no Google Cloud) e o token da Olho Vivo, nas variáveis do Render. Depois, o merge na `backend-java` e o deploy.
+
+#### D-20, revisão de 18/11 (noite): tela mais direta, mapa e metrô
+
+- **Pedido do Victor:** a tela não estava intuitiva, faltava o “saia até HH:MM para chegar a tempo” em destaque, faltava o mapa e só apareciam ônibus.
+- **Formulário:** uma pergunta só (“A que horas é o seu atendimento?”), com o horário em destaque, a antecedência em botões e o atalho “Não tenho horário: sair agora”.
+- **Resultado:**
+  - destaque “Saia até HH:MM”, com quanto falta para sair, a hora de chegada, quantos minutos antes do atendimento e a rota em selos (a pé › linha › a pé);
+  - **mapa** (Leaflet + OpenStreetMap) com a geometria real do Google: a pé tracejado, ônibus em verde, metrô e trem na cor da linha;
+  - lista “Escolha como ir”, com filtro “Só ônibus” e “Com metrô ou trem”: tocar numa opção troca o destaque, o mapa e o passo a passo;
+  - **passo a passo** em linha do tempo, com a hora de cada etapa e a chegada.
+- **Ônibus acessível no destaque:** só aparece quando a SPTrans prevê um veículo acessível entre 3 min antes e 20 min depois do embarque planejado. A previsão ao vivo só cobre ônibus que já estão rodando, então um embarque distante não ganha destaque, e o passo a passo avisa isso.
+- **API (`feat/api-percurso-mapa`):**
+  - `geometria` virou lista e passou a incluir as caminhadas;
+  - uma segunda consulta ao Google, só com metrô e trem, garante essas opções, sem repetir rotas. Se ela falhar, o percurso sai sem ela.
+  - O front aceita a `geometria` antiga (texto) e a nova (lista).
+- **Privacidade:** o mapa carrega os blocos do OpenStreetMap da região mostrada, o que revela a área ao servidor do OSM. A tela avisa isso junto do aviso de localização.
+
 ### D-19 — Buscar por exames e especialidades (aberto, Nicolas + Raphael)
 
 - **Problema (18/11):** o catálogo `GET /api/servicos` tem só 6 itens, todos indicadores gerais do CNES (ambulatorial, hospitalar, centro cirúrgico, obstétrico, neonatal, serviço de apoio). Não dá para buscar “mamografia” ou “pediatria”, que é o centro da proposta. O banco não tem exames, equipamentos nem especialidades.
 - **Proposta:** Nicolas carrega os arquivos **EQ** (equipamentos) e **SR** (serviços especializados) do CNES de São Paulo como novos itens de `SERVICO_SAUDE`, ligados às unidades em `UNIDADE_SERVICO` (o modelo já comporta). Raphael acrescenta `categoria` (`EXAME` / `ESPECIALIDADE` / `ATENDIMENTO`) ao `ServicoResponse` e faz novo deploy.
 - **Front (pronto em 18/11):** se a API mandar `categoria`, as sugestões aparecem em grupos “Exames”, “Especialidades” e “Atendimento”, nessa ordem. Sem `categoria`, a lista continua simples. Texto sem correspondência mostra “Nenhum item do catálogo com …” e não vira busca. O front **não cria sinônimos** nem liga palavras a serviços por conta própria.
 - **Se não der tempo até 19/11:** apresentar no pitch como próxima etapa.
+- **Feito em 18/11 pelo Victor, numa branch separada para PR ao Raphael (nenhuma senha de banco usada):**
+  - Arquivos oficiais do DATASUS, CNES SP competência 10/2026: `EQSP2610.dbc` (equipamentos), `SRSP2610.dbc` (serviços especializados) e `TAB_CNES.zip` (nomes dos códigos).
+  - Script `services/api/scripts/gerar_carga_eq_sr.py` gera `V5__exames_e_servicos_especializados.sql`: coluna `categoria`, 2 fontes novas (`CNES_EQ`, `CNES_SR`), **44 itens** (13 exames, 26 especialidades/serviços especializados, 5 atendimentos) e **7.564 vínculos**, só para as 1.092 unidades já no banco.
+  - Exame = equipamento **em uso** (`QT_USO > 0`) na unidade; a descrição de cada item diz que isso **não garante exame, vaga ou agenda**. Os códigos oficiais ficam em `campo_origem`.
+  - Java: `categoria` na entidade `ServicoSaude`, nas consultas e no `ServicoResponse`. Compila, e os 9 testes do Raphael passam.
+  - **Testado em 18/11 no Oracle 19.3 da FIAP**, na conta do próprio Victor: o Flyway aplicou V1–V5 sem erro e a API subiu. `GET /api/servicos` devolve 50 itens (13 EXAME, 26 ESPECIALIDADE, 11 ATENDIMENTO); “Mamografia” → 79 unidades.
+  - Front ligado na API local: busca agrupada (“mamo” → Exames › Mamografia), resultado ordenado pela distância e detalhe com os exames da unidade.
+  - **V6 (18/11): especialidades pelos profissionais do CNES.** O script `scripts/gerar_carga_pf.py` lê o `PFSP2610.dbc` (profissionais, competência 10/2026). Lê **só** CNES, CBO e carga horária ambulatorial: o arquivo tem nome e CPF, que **não** são lidos nem gravados.
+    - A unidade recebe a especialidade se tiver um profissional com aquela CBO e carga horária ambulatorial (`HORA_AMB > 0`).
+    - 33 especialidades novas (dermatologia 113 unidades, pediatria 390, ginecologia 416, psiquiatria 360, psicologia 496, nutrição 516…) e 13 da V5 ampliadas sem repetir nome (fisioterapia de 258 para 480, cardiologia de 84 para 179). 6.791 vínculos; total de 83 itens no catálogo.
+    - Testada no Oracle 19.3 da FIAP (conta do Victor): o Flyway aplicou a V6 em 4 s. No front, “Dermatologia” → 113 unidades. As buscas “dentista”, “ginecologista” e “ultrassom” acham o item certo pela descrição oficial.
+  - Falta: o Raphael revisar, fazer o merge na `backend-java` e acompanhar o deploy no Render; depois, voltar o `.env.local` do front para o Render.
 
 Novo risco: o plano gratuito do Render “dorme” sem uso, e a primeira consulta levou cerca de 90 s em 18/11. O front espera até 60 s e, depois de 5 s, avisa que o serviço pode estar iniciando. **Antes da apresentação, abra o app uma vez para acordar a API.**
 
