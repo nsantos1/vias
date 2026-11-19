@@ -61,10 +61,11 @@ public class ClienteGoogleRoutes {
     /**
      * Calcula rotas de transporte publico. Informe {@code chegarAte} ou {@code sairEm} (nunca os dois).
      *
+     * @param modos tipos de veiculo permitidos (BUS, SUBWAY, TRAIN, LIGHT_RAIL, RAIL); nulo = todos
      * @return rotas na ordem do Google; lista vazia quando nao ha rota de transporte publico
      */
     public List<RotaTransporte> calcular(double origemLat, double origemLon, double destinoLat, double destinoLon,
-                                         Instant chegarAte, Instant sairEm) {
+                                         Instant chegarAte, Instant sairEm, List<String> modos) {
         if (!configurado()) {
             throw new ServicoExternoException(
                     "O cálculo de percurso não está configurado neste servidor (falta a chave do Google Routes).");
@@ -77,6 +78,11 @@ public class ClienteGoogleRoutes {
             corpo.put("arrivalTime", chegarAte.toString());
         } else if (sairEm != null) {
             corpo.put("departureTime", sairEm.toString());
+        }
+        if (modos != null && !modos.isEmpty()) {
+            ObjectNode preferencias = json.createObjectNode();
+            modos.forEach(preferencias.putArray("allowedTravelModes")::add);
+            corpo.set("transitPreferences", preferencias);
         }
         corpo.put("computeAlternativeRoutes", true);
         corpo.put("languageCode", "pt-BR");

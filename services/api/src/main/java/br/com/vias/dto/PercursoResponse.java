@@ -42,7 +42,8 @@ public record PercursoResponse(
      * @param veiculo nome do veiculo dado pelo Google (por exemplo "Ônibus", "Metrô")
      * @param intervaloMinutos tempo entre partidas da linha, quando o Google informa
      * @param aoVivo previsao da SPTrans (so em trechos de onibus)
-     * @param geometria polilinha codificada do Google (para desenhar no mapa)
+     * @param geometria polilinhas codificadas do Google ("encoded polyline"), na ordem do trecho;
+     *     vazia quando o Google nao manda (nesse caso, nada e desenhado)
      */
     public record Trecho(
             String tipo,
@@ -58,7 +59,7 @@ public record PercursoResponse(
             Integer paradas,
             Integer intervaloMinutos,
             AoVivo aoVivo,
-            String geometria) {
+            List<String> geometria) {
     }
 
     public record Linha(String codigo, String nome, String cor, String corTexto, String operadora) {
