@@ -55,7 +55,7 @@ Projeto da **Global Solution FIAP 2026 · CitizenTech**
 | 🗄️ **Banco de dados** | Oracle da FIAP (`oracle.fiap.com.br`) | Infraestrutura da FIAP |
 | 📸 **Vídeo Pitch** | <https://www.youtube.com/watch?v=YSqMlLNoc98> | Youtube |
 
-> **Primeiro acesso:** a API usa o plano gratuito do Render, que "dorme" sem uso. A primeira consulta pode levar até 3 minutos, e a tela avisa enquanto espera. Caso não carregue, execute um recarregamento da página com a tecla "F5". Depois disso, as respostas são rápidas.
+> **Primeiro acesso:** a API usa o plano gratuito do Render, que "dorme" sem uso. A primeira consulta pode levar até 3 minutos, e a tela avisa enquanto espera. Caso não carregue, recarregue a página com a tecla F5. Depois disso, as respostas são rápidas.
 
 ---
 

@@ -8,17 +8,17 @@ afterEach(() => jest.useRealTimers());
 
 test("só aparece depois do atraso", () => {
   render(<AvisoDemora atrasoMs={5000} />);
-  expect(screen.queryByText(/até 1 minuto/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/até 3 minutos/)).not.toBeInTheDocument();
   act(() => jest.advanceTimersByTime(5000));
-  expect(screen.getByText(/até 1 minuto/)).toBeInTheDocument();
+  expect(screen.getByText(/até 3 minutos/)).toBeInTheDocument();
 });
 
 test("EstadoCarregando anuncia o aviso de demora dentro do status", () => {
   render(<EstadoCarregando rotulo="Carregando teste…" />);
   act(() => jest.advanceTimersByTime(6000));
-  expect(screen.getByRole("status")).toHaveTextContent("até 1 minuto");
+  expect(screen.getByRole("status")).toHaveTextContent("até 3 minutos");
 });
 
-test("o limite de tempo cobre o despertar do Render (~1 min)", () => {
-  expect(TIMEOUT_PADRAO_MS).toBeGreaterThanOrEqual(60_000);
+test("o limite de tempo cobre o despertar do Render (até 3 min)", () => {
+  expect(TIMEOUT_PADRAO_MS).toBeGreaterThanOrEqual(180_000);
 });
