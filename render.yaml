@@ -1,0 +1,23 @@
+# Blueprint do Render: API do VIAS (Docker). O codigo fica em services/api.
+services:
+  - type: web
+    name: vias-api
+    runtime: docker
+    rootDir: services/api
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: virginia   # regiao do Render mais proxima do Oracle da FIAP (Sao Paulo)
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_URL
+        value: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: CORS_ORIGENS
+        sync: false
+      - key: GOOGLE_ROUTES_CHAVE
+        sync: false
+      - key: OLHOVIVO_TOKEN
+        sync: false

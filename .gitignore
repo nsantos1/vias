@@ -1,0 +1,44 @@
+
+# Credenciais
+.env
+*.env.local
+
+# Dados baixados e gerados (podem ter centenas de MB)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# OpenTripPlanner: jar, mapa, GTFS e grafo montado
+services/otp/grafo/*
+!services/otp/grafo/.gitkeep
+services/otp/*.jar
+
+# Java
+target/
+build/
+*.class
+.gradle/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Node, Expo e Vite
+node_modules/
+dist/
+.expo/
+web-build/
+*.apk
+*.aab
+
+# IDEs e sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

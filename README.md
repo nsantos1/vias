@@ -53,6 +53,7 @@ Projeto da **Global Solution FIAP 2026 · CitizenTech**
 | 📘 **Documentação da API (Swagger)** | <https://vias-dfwu.onrender.com/swagger-ui.html> | Render |
 | 💚 **Health check da API** | <https://vias-dfwu.onrender.com/actuator/health> | Render |
 | 🗄️ **Banco de dados** | Oracle da FIAP (`oracle.fiap.com.br`) | Infraestrutura da FIAP |
+| 📸 **Vídeo Pitch** | <https://www.youtube.com/watch?v=YSqMlLNoc98> | Youtube |
 
 > **Primeiro acesso:** a API usa o plano gratuito do Render, que "dorme" sem uso. A primeira consulta pode levar até 3 minutos, e a tela avisa enquanto espera. Caso não carregue, recarregue a página com a tecla F5. Depois disso, as respostas são rápidas.
 

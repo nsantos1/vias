@@ -1,0 +1,130 @@
+@startuml classes-camadas
+!theme plain
+set separator none
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classFontStyle bold
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+hide empty members
+skinparam defaultFontSize 10
+left to right direction
+
+package "controller" {
+  class UnidadeSaudeController <<RestController>> {
+    + pesquisar(servicoId, regiaoId, bairro, nome, acessibilidade,\n  atendeSus, tipoUnidade, pagina, tamanho)
+    + buscar(id)
+    + criar(UnidadeRequest)
+    + atualizar(id, UnidadeRequest)
+    + atualizarAcessibilidade(id, AcessibilidadeDto)
+    + excluir(id)
+  }
+  class ServicoSaudeController <<RestController>> {
+    + listar()
+    + buscar(id)
+  }
+  class RegiaoController <<RestController>> {
+    + listar(nome)
+    + buscar(id)
+  }
+  class GestaoController <<RestController>> {
+    + resumo()
+  }
+  class PercursoController <<RestController>> {
+    + calcular(PercursoRequest)
+  }
+}
+
+package "service (BO)" as service {
+  class UnidadeSaudeService <<Service>> {
+    + pesquisar(...) : PaginaResponse<UnidadeResumoResponse>
+    + buscar(Long) : UnidadeDetalheResponse
+    + criar(UnidadeRequest) : UnidadeDetalheResponse
+    + atualizar(Long, UnidadeRequest) : UnidadeDetalheResponse
+    + atualizarAcessibilidade(Long, AcessibilidadeDto) : UnidadeDetalheResponse
+    + excluir(Long) : void
+    ~ {static} validarAcessibilidade(AcessibilidadeDto)
+    ~ {static} camposCadastraisAlterados(UnidadeSaude, UnidadeRequest) : List<String>
+  }
+  class ServicoSaudeService <<Service>> {
+    + listar() : List<ServicoResponse>
+    + buscar(Long) : ServicoResponse
+  }
+  class RegiaoService <<Service>> {
+    + listar(String) : List<RegiaoResponse>
+    + buscar(Long) : RegiaoResponse
+  }
+  class GestaoService <<Service>> {
+    + resumo() : ResumoGestaoResponse
+  }
+  class PercursoService <<Service>> {
+    + calcular(PercursoRequest) : PercursoResponse
+  }
+}
+
+package "integracao (serviços externos)" as integracao {
+  class ClienteGoogleRoutes <<Component>> {
+    + configurado() : boolean
+    + calcular(origem, destino, chegarAte, sairEm) : List<RotaTransporte>
+  }
+  class ClienteOlhoVivo <<Component>> {
+    + configurado() : boolean
+    + buscarLinhas(letreiro) : List<Linha>
+    + previsaoDaLinha(codigoLinha) : PrevisaoLinha
+  }
+  class RotaTransporte <<record>>
+}
+
+package "repository (DAO)" as repository {
+  interface UnidadeSaudeRepository <<JpaRepository>> {
+    + pesquisar(filtros, Pageable) : Page<UnidadeSaude>
+    + findComDetalhesById(Long)
+    + existsByCodigoCnes(String)
+    + contarPorTipo() / contarPorAcessibilidade() / ...
+  }
+  interface UnidadeServicoRepository <<JpaRepository>> {
+    + buscarPorUnidades(ids)
+  }
+  interface ServicoSaudeRepository <<JpaRepository>> {
+    + listarComTotais()
+  }
+  interface RegiaoRepository <<JpaRepository>> {
+    + listarComTotais(nome)
+  }
+  interface FonteDadoRepository <<JpaRepository>> {
+    + findBySigla(String)
+  }
+}
+
+package "exception" {
+  class GlobalExceptionHandler <<RestControllerAdvice>>
+  class RecursoNaoEncontradoException
+  class RegraNegocioException
+  class ConflitoException
+  class ServicoExternoException
+  class ErroResposta <<record>>
+}
+
+UnidadeSaudeController --> UnidadeSaudeService
+ServicoSaudeController --> ServicoSaudeService
+RegiaoController --> RegiaoService
+GestaoController --> GestaoService
+PercursoController --> PercursoService
+UnidadeSaudeService --> UnidadeSaudeRepository
+UnidadeSaudeService --> UnidadeServicoRepository
+UnidadeSaudeService --> ServicoSaudeRepository
+UnidadeSaudeService --> RegiaoRepository
+UnidadeSaudeService --> FonteDadoRepository
+ServicoSaudeService --> ServicoSaudeRepository
+RegiaoService --> RegiaoRepository
+GestaoService --> UnidadeSaudeRepository
+PercursoService --> UnidadeSaudeRepository
+PercursoService --> ClienteGoogleRoutes
+PercursoService --> ClienteOlhoVivo
+ClienteGoogleRoutes ..> RotaTransporte
+GlobalExceptionHandler ..> ErroResposta
+GlobalExceptionHandler ..> RecursoNaoEncontradoException
+GlobalExceptionHandler ..> RegraNegocioException
+GlobalExceptionHandler ..> ConflitoException
+GlobalExceptionHandler ..> ServicoExternoException
+@enduml

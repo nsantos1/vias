@@ -1,45 +1,106 @@
-# API principal (Java + Spring Boot)
+# VIAS API – Via Inteligente de Acesso à Saúde (Java 21 + Spring Boot 3 + Oracle)
 
-Responsável: Raphael (2), exceto a pasta `integracao`, que é do Nicolas (3).
+API principal do **VIAS**, a CitizenTech do grupo na Global Solution FIAP 2026 (2º semestre).
+Pesquisa unidades de saúde por serviço, região, bairro, tipo, atendimento SUS e acessibilidade,
+usando **dados reais do CNES/DATASUS** com proveniência. Informação ausente na fonte é devolvida
+como `null` ou `NAO_INFORMADO`, nunca como resposta negativa.
 
-A API é a única coisa que o app e o painel chamam. Ela lê o Oracle da FIAP, chama o OpenTripPlanner, o serviço de IA, a Olho Vivo e o Google, guarda as chaves e faz cache das respostas.
+Entrega da disciplina **Domain Driven Design – Java**. A documentação completa (capa, diagramas,
+DER, protótipos, endpoints, instruções e limitações) é entregue em PDF no Portal do Aluno. Os
+diagramas ficam em [docs/diagramas](docs/diagramas).
 
-## Criar o projeto
+| | |
+|---|---|
+| Repositório | https://github.com/nsantos1/vias |
+| Deploy | https://vias-dfwu.onrender.com |
+| Swagger | `/swagger-ui.html` |
+| Health check | `/actuator/health` |
 
-O projeto Spring Boot ainda não foi gerado. Gere pelo [start.spring.io](https://start.spring.io) **dentro desta pasta**, mantendo a pasta `src/main/java/br/com/vias/integracao` que já existe:
+## Equipe
 
-- **Project:** Maven · **Language:** Java · **Java:** 21
-- **Group:** `br.com.vias` · **Artifact:** `api` · **Package name:** `br.com.vias`
-- **Dependencies:** Spring Web, Spring Data JPA, Oracle Driver, Flyway Migration, Validation, Spring Cache Abstraction, Spring Security
-- Acrescentar no `pom.xml` depois: `com.github.ben-manes.caffeine:caffeine` (cache em memória) e `springdoc-openapi` (Swagger), na versão compatível com o Spring Boot escolhido.
+| Integrante | RM | Frente |
+|---|---|---|
+| Felipe de Andrade Godoi | 566209 | Algoritmo Python (rotas) |
+| Nicolas Marinho dos Santos | 563185 | Banco Oracle |
+| Raphael Naome Taketa | 562321 | Back-end Java (esta API) |
+| Victor Ribeiro Guimarães Lira | 566213 | Front-end Next.js |
 
-**Decisão para o Raphael:** o plano fala em Spring Boot 3, mas o suporte gratuito do 3.5 terminou em 30 de junho de 2026. Hoje as versões com suporte gratuito são a 4.0 (até 31/12/2026) e a 4.1. Ambas funcionam com Java 21.
+## Camadas
 
-## Configuração
-
-As credenciais vêm do `.env` na raiz (veja `.env.example`). No `application.yml`, use as mesmas variáveis:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:oracle:thin:@${ORACLE_DSN}
-    username: ${ORACLE_USER}
-    password: ${ORACLE_PASSWORD}
-server:
-  port: 8080
+```
+br.com.vias
+├── model/        entidades JPA: UnidadeSaude, ServicoSaude, UnidadeServico, Regiao, FonteDado + enums
+├── repository/   camada DAO (Spring Data JPA)
+├── service/      camada BO (regras de negócio)
+├── dto/          records de entrada (validados) e saída
+├── controller/   REST: GET, POST, PUT, DELETE
+├── exception/    exceções de domínio + GlobalExceptionHandler
+├── integracao/   clientes do Google Routes e do Olho Vivo (percurso)
+└── config/       Swagger e CORS
+src/main/resources/db/migration   V1 (tabelas), V2 (carga real do CNES), V3 e V4 (ajustes do catálogo e da data de carga), V5 e V6 (exames, serviços especializados e especialidades), aplicadas pelo Flyway
+scripts/                          baixar_cnes.py e gerar_carga_sql.py (carga reproduzível)
 ```
 
-Os scripts do banco ficam só em `src/main/resources/db/migration` (Flyway). As tabelas ficam no usuário da FIAP do Raphael, que libera leitura e gravação aos outros com `GRANT`.
+## Endpoints
 
-## Pasta `integracao` (Nicolas)
-
-Já tem uma **proposta** de interfaces para combinar com o Raphael:
-
-| Interface | Implementação prevista | Usada por |
+| Método | Rota | Descrição |
 |---|---|---|
-| `rotas.ClienteRotas` | OpenTripPlanner (porta 8081) | `rota`, `agendamento` |
-| `olhovivo.ClienteOlhoVivo` | API Olho Vivo da SPTrans | `rota`, `agendamento` |
-| `google.ClienteRotasCarro` | Google Routes API, trânsito pessimista | `agendamento` |
-| `ia.ClienteIa` | Serviço de IA em FastAPI (porta 8000) | busca |
+| GET | `/api/unidades` | Pesquisa paginada (`servicoId`, `regiaoId`, `bairro`, `nome`, `acessibilidade`, `atendeSus`, `tipoUnidade`, `pagina`, `tamanho`) |
+| GET | `/api/unidades/{id}` | Detalhe com serviços, região, proveniência e avisos |
+| POST | `/api/unidades` | Cadastro manual (fonte `CADASTRO_MANUAL`) |
+| PUT | `/api/unidades/{id}` | Atualização (em unidade do CNES, só acessibilidade e região) |
+| PUT | `/api/unidades/{id}/acessibilidade` | Registra acessibilidade verificada (exige fonte e data) |
+| DELETE | `/api/unidades/{id}` | Exclui cadastro manual (unidades do CNES são protegidas) |
+| GET | `/api/servicos`, `/api/servicos/{id}` | Catálogo de serviços |
+| GET | `/api/regioes`, `/api/regioes/{id}` | Regiões (bairros do CNES) |
+| GET | `/api/gestao/resumo` | Indicadores agregados do cadastro |
+| POST | `/api/percursos` | Percurso de transporte público até a unidade (Google Routes), com hora sugerida de saída e previsão ao vivo dos ônibus da SPTrans (Olho Vivo), indicando quais são acessíveis. A origem vai no corpo e não é gravada |
 
-Enquanto as implementações não existem, os serviços da API podem simular as respostas com Mockito a partir dessas interfaces. Mudanças no contrato vão por pull request, com revisão dos dois.
+## Executar
+
+**IntelliJ / Maven com o Oracle da FIAP**
+
+1. Abra `services/api` no IntelliJ com JDK 21.
+2. Defina as variáveis `DB_USER` (seu RM, ex.: `rm555555`) e `DB_PASS`.
+   `DB_URL` já aponta para `jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL`.
+3. Rode `ViasApiApplication` (ou `mvn spring-boot:run`). Na primeira subida, o Flyway cria as tabelas
+   e carrega as 1.092 unidades do CNES. Se o schema já foi criado pela frente Oracle, use `FLYWAY_ENABLED=false`.
+4. Acesse `http://localhost:8080/swagger-ui.html`.
+
+**Tudo local com Docker (Oracle Free + API):** `docker compose up --build`
+
+**Testes:** `mvn test`
+
+**Atualizar a carga do CNES:**
+
+```bash
+python scripts/baixar_cnes.py
+python scripts/gerar_carga_sql.py scripts/dados/cnes_sao_paulo_AAAA-MM-DD.json
+```
+
+## Deploy no Render
+
+O `render.yaml` na raiz do repositório cria o serviço (runtime Docker, `rootDir: services/api`).
+No painel do Render, informe `DB_USER`, `DB_PASS` e `CORS_ORIGENS` (URL do site Next.js).
+Para o percurso, informe também `GOOGLE_ROUTES_CHAVE` e `OLHOVIVO_TOKEN`.
+
+## Variáveis de ambiente
+
+| Variável | Padrão |
+|---|---|
+| `DB_URL` | `jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL` |
+| `DB_USER`, `DB_PASS` | obrigatórias |
+| `CORS_ORIGENS` | `http://localhost:3000` |
+| `FLYWAY_ENABLED` | `true` |
+| `DB_POOL_SIZE` | `3` |
+| `GOOGLE_ROUTES_CHAVE` | vazia: `POST /api/percursos` responde 503. Chave do Google Cloud com o **Routes API** ativado |
+| `OLHOVIVO_TOKEN` | vazio: o percurso sai sem previsão ao vivo. Token gerado em sptrans.com.br/desenvolvedores |
+| `OLHOVIVO_URL` | `http://api.olhovivo.sptrans.com.br/v2.1` (endereço da documentação oficial) |
+| `PORT` | `8080` (o Render define) |
+
+## Dados
+
+Fonte: CNES – API de Dados Abertos do Ministério da Saúde (DEMAS), `/cnes/estabelecimentos`,
+município de São Paulo (355030), tipos 2, 4, 5 e 73, consultado em 16/11/2026, somente estabelecimentos ativos.
+O CNES não publica acessibilidade física neste recurso: todas as unidades começam como `NAO_INFORMADO`.
+Nenhum dado pessoal de cidadãos é armazenado.
