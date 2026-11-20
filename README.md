@@ -27,6 +27,22 @@ Projeto da **Global Solution FIAP 2026 · CitizenTech**
 
 ---
 
+## Ficha da CitizenTech
+
+| Campo | Resposta |
+|---|---|
+| **Nome da CitizenTech** | VIAS – Via Inteligente de Acesso à Saúde |
+| **Cidade e bairro** | São Paulo/SP |
+| **Cidadão beneficiado** | Quem depende do SUS, pessoas com deficiência, idosos e pessoas com plano de saúde |
+| **Problema, em uma frase** | O cidadão perde tempo indo à unidade de saúde errada, sem saber se será atendido nem se conseguirá chegar até ela |
+| **Como funciona** | A pessoa informa o que precisa, e o VIAS indica a unidade adequada e a rota acessível, com dados abertos de saúde e transporte |
+| **O que cada parte faz** | Java: API do sistema · Database: dados das unidades · Data Science: análise do tempo de acesso · Dynamic Programming: cálculo de rotas acessíveis · Agile: personas, backlog e telas · AR/VR: vídeo do trajeto · Network: rede da Base Comunitária |
+| **Link do repositório** | [github.com/nsantos1/vias](https://github.com/nsantos1/vias) |
+| **Indicador de impacto** | Tempo para encontrar a unidade certa, com e sem o VIAS |
+| **ODS conectados** | 3 (Saúde e bem-estar), 9 (Inovação e infraestrutura), 10 (Redução das desigualdades) e 11 (Cidades sustentáveis) |
+
+---
+
 ## Links do projeto
 
 | | Endereço | Onde está hospedado |
