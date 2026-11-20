@@ -6,7 +6,7 @@ export const ATRASO_AVISO_MS = 5_000;
 
 /**
  * Aparece quando uma consulta passa de alguns segundos. A API roda no plano
- * gratuito do Render, que leva perto de 1 minuto para "acordar" na primeira
+ * gratuito do Render, que pode levar até 3 minutos para "acordar" na primeira
  * consulta; sem este aviso, a pessoa acharia que o app travou.
  * Vai dentro de um elemento role="status", que o leitor de tela anuncia.
  */
@@ -21,8 +21,8 @@ export default function AvisoDemora({ atrasoMs = ATRASO_AVISO_MS }) {
   if (!visivel) return null;
   return (
     <p className="text-sm text-salvia">
-      Está demorando mais que o normal. Na primeira consulta, o serviço do VIAS pode levar até 1
-      minuto para iniciar. Aguarde nesta tela.
+      A primeira consulta pode levar até 3 minutos, e a tela avisa enquanto espera. Caso não carregue,
+      execute um recarregamento da página com a tecla “F5”.
     </p>
   );
 }

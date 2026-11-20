@@ -14,12 +14,12 @@
  */
 
 /**
- * 60 s: a API está no plano gratuito do Render, que "dorme" sem uso e leva
- * perto de 1 minuto para acordar na primeira consulta (medido em 18/11).
- * Com 10 s, a primeira busca da demonstração falharia por tempo. As telas
- * avisam a pessoa quando a espera passa de alguns segundos (AvisoDemora).
+ * 3 min: a API está no plano gratuito do Render, que "dorme" sem uso e pode
+ * levar até 3 minutos para acordar na primeira consulta. Com menos tempo, a
+ * primeira busca da demonstração falharia por tempo. As telas avisam a pessoa
+ * quando a espera passa de alguns segundos (AvisoDemora).
  */
-export const TIMEOUT_PADRAO_MS = 60_000;
+export const TIMEOUT_PADRAO_MS = 180_000;
 
 /** Tipos de erro que as telas tratam de forma diferente. */
 export const TIPOS_ERRO = Object.freeze({
@@ -39,7 +39,7 @@ const MENSAGENS_STATUS = {
 const MENSAGENS_TIPO = {
   CONFIGURACAO: "O endereço do serviço do VIAS não está configurado.",
   REDE: "Não foi possível conectar ao serviço do VIAS. Verifique a internet e tente de novo.",
-  TIMEOUT: "O serviço do VIAS demorou mais de 1 minuto para responder. Tente de novo.",
+  TIMEOUT: "O serviço do VIAS demorou mais de 3 minutos para responder. Recarregue a página com a tecla F5 e tente de novo.",
   CANCELADO: "A consulta foi cancelada.",
   RESPOSTA_INVALIDA: "O serviço do VIAS respondeu em um formato inesperado.",
   HTTP: "O serviço do VIAS encontrou um problema. Tente de novo em instantes.",

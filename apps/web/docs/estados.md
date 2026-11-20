@@ -43,8 +43,8 @@ Seguem o documento de contexto (§7.4 e §11): concretos, sem frases absolutas, 
 | Campo não verificado | “Informação não verificada” |
 | Falha (título padrão) | “Não foi possível carregar as informações” |
 | Sem conexão / API fora | “Não foi possível conectar ao serviço do VIAS. Verifique a internet e tente de novo.” |
-| Demora (depois de 60 s) | “O serviço do VIAS demorou mais de 1 minuto para responder. Tente de novo.” |
-| Espera longa (depois de 5 s, ainda carregando) | “Está demorando mais que o normal. Na primeira consulta, o serviço do VIAS pode levar até 1 minuto para iniciar. Aguarde nesta tela.” |
+| Demora (depois de 3 min) | “O serviço do VIAS demorou mais de 3 minutos para responder. Recarregue a página com a tecla F5 e tente de novo.” |
+| Espera longa (depois de 5 s, ainda carregando) | “A primeira consulta pode levar até 3 minutos, e a tela avisa enquanto espera. Caso não carregue, execute um recarregamento da página com a tecla “F5”.” |
 | 404 | “Não encontramos o que você procurou.” |
 | Erro no servidor | “O serviço do VIAS encontrou um problema. Tente de novo em instantes.” |
 | Desatualizado, com data | “Esta informação pode estar desatualizada. Última informação disponível em DD/MM/AAAA.” |

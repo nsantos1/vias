@@ -1,7 +1,7 @@
 import { ErroApi, requisitar } from "./client";
 
 /** O Google e a SPTrans podem demorar; mais o cold start do Render. */
-const TIMEOUT_PERCURSO_MS = 90_000;
+const TIMEOUT_PERCURSO_MS = 180_000;
 
 /**
  * POST /api/percursos — percurso de transporte público até a unidade (D-20).

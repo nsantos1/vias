@@ -13,7 +13,7 @@ Todo acesso à API Java passa por [`src/services/api/`](../src/services/api/). N
 
 **Contrato confirmado em 16–18/11** (D-04): a API Java do Raphael está publicada em `https://vias-dfwu.onrender.com` (Swagger em `/swagger-ui.html`). Os formatos de cada resposta estão comentados em cada módulo. A lista de unidades é paginada (`pagina` começa em 0, `tamanho` vai de 1 a 100) e os erros vêm como `{ timestamp, status, erro, mensagem, caminho, campos }`.
 
-**Limite de tempo de 60 s:** a API roda no plano gratuito do Render, que “dorme” sem uso; a primeira consulta levou cerca de 90 s em 18/11. Depois de 5 s de espera, as telas mostram o `AvisoDemora` (“o serviço pode levar até 1 minuto para iniciar”). **Antes de apresentar, abra o app uma vez para acordar a API.**
+**Limite de tempo de 3 min:** a API roda no plano gratuito do Render, que “dorme” sem uso; a primeira consulta levou cerca de 90 s em 18/11. Depois de 5 s de espera, as telas mostram o `AvisoDemora` (“a primeira consulta pode levar até 3 minutos”). **Antes de apresentar, abra o app uma vez para acordar a API.**
 
 **Fora do cliente por enquanto:**
 - `GET /api/gestao/resumo`: entra no FE-20, junto com os indicadores.
@@ -58,7 +58,7 @@ Toda falha vira um `ErroApi` com `tipo`, `status`, `mensagem` (segura para a tel
 | `tipo` | Quando | Mensagem para a tela | “Tentar novamente”? |
 |---|---|---|---|
 | `REDE` | API fora do ar, sem internet, CORS bloqueado | “Não foi possível conectar ao serviço do VIAS…” | Sim |
-| `TIMEOUT` | Mais de 60 s sem resposta (`TIMEOUT_PADRAO_MS`) | “O serviço do VIAS demorou mais de 1 minuto para responder…” | Sim |
+| `TIMEOUT` | Mais de 3 min sem resposta (`TIMEOUT_PADRAO_MS`) | “O serviço do VIAS demorou mais de 3 minutos para responder…” | Sim |
 | `HTTP` 400 | Filtro ou dado recusado | “Algum dado da busca não foi aceito. Revise os filtros…” | Não |
 | `HTTP` 404 | Recurso inexistente | “Não encontramos o que você procurou.” | Não |
 | `HTTP` 5xx e outros | Erro no servidor | “O serviço do VIAS encontrou um problema…” | Sim (5xx) |
