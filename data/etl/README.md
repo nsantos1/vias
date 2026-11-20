@@ -4,11 +4,11 @@ Responsável: Nicolas (3). Python que busca os dados abertos e grava no Oracle d
 
 ## Preparar o ambiente
 
-Python 3.12 ou mais recente. A partir desta pasta (`data/etl`):
+Python 3.10 ou mais recente (recomendado 3.12). No macOS, o Python 3.9 que vem no sistema não serve. A partir desta pasta (`data/etl`):
 
 ```bash
-python -m venv .venv
-# Linux/macOS
+python3.12 -m venv .venv
+# macOS/Linux
 source .venv/bin/activate
 # Windows (PowerShell)
 .venv\Scripts\Activate.ps1
@@ -23,8 +23,11 @@ Preencha o `.env` na raiz do repositório (copie de `.env.example`).
 | Comando | O que faz |
 |---|---|
 | `python -m vias_etl.verificar_oracle` | Confere a conexão com o Oracle da FIAP e se o Spatial responde |
+| `python -m vias_etl.verificar_olhovivo` | Confere o token da Olho Vivo e mostra quantos ônibus acessíveis circulam agora |
+| `python -m vias_etl.verificar_tabelas` | Confere o seu acesso às tabelas do Raphael (precisa de `ORACLE_ESQUEMA_TABELAS` no `.env`) e mostra as colunas reais |
+| `python -m vias_etl.verificar_demas` | Confere a API do CNES e resume as UBS da cidade (quantas, quantas atendem SUS, quantas têm localização) |
 | `python -m vias_etl.gtfs.acessibilidade <gtfs.zip>` | Mostra quanto do GTFS tem os campos de acessibilidade preenchidos (portão 1) |
-| `python -m vias_etl.cnes.baixar_estabelecimentos [--tipo N]` | Baixa os estabelecimentos ativos da cidade pela API DEMAS para `data/raw` |
+| `python -m vias_etl.cnes.baixar_estabelecimentos [--tipo N]` | Baixa para `data/raw` os estabelecimentos ativos da cidade dos tipos que interessam ao VIAS e mostra um resumo por tipo |
 | `pytest` | Roda os testes |
 
 ## Organização
@@ -38,11 +41,11 @@ Preencha o `.env` na raiz do repositório (copie de `.env.example`).
 
 ## Fontes do CNES
 
-- **Estabelecimentos:** API DEMAS (`/cnes/estabelecimentos`), filtrada por município e tipo de unidade. Exige login e devolve no máximo 20 itens por página.
+- **Estabelecimentos:** API de dados abertos da Saúde (`/cnes/estabelecimentos`), filtrada por município e tipo de unidade. É pública, sem cadastro, e devolve no máximo 20 itens por página.
 - **Estabelecimentos (alternativa):** JSON único do Portal de Dados Abertos do SUS, atualizado todo dia.
-- **Equipamentos e serviços especializados:** arquivos EQ e SR do DATASUS para São Paulo, do mês mais recente. A API DEMAS não traz esses dados.
+- **Equipamentos e serviços especializados:** arquivos EQ e SR do DATASUS para São Paulo, do mês mais recente. A API não traz esses dados.
 
-O cliente da API (`vias_etl/cnes/demas.py`) tem alguns pontos marcados com `CONFIRMAR`: o formato do login, o formato da resposta e se a primeira página é 0 ou 1. Eles só podem ser conferidos no Swagger da API depois do cadastro e estão isolados para serem ajustados sem mexer no resto.
+Conferido direto na API em 17/11/2026: o `offset` é o número da página, começando em 0; o município usa o código do IBGE com 6 dígitos (São Paulo: 355030); e a resposta vem em `{"estabelecimentos": [...]}`. A lista completa de campos usados está no início de `vias_etl/cnes/demas.py`.
 
 ## Pendências que dependem do grupo
 

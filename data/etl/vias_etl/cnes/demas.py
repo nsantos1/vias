@@ -1,15 +1,20 @@
-"""Cliente da API DEMAS (apidadosabertos.saude.gov.br) para estabelecimentos do CNES.
+"""Cliente da API de dados abertos da Saúde (DEMAS) para o CNES.
 
-O que já se sabe pelo catálogo da API:
-- os endpoints do CNES exigem login (POST /autenticacao/login);
-- /cnes/estabelecimentos aceita codigo_municipio, codigo_tipo_unidade, status, limit e offset;
-- limit vale no máximo 20.
+Conferido direto na API em 17/11/2026:
+- /cnes/estabelecimentos e /cnes/tipounidades são públicos, sem login;
+- /cnes/estabelecimentos devolve {"estabelecimentos": [...]}, com no máximo 20 itens por página;
+- offset é o número da página, começando em 0 (offset=1 traz os itens 21 a 40 quando limit=20);
+- codigo_municipio usa 6 dígitos (São Paulo: 355030);
+- /cnes/tipounidades devolve {"tipos_unidade": [{"codigo_tipo_unidade", "descricao_tipo_unidade"}]}.
 
-Pontos marcados com CONFIRMAR dependem da documentação do Swagger
-(https://apidadosabertos.saude.gov.br/v1/#/), que só dá para ver com o cadastro feito.
-Eles estão isolados em poucos lugares para serem ajustados sem mexer no resto.
+Campos usados de cada estabelecimento: codigo_cnes, nome_fantasia, codigo_tipo_unidade,
+endereco_estabelecimento, numero_estabelecimento, bairro_estabelecimento,
+codigo_cep_estabelecimento, numero_telefone_estabelecimento, descricao_turno_atendimento,
+latitude_estabelecimento_decimo_grau, longitude_estabelecimento_decimo_grau,
+estabelecimento_faz_atendimento_ambulatorial_sus ("SIM" ou "NAO") e data_atualizacao.
 """
 
+import time
 from collections.abc import Iterator
 from typing import Any
 
@@ -26,41 +31,42 @@ class ErroDemas(RuntimeError):
 class ClienteDemas:
     def __init__(
         self,
-        login: str,
-        senha: str,
         sessao: requests.Session | None = None,
         url_base: str = URL_BASE,
-        primeira_pagina: int = 0,
         timeout: float = 30.0,
+        tentativas: int = 3,
+        espera_entre_tentativas: float = 2.0,
     ) -> None:
-        self.login = login
-        self.senha = senha
         self.sessao = sessao or requests.Session()
         self.url_base = url_base.rstrip("/")
-        # CONFIRMAR: o catálogo descreve offset como "número da página".
-        # Se a primeira página for 1, crie o cliente com primeira_pagina=1.
-        self.primeira_pagina = primeira_pagina
         self.timeout = timeout
+        self.tentativas = tentativas
+        self.espera_entre_tentativas = espera_entre_tentativas
 
-    def autenticar(self) -> None:
-        # CONFIRMAR: nomes dos campos do corpo, onde vem o token e o formato do cabeçalho.
-        resposta = self.sessao.post(
-            f"{self.url_base}/autenticacao/login",
-            json={"login": self.login, "senha": self.senha},
-            timeout=self.timeout,
-        )
-        resposta.raise_for_status()
-        dados = resposta.json()
-        token = None
-        if isinstance(dados, dict):
-            token = dados.get("access_token") or dados.get("token")
-        if not token:
-            recebido = sorted(dados)[:10] if isinstance(dados, dict) else type(dados).__name__
-            raise ErroDemas(
-                "O login respondeu sem um token reconhecível. Confira no Swagger o formato "
-                f"da resposta e ajuste ClienteDemas.autenticar. Recebido: {recebido}"
-            )
-        self.sessao.headers["Authorization"] = f"Bearer {token}"
+    def _get(self, caminho: str, parametros: dict[str, Any] | None = None) -> Any:
+        """GET com novas tentativas: a API às vezes falha com erro 5xx ou demora."""
+        ultimo_erro: Exception | None = None
+        for tentativa in range(1, self.tentativas + 1):
+            try:
+                resposta = self.sessao.get(
+                    f"{self.url_base}{caminho}",
+                    params=parametros,
+                    headers={"Accept": "application/json"},
+                    timeout=self.timeout,
+                )
+                if resposta.status_code >= 500:
+                    raise ErroDemas(f"A API respondeu {resposta.status_code} em {caminho}.")
+                resposta.raise_for_status()
+                return resposta.json()
+            except (requests.ConnectionError, requests.Timeout, ErroDemas) as erro:
+                ultimo_erro = erro
+                if tentativa < self.tentativas:
+                    time.sleep(self.espera_entre_tentativas * tentativa)
+        raise ErroDemas(f"Falhou depois de {self.tentativas} tentativas: {ultimo_erro}")
+
+    def tipos_unidade(self) -> list[dict[str, Any]]:
+        """Tipos de unidade do CNES (UBS, UPA, hospital), com código e descrição."""
+        return extrair_itens(self._get("/cnes/tipounidades"))
 
     def estabelecimentos(
         self,
@@ -70,9 +76,8 @@ class ClienteDemas:
         max_paginas: int = 5000,
     ) -> Iterator[dict[str, Any]]:
         """Percorre todas as páginas de /cnes/estabelecimentos e devolve um registro por vez."""
-        pagina = self.primeira_pagina
         assinatura_anterior = None
-        for _ in range(max_paginas):
+        for pagina in range(max_paginas):
             parametros: dict[str, Any] = {
                 "codigo_municipio": codigo_municipio,
                 "status": status,
@@ -82,38 +87,27 @@ class ClienteDemas:
             if codigo_tipo_unidade is not None:
                 parametros["codigo_tipo_unidade"] = codigo_tipo_unidade
 
-            resposta = self.sessao.get(
-                f"{self.url_base}/cnes/estabelecimentos",
-                params=parametros,
-                timeout=self.timeout,
-            )
-            resposta.raise_for_status()
-            itens = extrair_itens(resposta.json())
+            itens = extrair_itens(self._get("/cnes/estabelecimentos", parametros))
             if not itens:
                 return
 
-            # Se a API ignorar o offset, a mesma página voltaria para sempre.
+            # Proteção: se a API passar a ignorar o offset, a mesma página voltaria para sempre.
             assinatura = repr(itens[0]) + repr(itens[-1])
             if assinatura == assinatura_anterior:
                 raise ErroDemas(
-                    "A API devolveu a mesma página duas vezes: o offset não está avançando. "
-                    "Confira no Swagger se offset é número da página ou número do item."
+                    "A API devolveu a mesma página duas vezes: o offset deixou de avançar."
                 )
             assinatura_anterior = assinatura
 
             yield from itens
             if len(itens) < LIMITE_POR_PAGINA:
                 return
-            pagina += 1
 
         raise ErroDemas(f"Parou depois de {max_paginas} páginas sem chegar ao fim.")
 
 
 def extrair_itens(dados: Any) -> list[dict[str, Any]]:
-    """Acha a lista de registros na resposta, seja ela uma lista ou um objeto com uma lista dentro.
-
-    CONFIRMAR: quando o formato da resposta for conhecido, isto pode virar dados["<chave>"].
-    """
+    """Acha a lista de registros na resposta ("estabelecimentos" ou "tipos_unidade")."""
     if isinstance(dados, list):
         return dados
     if isinstance(dados, dict):
@@ -121,3 +115,19 @@ def extrair_itens(dados: Any) -> list[dict[str, Any]]:
             if isinstance(valor, list):
                 return valor
     return []
+
+
+def atende_sus(estabelecimento: dict[str, Any]) -> bool:
+    return estabelecimento.get("estabelecimento_faz_atendimento_ambulatorial_sus") == "SIM"
+
+
+def tem_coordenadas(estabelecimento: dict[str, Any]) -> bool:
+    latitude = estabelecimento.get("latitude_estabelecimento_decimo_grau")
+    longitude = estabelecimento.get("longitude_estabelecimento_decimo_grau")
+    return (
+        isinstance(latitude, (int, float))
+        and isinstance(longitude, (int, float))
+        and -90 <= latitude <= 90
+        and -180 <= longitude <= 180
+        and (latitude, longitude) != (0, 0)
+    )
